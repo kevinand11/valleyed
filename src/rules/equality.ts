@@ -1,4 +1,4 @@
-import { extractTextFromHTML } from '../santizers/core'
+import { extractTextFromHTML } from '../santizers'
 import { isInvalid, isValid } from '../utils/rules'
 
 export const isLongerThan = (length: number, value: string) => {
