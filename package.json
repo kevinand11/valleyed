@@ -37,7 +37,10 @@
     "testMatch": [
       "**/tests/**/*.[jt]s?(x)",
       "**/tests/**/?(*.)+(spec|test).[jt]s?(x)"
-    ]
+    ],
+    "transform": {
+      "^.+\\.ts(x)?$": "ts-jest"
+    }
   },
   "husky": {
     "hooks": {
