@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "npm run build && tsc --build",
-    "lint": "eslint src/** --fix"
+    "lint": "eslint src/** --fix",
+    "test": "jest"
   },
   "keywords": [],
   "author": "Kevin Izuchukwu",
@@ -16,6 +17,7 @@
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
     "eslint": "^6.7.2",
+    "eslint-plugin-jest": "^24.0.2",
     "eslint-plugin-promise": "^4.2.1",
     "husky": "^4.3.0",
     "jest": "^26.4.2",
@@ -28,6 +30,15 @@
     "bin",
     "lib"
   ],
+  "jest": {
+    "roots": [
+      "./"
+    ],
+    "testMatch": [
+      "**/tests/**/*.[jt]s?(x)",
+      "**/tests/**/?(*.)+(spec|test).[jt]s?(x)"
+    ]
+  },
   "husky": {
     "hooks": {
       "pre-commit": "npm run lint"

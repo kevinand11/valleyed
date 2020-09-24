@@ -6,6 +6,7 @@ module.exports = {
 	extends: ['eslint:recommended'],
 	plugins: [
 		'promise',
+		'jest',
 		'@typescript-eslint'
 	],
 	parser: '@typescript-eslint/parser',
@@ -25,7 +26,7 @@ module.exports = {
 	},
 	overrides: [
 		{
-			files: ['test/**/*.spec.{j,t}s'],
+			files: ['tests/**/*.[jt]s?(x)', 'tests/**/*.spec.[jt]s?(x)'],
 			env: {
 				jest: true,
 			},
