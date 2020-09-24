@@ -15,7 +15,7 @@ export const isFile = (file: any) => {
 	return isInvalid('is not a valid file')
 }
 
-export const containsOnlyMedia = (files: any[]) => {
-	if(files.every((file) => isFile(file).valid)) return isValid()
+export const containsOnlyFiles = (files: any[]) => {
+	if(files?.every((file) => isFile(file).valid)) return isValid()
 	return isInvalid('contains invalid files')
 }
