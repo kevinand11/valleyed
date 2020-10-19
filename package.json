@@ -1,5 +1,5 @@
 {
-  "name": "@sd/validate",
+  "name": "sd-validate",
   "version": "1.0.0",
   "description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
   "main": "lib/index.js",
