@@ -12,6 +12,8 @@
   "author": "Kevin Izuchukwu",
   "license": "ISC",
   "devDependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
     "@types/jest": "^26.0.14",
     "@types/node": "^14.10.1",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
@@ -44,7 +46,13 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint"
+      "pre-commit": "npm run lint",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/comfig-conventional"
+    ]
   }
 }
