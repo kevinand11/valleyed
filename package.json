@@ -1,6 +1,6 @@
 {
   "name": "@kevinand11/validate",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
   "main": "lib/index.js",
   "scripts": {
