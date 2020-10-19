@@ -30,6 +30,7 @@
   },
   "files": [
     "LICENSE",
+    "CHANGELOG.md",
     "README.md",
     "bin",
     "lib"
