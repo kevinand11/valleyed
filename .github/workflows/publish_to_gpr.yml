@@ -2,7 +2,8 @@ name: Publish To Github Package Repository
 
 on:
   release:
-    types: [created]
+    types:
+      - created
 
 jobs:
   build:
