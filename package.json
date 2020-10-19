@@ -1,7 +1,7 @@
 {
-  "name": "@stranerd/ss-validate",
+  "name": "@sd/validate",
   "version": "1.0.0",
-  "description": "This package contains generic validation logic used across our stack of applications",
+  "description": "This package contains definitions for various validation rules with helper services to consume said rules.",
   "main": "lib/index.js",
   "scripts": {
     "build": "npm run lint && tsc --build",

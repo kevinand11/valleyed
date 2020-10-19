@@ -1,4 +1,4 @@
-import { containsOnlyFiles, isFile, isFileOrUndefined, isImage } from '../../src/rules'
+import { containsOnlyFiles, isFile, isImage } from '../../src/rules'
 
 describe('IsFile', () => {
 	test('null & undefined', () => {
@@ -19,29 +19,6 @@ describe('IsFile', () => {
 	})
 	test('valid file', () => {
 		const result = isFile({ type: 'image/jpeg' })
-		expect(result.valid).toBe(true)
-	})
-})
-
-describe('IsFileOrUndefined', () => {
-	test('undefined & null', () => {
-		let result = isFileOrUndefined(undefined)
-		expect(result.valid).toBe(true)
-		result = isFileOrUndefined(null)
-		expect(result.valid).toBe(false)
-	})
-	test('invalid file', () => {
-		let result = isFileOrUndefined({})
-		expect(result.valid).toBe(false)
-		result = isFileOrUndefined([])
-		expect(result.valid).toBe(false)
-		result = isFileOrUndefined('')
-		expect(result.valid).toBe(false)
-		result = isFileOrUndefined(0)
-		expect(result.valid).toBe(false)
-	})
-	test('valid file', () => {
-		const result = isFileOrUndefined({ type: 'image/jpeg' })
 		expect(result.valid).toBe(true)
 	})
 })
