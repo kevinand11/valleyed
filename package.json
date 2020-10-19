@@ -35,7 +35,7 @@
     "lib"
   ],
   "repository": {
-    "url": "git://github.com/kevinand11/sd-validate.git"
+    "url": "git://github.com/Kevinand11/sd-validate.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
