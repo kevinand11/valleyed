@@ -4,7 +4,7 @@
   "description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
   "main": "lib/index.js",
   "scripts": {
-    "build": "npm run lint && tsc --build",
+    "build": "tsc --build",
     "lint": "eslint src/** --fix",
     "test": "jest",
     "release": "standard-version"
