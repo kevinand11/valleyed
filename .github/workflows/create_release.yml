@@ -16,7 +16,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.CREATE_RELEASE_AND_DEPLOY_TO_GPR }}
+          GITHUB_TOKEN: ${{ secrets.CREATE_RELEASE_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}

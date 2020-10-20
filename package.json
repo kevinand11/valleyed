@@ -1,6 +1,6 @@
 {
-  "name": "@kevinand11/validate",
-  "version": "1.0.2",
+  "name": "sd-validate",
+  "version": "1.0.0",
   "description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
   "main": "lib/index.js",
   "scripts": {
@@ -39,7 +39,7 @@
     "url": "git://github.com/Kevinand11/sd-validate.git"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "registry": "https://registry.npmjs.org/"
   },
   "jest": {
     "roots": [
