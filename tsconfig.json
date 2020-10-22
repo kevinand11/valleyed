@@ -8,6 +8,7 @@
 	    "strict": true,
 	    "baseUrl": "src",
 	    "target": "es2017",
+		"declaration": true,
 	    "removeComments": true,
 	    "noImplicitAny": true
 	},
