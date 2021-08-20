@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.5](https://github.com/stranerd/validate/compare/v1.0.4...v1.0.5) (2021-08-20)
+
+
+### Bug Fixes
+
+* export everything in index ([dbac90c](https://github.com/stranerd/validate/commit/dbac90c7827d28326bfd0503bee2dfde249cb609))
+
 ### [1.0.4](https://github.com/Kevinand11/sd-validate/compare/v1.0.3...v1.0.4) (2020-10-22)
 
 
