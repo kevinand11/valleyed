@@ -18,13 +18,14 @@
 		],
 		"esModuleInterop": true,
 		"allowJs": false,
-		"sourceMap": false,
+		"sourceMap": true,
 		"strict": true,
 		"noEmit": false,
 		"experimentalDecorators": true,
 		"paths": {},
 		"types": [
-			"@types/node"
+			"@types/node",
+			"jest"
 		]
 	},
 	"include": [
