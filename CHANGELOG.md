@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/stranerd/validate/compare/v1.1.0...v1.1.1) (2021-08-20)
+
+
+### Bug Fixes
+
+* clear cache ([147c4e4](https://github.com/stranerd/validate/commit/147c4e4a38d3568ad77fc6fa8228bbc28c8cf0de))
+* git prehooks ([3e75e3f](https://github.com/stranerd/validate/commit/3e75e3f27288f41f9e82c40672dc25576c9d620d))
+
 ## [1.1.0](https://github.com/stranerd/validate/compare/v1.0.5...v1.1.0) (2021-08-20)
 
 ### [1.0.5](https://github.com/stranerd/validate/compare/v1.0.4...v1.0.5) (2021-08-20)
