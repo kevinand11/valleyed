@@ -1,68 +1,63 @@
 {
-  "name": "sd-validate",
-  "version": "1.0.4",
-  "description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
-  "main": "lib/index.js",
-  "scripts": {
-    "build": "tsc --build",
-    "lint": "eslint src/** --fix",
-    "test": "jest",
-    "release": "standard-version"
-  },
-  "keywords": [],
-  "author": "Kevin Izuchukwu",
-  "license": "ISC",
-  "devDependencies": {
-    "@commitlint/cli": "^12.1.1",
-    "@commitlint/config-conventional": "^12.1.1",
-    "@types/jest": "^26.0.23",
-    "@types/node": "^15.0.1",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "eslint": "^7.25.0",
-    "eslint-plugin-jest": "^24.3.6",
-    "eslint-plugin-promise": "^5.1.0",
-    "husky": "^6.0.0",
-    "jest": "^26.6.3",
-    "standard-version": "^9.2.0",
-    "ts-jest": "^26.5.5",
-    "typescript": "^4.2.4"
-  },
-  "files": [
-    "LICENSE",
-    "CHANGELOG.md",
-    "README.md",
-    "bin",
-    "lib"
-  ],
-  "repository": {
-    "url": "git://github.com/Kevinand11/sd-validate.git"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
-  "jest": {
-    "roots": [
-      "./"
-    ],
-    "testMatch": [
-      "**/tests/**/*.[jt]s?(x)",
-      "**/tests/**/?(*.)+(spec|test).[jt]s?(x)"
-    ],
-    "transform": {
-      "^.+\\.ts(x)?$": "ts-jest"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "standard-version": {}
+	"name": "@stranerd/validate",
+	"version": "1.0.4",
+	"description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
+	"main": "lib/index.js",
+	"scripts": {
+		"build": "tsc --build",
+		"lint": "eslint src/ --ext .ts --fix",
+		"test": "jest",
+		"release": "standard-version",
+		"prepare": "husky install"
+	},
+	"keywords": [],
+	"author": "Kevin Izuchukwu",
+	"license": "ISC",
+	"devDependencies": {
+		"@commitlint/cli": "^12.1.1",
+		"@commitlint/config-conventional": "^12.1.1",
+		"@types/jest": "^26.0.23",
+		"@types/node": "^15.0.1",
+		"@typescript-eslint/eslint-plugin": "^4.22.0",
+		"@typescript-eslint/parser": "^4.22.0",
+		"eslint": "^7.25.0",
+		"eslint-plugin-jest": "^24.3.6",
+		"eslint-plugin-promise": "^5.1.0",
+		"husky": "^6.0.0",
+		"jest": "^26.6.3",
+		"standard-version": "^9.2.0",
+		"ts-jest": "^26.5.5",
+		"typescript": "^4.2.4"
+	},
+	"files": [
+		"LICENSE",
+		"CHANGELOG.md",
+		"README.md",
+		"bin",
+		"lib"
+	],
+	"repository": {
+		"url": "git://github.com/stranerd/validate.git"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
+	"jest": {
+		"roots": [
+			"./"
+		],
+		"testMatch": [
+			"**/tests/**/*.[jt]s?(x)",
+			"**/tests/**/?(*.)+(spec|test).[jt]s?(x)"
+		],
+		"transform": {
+			"^.+\\.ts(x)?$": "ts-jest"
+		}
+	},
+	"commitlint": {
+		"extends": [
+			"@commitlint/config-conventional"
+		]
+	},
+	"standard-version": {}
 }
