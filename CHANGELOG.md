@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.5](https://github.com/stranerd/validate/compare/v1.1.4...v1.1.5) (2021-08-22)
+
+
+### Bug Fixes
+
+* isRequiredIf unshift ([f259ff3](https://github.com/stranerd/validate/commit/f259ff37e11dcbe60733a4ef9fd5d972d361273f))
+
 ### [1.1.4](https://github.com/stranerd/validate/compare/v1.1.3...v1.1.4) (2021-08-22)
 
 
