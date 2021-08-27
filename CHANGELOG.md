@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.6](https://github.com/stranerd/validate/compare/v1.1.5...v1.1.6) (2021-08-27)
+
+
+### Bug Fixes
+
+* allow null for isRequiredIf ([9906f6f](https://github.com/stranerd/validate/commit/9906f6f1a064834a7c54c1efe9f0f2afecb14df8))
+
 ### [1.1.5](https://github.com/stranerd/validate/compare/v1.1.4...v1.1.5) (2021-08-22)
 
 
