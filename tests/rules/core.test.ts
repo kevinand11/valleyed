@@ -7,7 +7,7 @@ describe('IsRequiredIf', () => {
 	})
 	test('null with false', () => {
 		const result = isRequiredIf(null, false)
-		expect(result.valid).toBe(false)
+		expect(result.valid).toBe(true)
 	})
 	test('undefined with true', () => {
 		const result = isRequiredIf(undefined, true)
