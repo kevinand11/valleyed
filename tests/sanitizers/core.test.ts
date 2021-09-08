@@ -26,7 +26,7 @@ test('TrimToLength', () => {
 	expect(trimToLength(null as unknown as string, 1)).toBe(null)
 	expect(trimToLength(undefined as unknown as string, 1)).toBe(undefined)
 
-	const num = 123, arr = [1,2,3], obj = { name: 'test' }
+	const num = 123, arr = [1, 2, 3], obj = { name: 'test' }
 	expect(trimToLength(num as unknown as string, 10)).toBe(num.toString())
 	expect(trimToLength(arr as unknown as string, 10)).toBe(arr.toString())
 	expect(trimToLength(obj as unknown as string, 20)).toBe(obj.toString())

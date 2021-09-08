@@ -31,7 +31,7 @@ describe('IsImage', () => {
 		expect(result.valid).toBe(false)
 	})
 	test('invalid image', () => {
-		let result = isImage({ type: 'video/mp4'})
+		let result = isImage({ type: 'video/mp4' })
 		expect(result.valid).toBe(false)
 		result = isImage([])
 		expect(result.valid).toBe(false)
