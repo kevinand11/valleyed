@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/stranerd/validate/compare/v1.1.6...v1.2.0) (2021-09-08)
+
+
+### Features
+
+* isBoolean and arrayContains ([bae8a65](https://github.com/stranerd/validate/commit/bae8a65fbb16569a403a94d02e7cc73fb59c33dc))
+
 ### [1.1.6](https://github.com/stranerd/validate/compare/v1.1.5...v1.1.6) (2021-08-27)
 
 
