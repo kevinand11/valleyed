@@ -23,5 +23,5 @@ export const isArray = (value: any) => {
 export function isArrayOf<Type> (value: Type[], comparer: (cur: Type) => boolean, type: string) {
 	if (!Array.isArray(value)) return isInvalid('is not an array')
 	if (value.every((v) => comparer(v))) return isValid()
-	return isInvalid(`array has some values that are not of type: ${ type }`)
+	return isInvalid(`array has some values that are not ${ type }`)
 }
