@@ -1,6 +1,6 @@
 import { isRequiredIf } from '../rules'
 
-export type Rule = (value: any) => { valid: true, error: undefined } | { valid: false, error: string }
+export type Rule = (value: any) => { valid: true, error: null } | { valid: false, error: string }
 
 export class Validator {
 	public static single (value: any, rules: Rule[], presence = true) {
