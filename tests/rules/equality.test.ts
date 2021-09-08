@@ -1,6 +1,13 @@
 import {
-	isLongerThan, isShorterThan, isExtractedHTMLLongerThan,
-	hasMoreThan, hasLessThan, isShallowEqualTo, isMoreThan, isLessThan
+	arrayContains,
+	hasLessThan,
+	hasMoreThan,
+	isExtractedHTMLLongerThan,
+	isLessThan,
+	isLongerThan,
+	isMoreThan,
+	isShallowEqualTo,
+	isShorterThan
 } from '../../src/rules'
 
 test('IsLongerThan', () => {
@@ -34,8 +41,8 @@ test('IsExtractedHTMLLongerThan', () => {
 })
 
 test('HasMoreThan', () => {
-	expect(hasMoreThan([1,2,3,4], 3).valid).toBe(true)
-	expect(hasMoreThan([1,2,3,4], 4).valid).toBe(false)
+	expect(hasMoreThan([1, 2, 3, 4], 3).valid).toBe(true)
+	expect(hasMoreThan([1, 2, 3, 4], 4).valid).toBe(false)
 
 	expect(hasMoreThan(undefined as unknown as any[], 5).valid).toBe(false)
 	expect(hasMoreThan(null as unknown as any[], 5).valid).toBe(false)
@@ -43,8 +50,8 @@ test('HasMoreThan', () => {
 })
 
 test('HasLessThan', () => {
-	expect(hasLessThan([1,2,3,4], 5).valid).toBe(true)
-	expect(hasLessThan([1,2,3,4], 4).valid).toBe(false)
+	expect(hasLessThan([1, 2, 3, 4], 5).valid).toBe(true)
+	expect(hasLessThan([1, 2, 3, 4], 4).valid).toBe(false)
 
 	expect(hasLessThan(undefined as unknown as any[], 5).valid).toBe(false)
 	expect(hasLessThan(null as unknown as any[], 5).valid).toBe(false)
@@ -52,7 +59,7 @@ test('HasLessThan', () => {
 })
 
 test('IsShallowEqualTo', () => {
-	expect(isShallowEqualTo(1,1).valid).toBe(true)
+	expect(isShallowEqualTo(1, 1).valid).toBe(true)
 	expect(isShallowEqualTo('1', '1').valid).toBe(true)
 	expect(isShallowEqualTo(true, true).valid).toBe(true)
 	expect(isShallowEqualTo(undefined, undefined).valid).toBe(true)
@@ -63,8 +70,8 @@ test('IsShallowEqualTo', () => {
 })
 
 test('IsMoreThan', () => {
-	expect(isMoreThan(5,3).valid).toBe(true)
-	expect(isMoreThan(2,5).valid).toBe(false)
+	expect(isMoreThan(5, 3).valid).toBe(true)
+	expect(isMoreThan(2, 5).valid).toBe(false)
 
 	expect(isMoreThan('c' as unknown as number, 'a' as unknown as number).valid).toBe(true)
 	expect(isMoreThan('a' as unknown as number, 'c' as unknown as number).valid).toBe(false)
@@ -80,8 +87,8 @@ test('IsMoreThan', () => {
 })
 
 test('IsLessThan', () => {
-	expect(isLessThan(5,3).valid).toBe(false)
-	expect(isLessThan(2,5).valid).toBe(true)
+	expect(isLessThan(5, 3).valid).toBe(false)
+	expect(isLessThan(2, 5).valid).toBe(true)
 
 	expect(isLessThan('c' as unknown as number, 'a' as unknown as number).valid).toBe(false)
 	expect(isLessThan('a' as unknown as number, 'c' as unknown as number).valid).toBe(true)
@@ -94,4 +101,15 @@ test('IsLessThan', () => {
 	expect(isLessThan(['1'] as unknown as number, ['2'] as unknown as number).valid).toBe(true)
 
 	expect(isLessThan({} as unknown as number, {} as unknown as number).valid).toBe(false)
+})
+
+test('ArrayContains', () => {
+	expect(arrayContains(5, [5], (cur, val) => cur === val).valid).toBe(true)
+	expect(arrayContains(5, [4], (cur, val) => cur === val).valid).toBe(false)
+
+	expect(arrayContains('1', ['1'], (cur, val) => cur === val).valid).toBe(true)
+	expect(arrayContains('1', ['2'], (cur, val) => cur === val).valid).toBe(false)
+
+	expect(arrayContains({ id: 1 }, [{ id: 1 }], (cur, val) => cur.id === val.id).valid).toBe(true)
+	expect(arrayContains({ id: 1 }, [{ id: 2 }], (cur, val) => cur === val).valid).toBe(false)
 })
