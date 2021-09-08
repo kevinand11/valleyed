@@ -1,7 +1,8 @@
 export const capitalizeText = (text: string) => {
 	if (text === null || text === undefined) return text
 	text = text.toString()
-	return `${ text?.[0].toUpperCase() }${ text?.slice(1)?.toLowerCase() }`
+	const c = (v: string) => (v[0]?.toUpperCase() ?? '') + v.slice(1)
+	return text.trim().split(' ').map(c).join(' ')
 }
 
 export const extractTextFromHTML = (html: string) => {

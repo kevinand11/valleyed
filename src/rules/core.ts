@@ -5,8 +5,3 @@ export const isRequiredIf = (value: any, condition: boolean) => {
 	if (condition && value === null) return isInvalid('is required')
 	return isValid()
 }
-
-export const isBoolean = (value: boolean) => {
-	if (value === true || value === false) return isValid()
-	return isInvalid('must be a boolean value')
-}

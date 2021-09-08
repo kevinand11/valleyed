@@ -2,6 +2,8 @@ import { capitalizeText, extractTextFromHTML, trimToLength } from '../../src/san
 
 test('CapitalizeText', () => {
 	expect(capitalizeText('test')).toBe('Test')
+	expect(capitalizeText('test home')).toBe('Test Home')
+	expect(capitalizeText('')).toBe('')
 	expect(capitalizeText(2 as unknown as string)).toBe('2')
 	expect(capitalizeText(null as unknown as string)).toBe(null)
 	expect(capitalizeText(undefined as unknown as string)).toBe(undefined)

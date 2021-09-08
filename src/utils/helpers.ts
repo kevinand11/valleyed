@@ -2,6 +2,7 @@ import {
 	arrayContains,
 	hasLessThan,
 	hasMoreThan,
+	isArrayOf,
 	isExtractedHTMLLongerThan,
 	isLessThan,
 	isLongerThan,
@@ -24,4 +25,8 @@ export const isLessThanX = (length: number) => (val: any) => isLessThan(val, len
 
 export function arrayContainsX<Type> (array: Type[], comparer: (curr: Type, val: Type) => boolean) {
 	return (val: Type) => arrayContains(val, array, comparer)
+}
+
+export function isArrayOfX<Type> (comparer: (curr: Type) => boolean, type: string) {
+	return (val: Type[]) => isArrayOf(val, comparer, type)
 }
