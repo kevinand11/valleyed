@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.3](https://github.com/stranerd/validate/compare/v1.3.2...v1.3.3) (2021-09-08)
+
+
+### Bug Fixes
+
+* array of type message ([e459349](https://github.com/stranerd/validate/commit/e459349d67c7c67a8b2ec78a36fde2431a3dd38c))
+
 ### [1.3.2](https://github.com/stranerd/validate/compare/v1.3.1...v1.3.2) (2021-09-08)
 
 
