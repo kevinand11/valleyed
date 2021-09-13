@@ -2,6 +2,7 @@ import {
 	arrayContains,
 	hasLessThan,
 	hasMoreThan,
+	isDeepEqualTo,
 	isExtractedHTMLLongerThan,
 	isLessThan,
 	isLongerThan,
@@ -67,6 +68,14 @@ test('IsShallowEqualTo', () => {
 
 	expect(isShallowEqualTo([], []).valid).toBe(false)
 	expect(isShallowEqualTo({}, {}).valid).toBe(false)
+})
+
+test('IsDeepEqualTo', () => {
+	expect(isDeepEqualTo(1, 1, (a, b) => a === b).valid).toBe(true)
+	expect(isDeepEqualTo('1', '1', (a, b) => a === b).valid).toBe(true)
+	expect(isDeepEqualTo({ id: 1 }, { id: 1 }, (a, b) => a.id === b.id).valid).toBe(true)
+	expect(isDeepEqualTo({ id: 1 }, { id: 2 }, (a, b) => a.id === b.id).valid).toBe(false)
+	expect(isDeepEqualTo([], [], (a, b) => a === b).valid).toBe(false)
 })
 
 test('IsMoreThan', () => {
