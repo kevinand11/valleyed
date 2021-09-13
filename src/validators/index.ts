@@ -5,6 +5,7 @@ export type Rule = (value: any) => { valid: true, error: null } | { valid: false
 export class Validator {
 	public static single (value: any, rules: Rule[], presence = true) {
 		if (value === undefined && !presence) return { isValid: true, errors: [] }
+		if (value === null && !presence) return { isValid: true, errors: [] }
 
 		if (rules.length === 0) return { isValid: true, errors: [] }
 
