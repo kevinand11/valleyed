@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/stranerd/validate/compare/v1.3.3...v1.4.0) (2021-09-13)
+
+
+### Features
+
+* isDeepEqualTo ([5a56e03](https://github.com/stranerd/validate/commit/5a56e039c2fc1d526c19c7ba98b84c50278d84fa))
+
 ### [1.3.3](https://github.com/stranerd/validate/compare/v1.3.2...v1.3.3) (2021-09-08)
 
 
