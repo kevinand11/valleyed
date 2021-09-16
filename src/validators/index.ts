@@ -14,7 +14,7 @@ export class Validator {
 		const checks = rules.map((rule) => rule(value))
 		const isValid = checks.every((r) => r.valid)
 		const errors = checks.map((r) => r.error)
-			.filter((e) => e !== undefined) as string[]
+			.filter((e) => e !== null) as string[]
 
 		return { isValid, errors }
 	}
