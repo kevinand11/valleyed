@@ -9,7 +9,7 @@ export class Validator {
 
 		if (rules.length === 0) return { isValid: true, errors: [] }
 
-		rules.unshift((value: any) => isRequiredIf(value, presence))
+		rules = [(value: any) => isRequiredIf(value, presence), ...rules]
 
 		const checks = rules.map((rule) => rule(value))
 		const isValid = checks.every((r) => r.valid)
