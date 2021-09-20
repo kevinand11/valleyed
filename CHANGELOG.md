@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.3](https://github.com/stranerd/validate/compare/v1.4.2...v1.4.3) (2021-09-20)
+
+
+### Bug Fixes
+
+* validator isRequiredIf ([be0553e](https://github.com/stranerd/validate/commit/be0553ea2834aa4b6ff2fbfe571721c86dc58a6f))
+
 ### [1.4.2](https://github.com/stranerd/validate/compare/v1.4.1...v1.4.2) (2021-09-16)
 
 
