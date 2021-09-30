@@ -11,7 +11,7 @@ export const isNumber = (value: any) => {
 }
 
 export const isString = (value: any) => {
-	if (!value) return isInvalid('is not a string')
+	if (value === null || value === undefined) return isInvalid('is not a string')
 	if (!value.constructor) return isInvalid('is not a string')
 	if (value.constructor.name !== 'String') return isInvalid('is not a string')
 	return isValid()
