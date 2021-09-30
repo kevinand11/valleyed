@@ -11,7 +11,7 @@ export const isNumber = (value: any) => {
 }
 
 export const isString = (value: any) => {
-	if (value.constructor.name === 'String') return isValid()
+	if (value?.constructor?.name === 'String') return isValid()
 	return isInvalid('is not a string')
 }
 
@@ -23,5 +23,5 @@ export const isArray = (value: any) => {
 export function isArrayOf<Type> (value: Type[], comparer: (cur: Type) => boolean, type: string) {
 	if (!Array.isArray(value)) return isInvalid('is not an array')
 	if (value.every((v) => comparer(v))) return isValid()
-	return isInvalid(`array has some values that are not ${ type }`)
+	return isInvalid(`array has some values that are not ${type}`)
 }
