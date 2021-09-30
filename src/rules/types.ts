@@ -11,8 +11,10 @@ export const isNumber = (value: any) => {
 }
 
 export const isString = (value: any) => {
-	if (value?.constructor?.name === 'String') return isValid()
-	return isInvalid('is not a string')
+	if (!value) return isInvalid('is not a string')
+	if (!value.constructor) return isInvalid('is not a string')
+	if (value.constructor.name !== 'String') return isInvalid('is not a string')
+	return isValid()
 }
 
 export const isArray = (value: any) => {
