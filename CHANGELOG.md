@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/stranerd/validate/compare/v1.4.5...v1.5.0) (2021-10-09)
+
+
+### Features
+
+* allow custom error messages ([af167cf](https://github.com/stranerd/validate/commit/af167cf0d205817fba98d08af6643c83c5969bb7))
+
 ### [1.4.5](https://github.com/stranerd/validate/compare/v1.4.4...v1.4.5) (2021-09-30)
 
 

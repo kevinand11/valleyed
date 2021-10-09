@@ -1,6 +1,6 @@
 {
 	"name": "@stranerd/validate",
-	"version": "1.4.5",
+	"version": "1.5.0",
 	"description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
 	"main": "lib/index.js",
 	"scripts": {
