@@ -13,37 +13,37 @@ import {
 	isShorterThan
 } from '../rules'
 
-export function isRequiredIfX<Type> (condition: boolean) {
-	return (val: Type) => isRequiredIf(val, condition)
+export function isRequiredIfX<Type> (condition: boolean, error?: string) {
+	return (val: Type) => isRequiredIf(val, condition, error)
 }
 
-export const isLongerThanX = (length: number) => (val: string) => isLongerThan(val, length)
-export const isShorterThanX = (length: number) => (val: string) => isShorterThan(val, length)
-export const isExtractedHTMLLongerThanX = (length: number) => (val: string) => isExtractedHTMLLongerThan(val, length)
+export const isLongerThanX = (length: number, error?: string) => (val: string) => isLongerThan(val, length, error)
+export const isShorterThanX = (length: number, error?: string) => (val: string) => isShorterThan(val, length, error)
+export const isExtractedHTMLLongerThanX = (length: number, error?: string) => (val: string) => isExtractedHTMLLongerThan(val, length, error)
 
-export function hasMoreThanX<Type> (length: number) {
-	return (val: Type[]) => hasMoreThan(val, length)
+export function hasMoreThanX<Type> (length: number, error?: string) {
+	return (val: Type[]) => hasMoreThan(val, length, error)
 }
 
-export function hasLessThanX<Type> (length: number) {
-	return (val: Type[]) => hasLessThan(val, length)
+export function hasLessThanX<Type> (length: number, error?: string) {
+	return (val: Type[]) => hasLessThan(val, length, error)
 }
 
-export function isShallowEqualToX<Type> (compare: Type) {
-	return (val: Type) => isShallowEqualTo(val, compare)
+export function isShallowEqualToX<Type> (compare: Type, error?: string) {
+	return (val: Type) => isShallowEqualTo(val, compare, error)
 }
 
-export function isDeepEqualToX<Type> (compare: Type, comparer: (curr: Type, val: Type) => boolean) {
-	return (val: Type) => isDeepEqualTo(val, compare, comparer)
+export function isDeepEqualToX<Type> (compare: Type, comparer: (curr: Type, val: Type) => boolean, error?: string) {
+	return (val: Type) => isDeepEqualTo(val, compare, comparer, error)
 }
 
-export const isMoreThanX = (length: number) => (val: number) => isMoreThan(val, length)
-export const isLessThanX = (length: number) => (val: number) => isLessThan(val, length)
+export const isMoreThanX = (length: number, error?: string) => (val: number) => isMoreThan(val, length, error)
+export const isLessThanX = (length: number, error?: string) => (val: number) => isLessThan(val, length, error)
 
-export function arrayContainsX<Type> (array: Type[], comparer: (curr: Type, val: Type) => boolean) {
-	return (val: Type) => arrayContains(val, array, comparer)
+export function arrayContainsX<Type> (array: Type[], comparer: (curr: Type, val: Type) => boolean, error?: string) {
+	return (val: Type) => arrayContains(val, array, comparer, error)
 }
 
-export function isArrayOfX<Type> (comparer: (curr: Type) => boolean, type: string) {
-	return (val: Type[]) => isArrayOf(val, comparer, type)
+export function isArrayOfX<Type> (comparer: (curr: Type) => boolean, type: string, error?: string) {
+	return (val: Type[]) => isArrayOf(val, comparer, type, error)
 }

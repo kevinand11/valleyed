@@ -1,29 +1,31 @@
 import { isInvalid, isValid } from '../utils/rules'
 
-export const isBoolean = (value: any) => {
+export const isBoolean = (value: any, error = 'is not a boolean') => {
 	if (value === true || value === false) return isValid()
-	return isInvalid('is not a boolean')
+	return isInvalid(error)
 }
 
-export const isNumber = (value: any) => {
+export const isNumber = (value: any, error = 'is not a number') => {
 	if (typeof value === 'number' && !isNaN(value)) return isValid()
-	return isInvalid('is not a number')
+	return isInvalid(error)
 }
 
-export const isString = (value: any) => {
-	if (value === null || value === undefined) return isInvalid('is not a string')
-	if (!value.constructor) return isInvalid('is not a string')
-	if (value.constructor.name !== 'String') return isInvalid('is not a string')
+export const isString = (value: any, error = 'is not a string') => {
+	if (value === null || value === undefined) return isInvalid(error)
+	if (!value.constructor) return isInvalid(error)
+	if (value.constructor.name !== 'String') return isInvalid(error)
 	return isValid()
 }
 
-export const isArray = (value: any) => {
+export const isArray = (value: any, error = 'is not an array') => {
 	if (Array.isArray(value)) return isValid()
-	return isInvalid('is not an array')
+	return isInvalid(error)
 }
 
-export function isArrayOf<Type> (value: Type[], comparer: (cur: Type) => boolean, type: string) {
-	if (!Array.isArray(value)) return isInvalid('is not an array')
+export function isArrayOf<Type> (value: Type[], comparer: (cur: Type) => boolean, type: string, error?: string) {
+	error = error ?? `contains some values that are not ${type}`
+	const validArray = isArray(value)
+	if (!validArray.valid) return validArray
 	if (value.every((v) => comparer(v))) return isValid()
-	return isInvalid(`array has some values that are not ${type}`)
+	return isInvalid(error)
 }
