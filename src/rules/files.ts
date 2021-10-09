@@ -17,8 +17,3 @@ export function isFile<Type> (file: Type, error = 'is not a valid file') {
 	if (file?.type) return isValid()
 	return isInvalid(error)
 }
-
-export function containsOnlyFiles<Type> (files: Type[], error = 'contains invalid files') {
-	if (files?.every((file) => isFile(file).valid)) return isValid()
-	return isInvalid(error)
-}

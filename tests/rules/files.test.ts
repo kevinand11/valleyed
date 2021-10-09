@@ -1,4 +1,4 @@
-import { containsOnlyFiles, isFile, isImage } from '../../src/rules'
+import { isFile, isImage, isVideo } from '../../src/rules'
 
 describe('IsFile', () => {
 	test('null & undefined', () => {
@@ -46,25 +46,25 @@ describe('IsImage', () => {
 	})
 })
 
-describe('ContainsOnlyFiles', () => {
+describe('IsVideo', () => {
 	test('undefined & null', () => {
-		let result = containsOnlyFiles([undefined])
+		let result = isVideo(undefined)
 		expect(result.valid).toBe(false)
-		result = containsOnlyFiles([null])
-		expect(result.valid).toBe(false)
-	})
-	test('invalid files', () => {
-		let result = containsOnlyFiles([{}])
-		expect(result.valid).toBe(false)
-		result = containsOnlyFiles([''])
-		expect(result.valid).toBe(false)
-		result = containsOnlyFiles([0])
+		result = isVideo(null)
 		expect(result.valid).toBe(false)
 	})
-	test('valid files', () => {
-		let result = containsOnlyFiles([])
-		expect(result.valid).toBe(true)
-		result = containsOnlyFiles([{ type: 'image/jpeg' }])
+	test('invalid video', () => {
+		let result = isVideo({ type: 'image/jpeg' })
+		expect(result.valid).toBe(false)
+		result = isVideo([])
+		expect(result.valid).toBe(false)
+		result = isVideo('')
+		expect(result.valid).toBe(false)
+		result = isVideo(0)
+		expect(result.valid).toBe(false)
+	})
+	test('valid video', () => {
+		const result = isVideo({ type: 'video/mp4' })
 		expect(result.valid).toBe(true)
 	})
 })

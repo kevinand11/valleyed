@@ -2,20 +2,14 @@ import {
 	arrayContains,
 	hasLessThan,
 	hasMoreThan,
-	isArrayOf,
 	isDeepEqualTo,
 	isExtractedHTMLLongerThan,
 	isLessThan,
 	isLongerThan,
 	isMoreThan,
-	isRequiredIf,
 	isShallowEqualTo,
 	isShorterThan
-} from '../rules'
-
-export function isRequiredIfX<Type> (condition: boolean, error?: string) {
-	return (val: Type) => isRequiredIf(val, condition, error)
-}
+} from '../../rules'
 
 export const isLongerThanX = (length: number, error?: string) => (val: string) => isLongerThan(val, length, error)
 export const isShorterThanX = (length: number, error?: string) => (val: string) => isShorterThan(val, length, error)
@@ -42,8 +36,4 @@ export const isLessThanX = (length: number, error?: string) => (val: number) => 
 
 export function arrayContainsX<Type> (array: Type[], comparer: (curr: Type, val: Type) => boolean, error?: string) {
 	return (val: Type) => arrayContains(val, array, comparer, error)
-}
-
-export function isArrayOfX<Type> (comparer: (curr: Type) => boolean, type: string, error?: string) {
-	return (val: Type[]) => isArrayOf(val, comparer, type, error)
 }
