@@ -25,7 +25,7 @@ export const trimToLength = (body: string, length: number) => {
 }
 
 export const extractUrls = (text: string) => {
-	const returnValue = new Set()
+	const returnValue = new Set<string>()
 	const urls = text.match(urlRegex()) || []
 	urls.forEach((url) => {
 		returnValue.add(normalizeUrl(url.trim().replace(/\.+$/, '')))
