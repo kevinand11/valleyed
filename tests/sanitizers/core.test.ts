@@ -1,4 +1,4 @@
-import { capitalizeText, extractTextFromHTML, trimToLength } from '../../src/santizers'
+import { capitalizeText, extractTextFromHTML, extractUrls, trimToLength } from '../../src/santizers'
 
 test('CapitalizeText', () => {
 	expect(capitalizeText('test')).toBe('Test')
@@ -32,4 +32,9 @@ test('TrimToLength', () => {
 	expect(trimToLength(num as unknown as string, 10)).toBe(num.toString())
 	expect(trimToLength(arr as unknown as string, 10)).toBe(arr.toString())
 	expect(trimToLength(obj as unknown as string, 20)).toBe(obj.toString())
+})
+
+test('ExtractUrls', () => {
+	expect(extractUrls('abc abc.co 123')[0]).toBe('http://abc.co')
+	expect(extractUrls('abc 123')[0]).toBe(undefined)
 })
