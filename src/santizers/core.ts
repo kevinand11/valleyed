@@ -25,11 +25,12 @@ export const trimToLength = (body: string, length: number) => {
 }
 
 export const extractUrls = (text: string) => {
-	const returnValue = new Set<string>()
 	const urls = text.match(urlRegex()) || []
-	urls.forEach((url) => {
-		returnValue.add(normalizeUrl(url.trim().replace(/\.+$/, '')))
+	return urls.filter(((url, index) => urls.indexOf(url) === index)).map((url) => {
+		url = url.trim()
+		return {
+			original: url,
+			normalized: normalizeUrl(url.replace(/\.+$/, ''))
+		}
 	})
-
-	return Array.from(returnValue)
 }

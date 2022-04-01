@@ -35,6 +35,7 @@ test('TrimToLength', () => {
 })
 
 test('ExtractUrls', () => {
-	expect(extractUrls('abc abc.co 123')[0]).toBe('http://abc.co')
+	expect(extractUrls('abc abc.co 123')[0].original).toBe('abc.co')
+	expect(extractUrls('abc abc.co 123')[0].normalized).toBe('http://abc.co')
 	expect(extractUrls('abc 123')[0]).toBe(undefined)
 })
