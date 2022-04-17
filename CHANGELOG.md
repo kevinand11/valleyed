@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/stranerd/validate/compare/v2.2.0...v2.3.0) (2022-04-17)
+
+
+### Features
+
+* isXThanOrEqualTo ([7d3194a](https://github.com/stranerd/validate/commit/7d3194a3eb6548b84d9161190deb4a39654785ee))
+
 ## [2.2.0](https://github.com/stranerd/validate/compare/v2.1.1...v2.2.0) (2022-04-01)
 
 ### [2.1.1](https://github.com/stranerd/validate/compare/v2.1.0...v2.1.1) (2022-03-05)
