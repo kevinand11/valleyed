@@ -4,6 +4,7 @@
 		"noUnusedLocals": true,
 		"removeComments": true,
 		"noImplicitAny": false,
+		"resolveJsonModule": true,
 		"target": "ES5",
 		"module": "commonjs",
 		"rootDir": "src",

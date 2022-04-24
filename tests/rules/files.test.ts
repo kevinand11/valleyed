@@ -1,4 +1,4 @@
-import { isFile, isImage, isVideo } from '../../src/rules'
+import { isAudio, isFile, isImage, isVideo } from '../../src/rules'
 
 describe('IsFile', () => {
 	test('null & undefined', () => {
@@ -8,7 +8,7 @@ describe('IsFile', () => {
 		expect(result.valid).toBe(false)
 	})
 	test('invalid file', () => {
-		let result = isFile({})
+		let result = isFile({ type: 'image' })
 		expect(result.valid).toBe(false)
 		result = isFile([])
 		expect(result.valid).toBe(false)
@@ -25,7 +25,9 @@ describe('IsFile', () => {
 
 describe('IsImage', () => {
 	test('undefined & null', () => {
-		let result = isImage(undefined)
+		let result = isFile({ type: 'image' })
+		expect(result.valid).toBe(false)
+		result = isImage(undefined)
 		expect(result.valid).toBe(false)
 		result = isImage(null)
 		expect(result.valid).toBe(false)
@@ -54,7 +56,7 @@ describe('IsVideo', () => {
 		expect(result.valid).toBe(false)
 	})
 	test('invalid video', () => {
-		let result = isVideo({ type: 'image/jpeg' })
+		let result = isVideo({ type: 'video' })
 		expect(result.valid).toBe(false)
 		result = isVideo([])
 		expect(result.valid).toBe(false)
@@ -65,6 +67,29 @@ describe('IsVideo', () => {
 	})
 	test('valid video', () => {
 		const result = isVideo({ type: 'video/mp4' })
+		expect(result.valid).toBe(true)
+	})
+})
+
+describe('IsAudio', () => {
+	test('undefined & null', () => {
+		let result = isAudio(undefined)
+		expect(result.valid).toBe(false)
+		result = isAudio(null)
+		expect(result.valid).toBe(false)
+	})
+	test('invalid audio', () => {
+		let result = isAudio({ type: 'audio' })
+		expect(result.valid).toBe(false)
+		result = isAudio([])
+		expect(result.valid).toBe(false)
+		result = isAudio('')
+		expect(result.valid).toBe(false)
+		result = isAudio(0)
+		expect(result.valid).toBe(false)
+	})
+	test('valid audio', () => {
+		const result = isAudio({ type: 'audio/mp3' })
 		expect(result.valid).toBe(true)
 	})
 })
