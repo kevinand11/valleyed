@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0](https://github.com/stranerd/validate/compare/v2.3.0...v2.4.0) (2022-04-24)
+
+
+### Features
+
+* add audio types ([ff06944](https://github.com/stranerd/validate/commit/ff06944a5ed0bb96cb46f4c60e00cc6acea6826f))
+
 ## [2.3.0](https://github.com/stranerd/validate/compare/v2.2.0...v2.3.0) (2022-04-17)
 
 
