@@ -1,12 +1,24 @@
-import { isArray, isBoolean, isNumber, isRequiredIf, isString } from '../rules'
+import { isRequiredIf } from '../rules'
 
 export type Rule = (value: any) => { valid: true, error: null } | { valid: false, error: string }
 
+type Options = {
+	required: boolean | (() => boolean),
+	nullable: boolean
+}
+
 export class Validator {
-	public static single (value: any, rules: Rule[], required: boolean | (() => boolean) = true) {
-		const presence = typeof required === 'function' ? required() : required
-		if (this.isEmpty(value) && !presence) return { isValid: true, errors: [] }
+	private static DEFAULT_OPTIONS: Options = {
+		required: true,
+		nullable: false
+	}
+
+	public static single (value: any, rules: Rule[], options: Partial<Options>) {
+		const allOptions = { ...this.DEFAULT_OPTIONS, ...options }
+		const presence = typeof allOptions.required === 'function' ? allOptions.required() : allOptions.required
 		if (rules.length === 0) return { isValid: true, errors: [] }
+		const nullable = value === null && allOptions.nullable
+		if (!presence && (value === undefined || nullable)) return { isValid: true, errors: [] }
 
 		rules = [(value: any) => isRequiredIf(value, presence), ...rules]
 
@@ -16,13 +28,5 @@ export class Validator {
 			.filter((e) => e !== null) as string[]
 
 		return { isValid: valid, errors }
-	}
-
-	private static isEmpty (val: any) {
-		if (val === null || val === undefined) return true
-		if (isString(val).valid || isArray(val).valid) return val.length === 0
-		if (isNumber(val).valid) return val === 0
-		if (isBoolean(val).valid) return true
-		else return Object.keys(val).length === 0
 	}
 }

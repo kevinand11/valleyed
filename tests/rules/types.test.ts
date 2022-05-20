@@ -1,4 +1,58 @@
-import { isArray, isArrayOf, isBoolean, isNumber, isString } from '../../src/rules'
+import { isArray, isArrayOf, isBoolean, isNull, isNumber, isString, isUndefined } from '../../src/rules'
+
+describe('isUndefined', () => {
+	test('undefined', () => {
+		const result = isUndefined(undefined)
+		expect(result.valid).toBe(true)
+	})
+	test('boolean', () => {
+		const result = isUndefined(true)
+		expect(result.valid).toBe(false)
+	})
+	test('string', () => {
+		const result = isUndefined('hello')
+		expect(result.valid).toBe(false)
+	})
+	test('number', () => {
+		const result = isUndefined(1)
+		expect(result.valid).toBe(false)
+	})
+	test('object', () => {
+		const result = isUndefined({})
+		expect(result.valid).toBe(false)
+	})
+	test('array', () => {
+		const result = isUndefined([])
+		expect(result.valid).toBe(false)
+	})
+})
+
+describe('isNull', () => {
+	test('null', () => {
+		const result = isNull(null)
+		expect(result.valid).toBe(true)
+	})
+	test('boolean', () => {
+		const result = isNull(true)
+		expect(result.valid).toBe(false)
+	})
+	test('string', () => {
+		const result = isNull('hello')
+		expect(result.valid).toBe(false)
+	})
+	test('number', () => {
+		const result = isNull(1)
+		expect(result.valid).toBe(false)
+	})
+	test('object', () => {
+		const result = isNull({})
+		expect(result.valid).toBe(false)
+	})
+	test('array', () => {
+		const result = isNull([])
+		expect(result.valid).toBe(false)
+	})
+})
 
 describe('IsBoolean', () => {
 	test('false', () => {

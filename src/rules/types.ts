@@ -1,5 +1,15 @@
 import { isInvalid, isValid } from '../utils/rules'
 
+export const isUndefined = (value: any, error = 'is not undefined') => {
+	if (value === undefined) return isValid()
+	return isInvalid(error)
+}
+
+export const isNull = (value: any, error = 'is not null') => {
+	if (value === null) return isValid()
+	return isInvalid(error)
+}
+
 export const isBoolean = (value: any, error = 'is not a boolean') => {
 	if (value === true || value === false) return isValid()
 	return isInvalid(error)
