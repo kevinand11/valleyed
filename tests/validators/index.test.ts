@@ -20,7 +20,9 @@ describe('Testing single ', () => {
 	test('Invalid email without presence', () => {
 		expect(Validator.single(undefined, [isEmail], { required: false }).isValid).toBe(true)
 		expect(Validator.single(null, [isEmail], { required: false }).isValid).toBe(false)
+		expect(Validator.single(null, [isEmail], { required: true }).isValid).toBe(false)
 		expect(Validator.single(null, [isEmail], { required: false, nullable: true }).isValid).toBe(true)
+		expect(Validator.single(null, [isEmail], { required: true, nullable: true }).isValid).toBe(true)
 		expect(Validator.single('', [isEmail], { required: false }).isValid).toBe(false)
 		expect(Validator.single('sddss', [isEmail], { required: false }).isValid).toBe(false)
 	})

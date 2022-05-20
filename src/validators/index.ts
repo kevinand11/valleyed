@@ -17,8 +17,8 @@ export class Validator {
 		const allOptions = { ...this.DEFAULT_OPTIONS, ...options }
 		const presence = typeof allOptions.required === 'function' ? allOptions.required() : allOptions.required
 		if (rules.length === 0) return { isValid: true, errors: [] }
-		const nullable = value === null && allOptions.nullable
-		if (!presence && (value === undefined || nullable)) return { isValid: true, errors: [] }
+		if (!presence && value === undefined) return { isValid: true, errors: [] }
+		if (value === null && allOptions.nullable) return { isValid: true, errors: [] }
 
 		rules = [(value: any) => isRequiredIf(value, presence), ...rules]
 
