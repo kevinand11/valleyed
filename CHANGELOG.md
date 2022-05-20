@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/stranerd/validate/compare/v3.0.0...v3.1.0) (2022-05-20)
+
+
+### Bug Fixes
+
+* allow nullable if required ([279dd69](https://github.com/stranerd/validate/commit/279dd6919d3c3e7135344a7e727f2bd86731b648))
+
 ## [3.0.0](https://github.com/stranerd/validate/compare/v2.4.0...v3.0.0) (2022-05-20)
 
 ## [2.4.0](https://github.com/stranerd/validate/compare/v2.3.0...v2.4.0) (2022-04-24)
