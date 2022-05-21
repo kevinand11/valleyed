@@ -1,5 +1,3 @@
-import { isRequiredIf } from '../rules'
-
 export type Rule = (value: any) => { valid: true, error: null } | { valid: false, error: string }
 
 type Options = {
@@ -19,8 +17,6 @@ export class Validator {
 		if (rules.length === 0) return { isValid: true, errors: [] }
 		if (!presence && value === undefined) return { isValid: true, errors: [] }
 		if (value === null && allOptions.nullable) return { isValid: true, errors: [] }
-
-		rules = [(value: any) => isRequiredIf(value, presence), ...rules]
 
 		const checks = rules.map((rule) => rule(value))
 		const valid = checks.every((r) => r.valid)
