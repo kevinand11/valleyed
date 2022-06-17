@@ -15,7 +15,7 @@ export class Validator {
 		const allOptions = { ...this.DEFAULT_OPTIONS, ...options }
 		const presence = typeof allOptions.required === 'function' ? allOptions.required() : allOptions.required
 		if (rules.length === 0) return { isValid: true, errors: [] }
-		if (!presence && value === undefined) return { isValid: true, errors: [] }
+		if (!presence) return { isValid: true, errors: [] }
 		if (value === null && allOptions.nullable) return { isValid: true, errors: [] }
 
 		const checks = rules.map((rule) => rule(value))
