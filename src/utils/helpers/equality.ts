@@ -25,36 +25,15 @@ export const isExtractedHTMLLongerThanX = (length: number, error?: string) => (v
 export const isExtractedHTMLLongerThanOrEqualToX = (length: number, error?: string) => (val: string) => isExtractedHTMLLongerThan(val, length, error)
 export const isExtractedHTMLShorterThanX = (length: number, error?: string) => (val: string) => isExtractedHTMLLongerThan(val, length, error)
 export const isExtractedHTMLShorterThanOrEqualToX = (length: number, error?: string) => (val: string) => isExtractedHTMLLongerThan(val, length, error)
-
-export function hasMoreThanX<Type> (length: number, error?: string) {
-	return (val: Type[]) => hasMoreThan(val, length, error)
-}
-
-export function hasMoreThanOrEqualToX<Type> (length: number, error?: string) {
-	return (val: Type[]) => hasMoreThanOrEqualTo(val, length, error)
-}
-
-export function hasLessThanX<Type> (length: number, error?: string) {
-	return (val: Type[]) => hasLessThan(val, length, error)
-}
-
-export function hasLessThanOrEqualToX<Type> (length: number, error?: string) {
-	return (val: Type[]) => hasLessThanOrEqualTo(val, length, error)
-}
-
-export function isShallowEqualToX<Type> (compare: Type, error?: string) {
-	return (val: Type) => isShallowEqualTo(val, compare, error)
-}
-
-export function isDeepEqualToX<Type> (compare: Type, comparer: (curr: Type, val: Type) => boolean, error?: string) {
-	return (val: Type) => isDeepEqualTo(val, compare, comparer, error)
-}
+export const hasMoreThanX = <Type> (length: number, error?: string) => (val: Type[]) => hasMoreThan(val, length, error)
+export const hasMoreThanOrEqualToX = <Type> (length: number, error?: string) => (val: Type[]) => hasMoreThanOrEqualTo(val, length, error)
+export const hasLessThanX = <Type> (length: number, error?: string) => (val: Type[]) => hasLessThan(val, length, error)
+export const hasLessThanOrEqualToX = <Type> (length: number, error?: string) => (val: Type[]) => hasLessThanOrEqualTo(val, length, error)
+export const isShallowEqualToX = <Type> (compare: Type, error?: string) => (val: Type) => isShallowEqualTo(val, compare, error)
+export const isDeepEqualToX = <Type> (compare: Type, comparer: (curr: Type, val: Type) => boolean, error?: string) => (val: Type) => isDeepEqualTo(val, compare, comparer, error)
 
 export const isMoreThanX = (length: number, error?: string) => (val: number) => isMoreThan(val, length, error)
 export const isMoreThanOrEqualToX = (length: number, error?: string) => (val: number) => isMoreThanOrEqualTo(val, length, error)
 export const isLessThanX = (length: number, error?: string) => (val: number) => isLessThan(val, length, error)
 export const isLessThanOrEqualToX = (length: number, error?: string) => (val: number) => isLessThanOrEqualTo(val, length, error)
-
-export function arrayContainsX<Type> (array: Type[], comparer: (curr: Type, val: Type) => boolean, error?: string) {
-	return (val: Type) => arrayContains(val, array, comparer, error)
-}
+export const arrayContainsX = <Type> (array: Type[], comparer: (curr: Type, val: Type) => boolean, error?: string) => (val: Type) => arrayContains(val, array, comparer, error)

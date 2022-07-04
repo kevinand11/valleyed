@@ -32,7 +32,7 @@ export const isArray = (value: any, error = 'is not an array') => {
 	return isInvalid(error)
 }
 
-export function isArrayOf<Type> (value: Type[], comparer: (cur: Type) => boolean, type: string, error?: string) {
+export const isArrayOf = <Type> (value: Type[], comparer: (cur: Type) => boolean, type: string, error?: string) => {
 	error = error ?? `contains some values that are not ${type}`
 	const validArray = isArray(value)
 	if (!validArray.valid) return validArray

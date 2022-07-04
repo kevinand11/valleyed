@@ -41,37 +41,37 @@ export const isExtractedHTMLShorterThanOrEqualTo = (value: string, length: numbe
 	return isShorterThanOrEqualTo(extractTextFromHTML(value ?? ''), length, error)
 }
 
-export function hasMoreThan<Type> (value: Type[], length: number, error?: string) {
+export const hasMoreThan = <Type> (value: Type[], length: number, error?: string) => {
 	error = error ?? `must contain more than ${length} items`
 	if (value?.length > length) return isValid()
 	return isInvalid(error)
 }
 
-export function hasMoreThanOrEqualTo<Type> (value: Type[], length: number, error?: string) {
+export const hasMoreThanOrEqualTo = <Type> (value: Type[], length: number, error?: string) => {
 	error = error ?? `must contain ${length} or more items`
 	if (value?.length >= length) return isValid()
 	return isInvalid(error)
 }
 
-export function hasLessThan<Type> (value: Type[], length: number, error?: string) {
+export const hasLessThan = <Type> (value: Type[], length: number, error?: string) => {
 	error = error ?? `must contain less than ${length} items`
 	if (value?.length < length) return isValid()
 	return isInvalid(error)
 }
 
-export function hasLessThanOrEqualTo<Type> (value: Type[], length: number, error?: string) {
+export const hasLessThanOrEqualTo = <Type> (value: Type[], length: number, error?: string) => {
 	error = error ?? `must contain ${length} or less items`
 	if (value?.length <= length) return isValid()
 	return isInvalid(error)
 }
 
-export function isShallowEqualTo<Type> (value: Type, compare: Type, error?: string) {
+export const isShallowEqualTo = <Type> (value: Type, compare: Type, error?: string) => {
 	error = error ?? `is not equal to ${compare}`
 	if (value === compare) return isValid()
 	return isInvalid(error)
 }
 
-export function isDeepEqualTo<Type> (value: Type, compare: Type, comparer: (val: Type, compare: Type) => boolean, error?: string) {
+export const isDeepEqualTo = <Type> (value: Type, compare: Type, comparer: (val: Type, compare: Type) => boolean, error?: string) => {
 	error = error ?? `is not equal to ${compare}`
 	if (comparer(value, compare)) return isValid()
 	return isInvalid(error)
@@ -101,7 +101,7 @@ export const isLessThanOrEqualTo = (value: number, compare: number, error?: stri
 	return isInvalid(error)
 }
 
-export function arrayContains<Type> (value: Type, array: Type[], comparer: (curr: Type, val: Type) => boolean, error?: string) {
+export const arrayContains = <Type> (value: Type, array: Type[], comparer: (curr: Type, val: Type) => boolean, error?: string) => {
 	error = error ?? `is not in the supported list [${array.join(',')}]`
 	if (array.find((x) => comparer(x, value))) return isValid()
 	return isInvalid(error)
