@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.4.0](https://github.com/stranerd/validate/compare/v3.3.2...v3.4.0) (2022-07-09)
+
+
+### Features
+
+* export valid file mime types list ([663772a](https://github.com/stranerd/validate/commit/663772a2c31f938a360ba739cfe608f4b1ad8357))
+
 ### [3.3.2](https://github.com/stranerd/validate/compare/v3.3.1...v3.3.2) (2022-07-04)
 
 ### [3.3.1](https://github.com/stranerd/validate/compare/v3.3.0...v3.3.1) (2022-06-17)
