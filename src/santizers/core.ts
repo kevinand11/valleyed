@@ -1,5 +1,6 @@
 import urlRegex from 'url-regex-safe'
 import { normalizeUrl } from './normalize'
+import { isNumber } from '../rules'
 
 export const capitalizeText = (text: string) => {
 	if (text === null || text === undefined) return text
@@ -34,3 +35,73 @@ export const extractUrls = (text: string) => {
 		}
 	})
 }
+
+export const formatNumber = (num: number, dp?: number) => Intl
+	.NumberFormat('en', { notation: 'compact', ...(dp ? { maximumFractionDigits: dp } : {}) })
+	.format(isNumber(num).valid ? num : 0)
+
+export const pluralize = (count: number, singular: string, plural: string) => Math.round(count) === 1 ? singular : plural
+
+export const getRandomValue = () => Date.now() + Math.random().toString(36)
+
+export const groupBy = <Type, Unique extends string | number> (array: Array<Type>, func: (item: Type) => Unique) => {
+	return array.reduce((acc, cur) => {
+		const key = func(cur)
+		const index = acc.findIndex((a) => a.key === key)
+		if (index === -1) acc.push({ key, values: [cur] })
+		else acc[index].values.push(cur)
+		return acc
+	}, [] as { key: Unique, values: Type[] }[]) as { key: Unique, values: Type[] }[]
+}
+
+export const getAlphabet = (num: number) => 'abcdefghijklmnopqrstuv'.split('')[num] ?? 'a'
+
+export const addToArray = <T> (array: T[], item: T, getKey: (a: T) => any, getComparer: (a: T) => number | string, asc = false) => {
+	const existingIndex = array.findIndex((el) => getKey(el) === getKey(item))
+	const index = array.findIndex((el) => asc ? getComparer(el) >= getComparer(item) : getComparer(el) <= getComparer(item))
+	if (existingIndex !== -1 && existingIndex === index) {
+		array.splice(existingIndex, 1, item)
+		return array
+	}
+	if (existingIndex !== -1 && existingIndex !== index) array.splice(existingIndex, 1)
+	if (index !== -1) array.splice(index, 0, item)
+	else if (array.length === 0) array.push(item)
+	else {
+		const existingIsGreater = getComparer(array[0]) >= getComparer(item)
+		if (existingIsGreater) asc ? array.unshift(item) : array.push(item)
+		else asc ? array.push(item) : array.unshift(item)
+	}
+	return array
+}
+
+export const catchDivideByZero = (num: number, den: number) => den === 0 ? 0 : num / den
+
+export const getPercentage = (num: number, den: number) => 100 * (catchDivideByZero(num, den) > 1 ? 1 : catchDivideByZero(num, den))
+
+export const getRandomSample = <Type> (population: Array<Type>, n: number) => {
+	const result = new Array<Type>(n)
+	let setsize = 21
+
+	if (n > 5) setsize += Math.pow(4, Math.ceil(Math.log(n * 3) / Math.log(4)))
+
+	if (n <= setsize) {
+		const pool = population.slice()
+		for (let i = 0; i < n; i++) {
+			const j = Math.random() * (n - i) | 0
+			result[i] = pool[j]
+			pool[j] = pool[n - i - 1]
+		}
+	} else {
+		const selected = new Set()
+		for (let i = 0; i < n; i++) {
+			let j = Math.random() * n | 0
+			while (selected.has(j)) j = Math.random() * n | 0
+			selected.add(j)
+			result[i] = population[j]
+		}
+	}
+
+	return result
+}
+
+export const shuffleArray = <Type> (array: Array<Type>) => [...array].sort(() => Math.random() - 0.5)
