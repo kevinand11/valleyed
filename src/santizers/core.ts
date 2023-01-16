@@ -79,29 +79,17 @@ export const catchDivideByZero = (num: number, den: number) => den === 0 ? 0 : n
 export const getPercentage = (num: number, den: number) => 100 * (catchDivideByZero(num, den) > 1 ? 1 : catchDivideByZero(num, den))
 
 export const getRandomSample = <Type> (population: Array<Type>, n: number) => {
-	const result = new Array<Type>(n)
-	let setsize = 21
+	const indexes = [] as number[]
+	const indexesObject = {} as Record<number, boolean>
 
-	if (n > 5) setsize += Math.pow(4, Math.ceil(Math.log(n * 3) / Math.log(4)))
-
-	if (n <= setsize) {
-		const pool = population.slice()
-		for (let i = 0; i < n; i++) {
-			const j = Math.random() * (n - i) | 0
-			result[i] = pool[j]
-			pool[j] = pool[n - i - 1]
-		}
-	} else {
-		const selected = new Set()
-		for (let i = 0; i < n; i++) {
-			let j = Math.random() * n | 0
-			while (selected.has(j)) j = Math.random() * n | 0
-			selected.add(j)
-			result[i] = population[j]
-		}
+	while (indexes.length < n) {
+		const random = Math.floor(Math.random() * population.length)
+		if (random in indexesObject) continue
+		indexesObject[random] = true
+		indexes.push(random)
 	}
 
-	return result
+	return indexes.map((idx) => population[idx])
 }
 
 export const shuffleArray = <Type> (array: Array<Type>) => [...array].sort(() => Math.random() - 0.5)
