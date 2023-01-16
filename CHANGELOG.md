@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.5.1](https://github.com/stranerd/validate/compare/v3.5.0...v3.5.1) (2023-01-16)
+
+
+### Bug Fixes
+
+* getRandomSample logic ([0c02ee0](https://github.com/stranerd/validate/commit/0c02ee060e6268e28427b0fd7aa95c55d3778c38))
+
 ## [3.5.0](https://github.com/stranerd/validate/compare/v3.4.0...v3.5.0) (2023-01-07)
 
 
