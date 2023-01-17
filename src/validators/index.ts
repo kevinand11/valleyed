@@ -1,4 +1,5 @@
-export type Rule = (value: any) => { valid: true, error: null } | { valid: false, error: string }
+export type Rule<T = void> = (value: T) => { valid: true, error: null } | { valid: false, error: string }
+export type Sanitizer<T = void> = (value: T) => T
 
 type Options = {
 	required: boolean | (() => boolean),
@@ -11,7 +12,7 @@ export class Validator {
 		nullable: false
 	}
 
-	public static single (value: any, rules: Rule[], options: Partial<Options>) {
+	public static single<T = void> (value: T, rules: Rule<T>[], options: Partial<Options>) {
 		const allOptions = { ...this.DEFAULT_OPTIONS, ...options }
 		const presence = typeof allOptions.required === 'function' ? allOptions.required() : allOptions.required
 		if (rules.length === 0) return { isValid: true, errors: [] }
