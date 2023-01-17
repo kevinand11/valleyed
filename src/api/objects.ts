@@ -1,11 +1,9 @@
 import { VCore } from './core'
 import { and, isObject, or } from '../rules'
 
-export type O = { [K in string]: any }
-// @ts-ignore
-export type Schema<T extends O> = { [K in T]: Schema<T> | VCore<any> }
+export type Schema<T extends Record<string, any>> = Record<keyof T, VCore<T[keyof T]>>
 
-export class VObject<T extends O> extends VCore<T> {
+export class VObject<T extends Record<string, any>> extends VCore<T> {
 	schema: Schema<T>
 
 	constructor (schema: Schema<T>, err?: string) {

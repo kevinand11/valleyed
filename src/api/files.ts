@@ -1,7 +1,7 @@
-import { isAudio, isFile, isImage, isVideo } from '../rules'
+import { File, isAudio, isFile, isImage, isVideo } from '../rules'
 import { VCore } from './core'
 
-export class VFile<T> extends VCore<T> {
+export class VFile extends VCore<File> {
 	constructor (err?: string) {
 		super()
 		this.addRule(isFile(err))
