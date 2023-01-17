@@ -20,20 +20,20 @@ export const validate = {
 class VBoolean extends VCore<boolean> {
 	constructor (err?: string) {
 		super()
-		this.addRule((val: boolean) => isBoolean(val, err))
+		this.addRule((val: boolean) => isBoolean(err)(val))
 	}
 }
 
 class VNull extends VCore<null> {
 	constructor (err?: string) {
 		super()
-		this.addRule((val: null) => isNull(val, err))
+		this.addRule((val: null) => isNull(err)(val))
 	}
 }
 
 class VUndefined extends VCore<undefined> {
 	constructor (err?: string) {
 		super()
-		this.addRule((val: undefined) => isUndefined(val, err))
+		this.addRule((val: undefined) => isUndefined(err)(val))
 	}
 }

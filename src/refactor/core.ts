@@ -1,4 +1,4 @@
-import { Rule, Sanitizer } from '../validators'
+import { Rule, Sanitizer } from '../utils/rules'
 import { arrayContains, isDeepEqualTo, isShallowEqualTo } from '../rules'
 
 type Validator<T> = { func: Rule<T>, type: 'rule' } | { type: 'sanitizer', func: Sanitizer<T> }
@@ -47,8 +47,8 @@ export class VBase<T> {
 }
 
 export class VCore<T> extends VBase<T> {
-	required (value = true) {
-		this.options.required = value
+	optional (value = true) {
+		this.options.required = !value
 		return this
 	}
 
@@ -57,15 +57,19 @@ export class VCore<T> extends VBase<T> {
 		return this
 	}
 
+	default (def: T) {
+		return this.addSanitizer((val: T) => val ?? def)
+	}
+
 	eq (compare: T, err?: string) {
-		return this.addRule((val: T) => isShallowEqualTo(val, compare, err))
+		return this.addRule(isShallowEqualTo(compare, err))
 	}
 
 	eqD (compare: T, comparer: (val: T, compare: T) => boolean, err?: string) {
-		return this.addRule((val: T) => isDeepEqualTo(val, compare, comparer, err))
+		return this.addRule(isDeepEqualTo(compare, comparer, err))
 	}
 
 	in (array: T[], comparer: (curr: T, val: T) => boolean, err?: string) {
-		return this.addRule((val: T) => arrayContains(val, array, comparer, err))
+		return this.addRule(arrayContains(array, comparer, err))
 	}
 }

@@ -4,18 +4,18 @@ import { VCore } from './core'
 export class VFile<T> extends VCore<T> {
 	constructor (err?: string) {
 		super()
-		this.addRule((val: T) => isFile(val, err))
+		this.addRule(isFile(err))
 	}
 
 	image (err?: string) {
-		return this.addRule((val: T) => isImage(val, err))
+		return this.addRule(isImage(err))
 	}
 
 	audio (err?: string) {
-		return this.addRule((val: T) => isAudio(val, err))
+		return this.addRule(isAudio(err))
 	}
 
 	video (err?: string) {
-		return this.addRule((val: T) => isVideo(val, err))
+		return this.addRule(isVideo(err))
 	}
 }

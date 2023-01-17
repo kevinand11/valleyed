@@ -1,5 +1,6 @@
 import {
 	isEmail,
+	isLengthEqual,
 	isLongerThan,
 	isLongerThanOrEqualTo,
 	isShorterThan,
@@ -13,31 +14,35 @@ import { capitalizeText, extractTextFromHTML, trimToLength } from '../santizers'
 export class VString extends VCore<string> {
 	constructor (err?: string) {
 		super()
-		this.addRule((val: string) => isString(val, err))
+		this.addRule(isString(err))
+	}
+
+	has (length: number, err?: string) {
+		return this.addRule(isLengthEqual(length, err))
 	}
 
 	gt (length: number, err?: string) {
-		return this.addRule((val: string) => isLongerThan(val, length, err))
+		return this.addRule(isLongerThan(length, err))
 	}
 
 	gte (length: number, err?: string) {
-		return this.addRule((val: string) => isLongerThanOrEqualTo(val, length, err))
+		return this.addRule(isLongerThanOrEqualTo(length, err))
 	}
 
 	lt (length: number, err?: string) {
-		return this.addRule((val: string) => isShorterThan(val, length, err))
+		return this.addRule(isShorterThan(length, err))
 	}
 
 	lte (length: number, err?: string) {
-		return this.addRule((val: string) => isShorterThanOrEqualTo(val, length, err))
+		return this.addRule(isShorterThanOrEqualTo(length, err))
 	}
 
 	email (err?: string) {
-		return this.addRule((val: string) => isEmail(val, err))
+		return this.addRule(isEmail(err))
 	}
 
 	url (err?: string) {
-		return this.addRule((val: string) => isUrl(val, err))
+		return this.addRule(isUrl(err))
 	}
 
 	trim () {

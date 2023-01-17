@@ -4,22 +4,22 @@ import { VCore } from './core'
 export class VNumber extends VCore<number> {
 	constructor (err?: string) {
 		super()
-		this.addRule((val: number) => isNumber(val, err))
+		this.addRule(isNumber(err))
 	}
 
 	gt (length: number, err?: string) {
-		return this.addRule((val: number) => isMoreThan(val, length, err))
+		return this.addRule(isMoreThan(length, err))
 	}
 
 	gte (length: number, err?: string) {
-		return this.addRule((val: number) => isMoreThanOrEqualTo(val, length, err))
+		return this.addRule(isMoreThanOrEqualTo(length, err))
 	}
 
 	lt (length: number, err?: string) {
-		return this.addRule((val: number) => isLessThan(val, length, err))
+		return this.addRule(isLessThan(length, err))
 	}
 
 	lte (length: number, err?: string) {
-		return this.addRule((val: number) => isLessThanOrEqualTo(val, length, err))
+		return this.addRule(isLessThanOrEqualTo(length, err))
 	}
 }

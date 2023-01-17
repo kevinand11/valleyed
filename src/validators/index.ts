@@ -1,5 +1,4 @@
-export type Rule<T = void> = (value: T) => { valid: true, error: null } | { valid: false, error: string }
-export type Sanitizer<T = void> = (value: T) => T
+import { Rule } from '../utils/rules'
 
 type Options = {
 	required: boolean | (() => boolean),
