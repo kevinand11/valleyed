@@ -4,6 +4,7 @@ import { VFile } from './files'
 import { VCore } from './core'
 import { isBoolean, isNull, isUndefined } from '../rules'
 import { VArray } from './arrays'
+import { O, Schema, VObject } from './objects'
 
 export const validate = {
 	string: (err?: string) => new VString(err),
@@ -12,7 +13,8 @@ export const validate = {
 	file: <T> (err?: string) => new VFile<T>(err),
 	null: (err?: string) => new VNull(err),
 	undefined: (err?: string) => new VUndefined(err),
-	array: <T> (err?: string) => new VArray<T>(err)
+	array: <T> (err?: string) => new VArray<T>(err),
+	object: <T extends O> (schema: Schema<T>, err?: string) => new VObject<T>(schema, err)
 }
 
 class VBoolean extends VCore<boolean> {

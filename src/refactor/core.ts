@@ -5,7 +5,7 @@ type Validator<T> = { func: Rule<T>, type: 'rule' } | { type: 'sanitizer', func:
 
 export class VBase<T> {
 	protected options = {
-		required: false,
+		required: true,
 		nullable: false
 	}
 	private validators: Validator<T>[] = []
@@ -30,7 +30,7 @@ export class VBase<T> {
 
 	private run (value: T, validators: Validator<T>[]) {
 		const presence = this.options.required
-		if (this.validators.length === 0) return { isValid: true, error: '', value }
+		if (validators.length === 0) return { isValid: true, error: '', value }
 		if (!presence) return { isValid: true, error: '', value }
 		if (value === null && this.options.nullable) return { isValid: true, error: '', value }
 
