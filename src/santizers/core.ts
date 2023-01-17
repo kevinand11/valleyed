@@ -1,6 +1,5 @@
-import urlRegex from 'url-regex-safe'
 import { normalizeUrl } from './normalize'
-import { isNumber } from '../rules'
+import { isNumber, URLRegex } from '../rules'
 
 export const capitalizeText = (text: string) => {
 	if (text === null || text === undefined) return text
@@ -26,7 +25,7 @@ export const trimToLength = (body: string, length: number) => {
 }
 
 export const extractUrls = (text: string) => {
-	const urls = text.match(urlRegex()) || [] as string[]
+	const urls = text.match(URLRegex) || [] as string[]
 	return urls.filter(((url, index) => urls.indexOf(url) === index)).map((url) => {
 		url = url.trim()
 		return {

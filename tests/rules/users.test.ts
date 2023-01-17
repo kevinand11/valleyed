@@ -1,4 +1,4 @@
-import { isEmail } from '../../src/rules'
+import { isEmail, isUrl } from '../../src/rules'
 
 describe('isEmail', () => {
 	test('valid email', () => {
@@ -11,6 +11,18 @@ describe('isEmail', () => {
 	})
 	test('email without .', () => {
 		const result = isEmail('email@examplecom')
+		expect(result.valid).toBe(false)
+	})
+})
+
+
+describe('isUrl', () => {
+	test('valid url', () => {
+		const result = isUrl('google.com')
+		expect(result.valid).toBe(true)
+	})
+	test('invalid url', () => {
+		const result = isUrl('google-com')
 		expect(result.valid).toBe(false)
 	})
 })

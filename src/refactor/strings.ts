@@ -1,4 +1,12 @@
-import { isEmail, isLongerThan, isLongerThanOrEqualTo, isShorterThan, isShorterThanOrEqualTo, isString } from '../rules'
+import {
+	isEmail,
+	isLongerThan,
+	isLongerThanOrEqualTo,
+	isShorterThan,
+	isShorterThanOrEqualTo,
+	isString,
+	isUrl
+} from '../rules'
 import { VCore } from './core'
 import { capitalizeText, extractTextFromHTML, trimToLength } from '../santizers'
 
@@ -26,6 +34,10 @@ export class VString extends VCore<string> {
 
 	email (err?: string) {
 		return this.addRule((val: string) => isEmail(val, err))
+	}
+
+	url (err?: string) {
+		return this.addRule((val: string) => isUrl(val, err))
 	}
 
 	trim () {
