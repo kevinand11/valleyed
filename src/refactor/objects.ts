@@ -1,5 +1,5 @@
 import { VCore } from './core'
-import { isObject } from '../rules'
+import { and, isObject, or } from '../rules'
 
 export type O = { [K in string]: any }
 // @ts-ignore
@@ -12,5 +12,19 @@ export class VObject<T extends O> extends VCore<T> {
 		super()
 		this.schema = schema
 		this.addRule(isObject(schema, err))
+	}
+}
+
+export class VOr<T> extends VCore<T> {
+	constructor (rules: VCore<T>[], err?: string) {
+		super()
+		this.addRule(or(rules.map((v) => v.rules), err))
+	}
+}
+
+export class VAnd<T> extends VCore<T> {
+	constructor (rules: VCore<T>[], err?: string) {
+		super()
+		this.addRule(and(rules.map((v) => v.rules), err))
 	}
 }

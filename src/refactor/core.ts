@@ -1,5 +1,5 @@
 import { Rule, Sanitizer } from '../utils/rules'
-import { arrayContains, isDeepEqualTo, isShallowEqualTo } from '../rules'
+import { and, arrayContains, isDeepEqualTo, isShallowEqualTo, or } from '../rules'
 
 type Validator<T> = { func: Rule<T>, type: 'rule' } | { type: 'sanitizer', func: Sanitizer<T> }
 
@@ -9,6 +9,10 @@ export class VBase<T> {
 		nullable: false
 	}
 	private validators: Validator<T>[] = []
+
+	get rules () {
+		return this.validators.filter((v) => v.type === 'rule').map((r) => r.func) as Rule<T>[]
+	}
 
 	parse (value: T) {
 		return this.run(value, this.validators)
@@ -30,19 +34,19 @@ export class VBase<T> {
 
 	private run (value: T, validators: Validator<T>[]) {
 		const presence = this.options.required
-		if (validators.length === 0) return { isValid: true, error: '', value }
-		if (!presence) return { isValid: true, error: '', value }
-		if (value === null && this.options.nullable) return { isValid: true, error: '', value }
+		if (validators.length === 0) return { valid: true, error: '', value }
+		if (!presence) return { valid: true, error: '', value }
+		if (value === null && this.options.nullable) return { valid: true, error: '', value }
 
 		for (const validator of validators) {
 			if (validator.type === 'sanitizer') value = validator.func(value)
 			else if (validator.type === 'rule') {
 				const { valid, error } = validator.func(value)
-				if (!valid) return { isValid: false, error: error ?? '', value }
+				if (!valid) return { valid: false, error: error ?? '', value }
 			}
 		}
 
-		return { isValid: true, error: '', value }
+		return { valid: true, error: '', value }
 	}
 }
 
@@ -71,5 +75,13 @@ export class VCore<T> extends VBase<T> {
 
 	in (array: T[], comparer: (curr: T, val: T) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
+	}
+
+	or (rules: VCore<T>[]) {
+		return this.addRule(or(rules.map((v) => v.rules)))
+	}
+
+	and (rules: VCore<T>[]) {
+		return this.addRule(and(rules.map((v) => v.rules)))
 	}
 }
