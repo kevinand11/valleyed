@@ -1,4 +1,4 @@
-import { isAudio, isFile, isImage, isVideo } from '../../src/rules'
+import { isAudio, isFile, isImage, isVideo } from '@src/rules'
 
 describe('IsFile', () => {
 	test('null & undefined', () => {

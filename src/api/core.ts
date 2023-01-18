@@ -3,6 +3,7 @@ import { and, arrayContains, isDeepEqualTo, isShallowEqualTo, or } from '../rule
 
 export class VBase<T> {
 	protected options = {
+		original: false,
 		required: true,
 		nullable: false
 	}
@@ -15,12 +16,12 @@ export class VBase<T> {
 	}
 
 	parse (value: T) {
-		value = this.sanitize(value)
-		const v = check(value, this._rules, this.options)
+		const sanitizedValue = this.sanitize(value)
+		const v = check(sanitizedValue, this._rules, this.options)
 		return {
 			valid: v.valid,
 			error: v.errors[0] ?? '',
-			value
+			value: this.options.original ? value : sanitizedValue
 		}
 	}
 
@@ -41,6 +42,11 @@ export class VBase<T> {
 }
 
 export class VCore<T> extends VBase<T> {
+	original (value = true) {
+		this.options.original = value
+		return this
+	}
+
 	optional (value = true) {
 		this.options.required = !value
 		return this

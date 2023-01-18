@@ -1,12 +1,4 @@
-import {
-	hasLength,
-	hasLessThan,
-	hasLessThanOrEqualTo,
-	hasMoreThan,
-	hasMoreThanOrEqualTo,
-	isArray,
-	isArrayOf
-} from '../rules'
+import { hasLengthOf, hasMaxOf, hasMinOf, isArray, isArrayOf } from '../rules'
 import { VCore } from './core'
 
 export class VArray<T> extends VCore<T[]> {
@@ -16,23 +8,15 @@ export class VArray<T> extends VCore<T[]> {
 	}
 
 	has (length: number, err?: string) {
-		return this.addRule(hasLength(length, err))
+		return this.addRule(hasLengthOf(length, err))
 	}
 
-	gt (length: number, err?: string) {
-		return this.addRule(hasMoreThan(length, err))
+	min (length: number, err?: string) {
+		return this.addRule(hasMinOf(length, err))
 	}
 
-	gte (length: number, err?: string) {
-		return this.addRule(hasMoreThanOrEqualTo(length, err))
-	}
-
-	lt (length: number, err?: string) {
-		return this.addRule(hasLessThan(length, err))
-	}
-
-	lte (length: number, err?: string) {
-		return this.addRule(hasLessThanOrEqualTo(length, err))
+	max (length: number, err?: string) {
+		return this.addRule(hasMaxOf(length, err))
 	}
 
 	of (comparer: (cur: T) => boolean, type: string, error?: string) {

@@ -26,7 +26,7 @@
 		"husky": "^8.0.3",
 		"jest": "^29.3.1",
 		"standard-version": "^9.5.0",
-		"ts-jest": "^29.0.3",
+		"ts-jest": "^29.0.5",
 		"typescript": "^4.9.4"
 	},
 	"files": [
@@ -41,18 +41,6 @@
 	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
-	},
-	"jest": {
-		"roots": [
-			"./"
-		],
-		"testMatch": [
-			"**/tests/**/*.[jt]s?(x)",
-			"**/tests/**/?(*.)+(spec|test).[jt]s?(x)"
-		],
-		"transform": {
-			"^.+\\.ts(x)?$": "ts-jest"
-		}
 	},
 	"commitlint": {
 		"extends": [

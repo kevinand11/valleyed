@@ -23,14 +23,22 @@
 		"strict": true,
 		"noEmit": false,
 		"experimentalDecorators": true,
-		"paths": {},
+		"paths": {
+			"@src/*": [
+				"src/*"
+			],
+			"@tests/*": [
+				"tests/*"
+			]
+		},
 		"types": [
 			"@types/node",
 			"jest"
 		]
 	},
 	"include": [
-		"src"
+		"src",
+		"tests"
 	],
 	"exclude": [
 		"node_modules",

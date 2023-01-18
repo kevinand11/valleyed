@@ -1,5 +1,5 @@
-import { Validator } from '../../src/validators'
-import { isEmail } from '../../src/rules'
+import { Validator } from '@src/validators'
+import { isEmail } from '@src/rules'
 
 describe('Testing single ', () => {
 	test('Empty rules with presence', () => {

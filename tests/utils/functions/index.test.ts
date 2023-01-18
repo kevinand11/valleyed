@@ -1,4 +1,4 @@
-import { capitalizeText, extractTextFromHTML, extractUrls, trimToLength } from '../../src/santizers'
+import { capitalizeText, extractTextFromHTML, extractUrls, trimToLength } from '@src/utils/functions'
 
 test('CapitalizeText', () => {
 	expect(capitalizeText('test')).toBe('Test')

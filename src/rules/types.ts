@@ -31,11 +31,3 @@ export const isArray = (error = 'is not an array') => makeRule<any>((value) => {
 	if (Array.isArray(value)) return isValid()
 	return isInvalid(error)
 })
-
-export const isArrayOf = <T> (comparer: (cur: T) => boolean, type: string, error?: string) => makeRule<T[]>((value) => {
-	error = error ?? `contains some values that are not ${type}`
-	const validArray = isArray()(value)
-	if (!validArray.valid) return validArray
-	if (value.every((v) => comparer(v))) return isValid()
-	return isInvalid(error)
-})

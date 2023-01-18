@@ -1,4 +1,7 @@
 export * from './equality'
+export * from './strings'
+export * from './numbers'
+export * from './arrays'
 export * from './types'
 export * from './files'
 export * from './users'

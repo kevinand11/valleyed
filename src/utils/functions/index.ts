@@ -1,5 +1,5 @@
-import { normalizeUrl } from './normalize'
-import { isNumber, URLRegex } from '../rules'
+import { normalizeUrl } from './urls/normalize'
+import { isNumber, URLRegex } from '../../rules'
 
 export const capitalizeText = (text: string) => {
 	if (text === null || text === undefined) return text

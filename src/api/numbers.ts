@@ -22,4 +22,8 @@ export class VNumber extends VCore<number> {
 	lte (length: number, err?: string) {
 		return this.addRule(isLessThanOrEqualTo(length, err))
 	}
+
+	round (dp: number) {
+		return this.addSanitizer((val: number) => Number(Number(val).toFixed(dp)))
+	}
 }

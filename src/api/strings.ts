@@ -1,15 +1,6 @@
-import {
-	isEmail,
-	isLengthEqual,
-	isLongerThan,
-	isLongerThanOrEqualTo,
-	isShorterThan,
-	isShorterThanOrEqualTo,
-	isString,
-	isUrl
-} from '../rules'
+import { isEmail, isLengthOf, isMaxOf, isMinOf, isString, isUrl } from '../rules'
 import { VCore } from './core'
-import { capitalizeText, extractTextFromHTML, trimToLength } from '../santizers'
+import { capitalizeText, extractTextFromHTML, trimToLength } from '../utils/functions'
 
 export class VString extends VCore<string> {
 	constructor (err?: string) {
@@ -18,23 +9,15 @@ export class VString extends VCore<string> {
 	}
 
 	has (length: number, err?: string) {
-		return this.addRule(isLengthEqual(length, err))
+		return this.addRule(isLengthOf(length, err))
 	}
 
-	gt (length: number, err?: string) {
-		return this.addRule(isLongerThan(length, err))
+	min (length: number, err?: string) {
+		return this.addRule(isMinOf(length, err))
 	}
 
-	gte (length: number, err?: string) {
-		return this.addRule(isLongerThanOrEqualTo(length, err))
-	}
-
-	lt (length: number, err?: string) {
-		return this.addRule(isShorterThan(length, err))
-	}
-
-	lte (length: number, err?: string) {
-		return this.addRule(isShorterThanOrEqualTo(length, err))
+	max (length: number, err?: string) {
+		return this.addRule(isMaxOf(length, err))
 	}
 
 	email (err?: string) {
@@ -61,7 +44,7 @@ export class VString extends VCore<string> {
 		return this.addSanitizer((val: string) => capitalizeText(val))
 	}
 
-	extractHTML () {
+	stripHTML () {
 		return this.addSanitizer((val: string) => extractTextFromHTML(val))
 	}
 
