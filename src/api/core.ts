@@ -1,7 +1,8 @@
 import { check, Rule, Sanitizer } from '../utils/rules'
-import { and, arrayContains, isDeepEqualTo, isShallowEqualTo, or } from '../rules'
+import { arrayContains, isDeepEqualTo, isShallowEqualTo } from '../rules'
 
 export class VBase<I, O = I> {
+	forced = false as (I extends O ? false : true)
 	protected options = {
 		original: false,
 		required: true,
@@ -77,13 +78,5 @@ export class VCore<I, O = I> extends VBase<I, O> {
 
 	in (array: I[], comparer: (curr: I, val: I) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
-	}
-
-	or (rules: VCore<I>[]) {
-		return this.addRule(or(rules.map((v) => v.rules)))
-	}
-
-	and (rules: VCore<I>[]) {
-		return this.addRule(and(rules.map((v) => v.rules)))
 	}
 }

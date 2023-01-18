@@ -14,7 +14,7 @@ export const v = {
 	number: (err?: string) => new VNumber(err),
 	boolean: (err?: string) => new VBoolean(err),
 	file: (err?: string) => new VFile(err),
-	array: <T> (err?: string) => new VArray<T>(err),
+	array: <T> (comparer: VCore<T, T>, type: string, err?: string) => new VArray<T>(comparer, type, err),
 	object: <T extends Record<string, any>> (schema: Schema<T>, err?: string) => new VObject<T>(schema, err),
 	null: (err?: string) => {
 		const v = new VCore<null>()
@@ -28,18 +28,21 @@ export const v = {
 	},
 	force: {
 		string: () => {
-			const v = new VString<any>()
+			const v = new VString<unknown>()
 			v.addSanitizer((value) => String(value))
+			v.forced = true
 			return v
 		},
 		number: () => {
-			const v = new VNumber<any>()
+			const v = new VNumber<unknown>()
 			v.addSanitizer((value) => Number(value))
+			v.forced = true
 			return v
 		},
 		boolean: () => {
-			const v = new VBoolean<any>()
+			const v = new VBoolean<unknown>()
 			v.addSanitizer((value) => Boolean(value))
+			v.forced = true
 			return v
 		}
 	}
