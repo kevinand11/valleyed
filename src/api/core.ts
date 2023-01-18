@@ -1,47 +1,47 @@
 import { check, Rule, Sanitizer } from '../utils/rules'
 import { and, arrayContains, isDeepEqualTo, isShallowEqualTo, or } from '../rules'
 
-export class VBase<T> {
+export class VBase<I, O = I> {
 	protected options = {
 		original: false,
 		required: true,
 		nullable: false
 	}
-	private _sanitizers: Sanitizer<T>[] = []
+	private _sanitizers: Sanitizer<any>[] = []
 
-	private _rules: Rule<T>[] = []
+	private _rules: Rule<any>[] = []
 
 	get rules () {
 		return this._rules
 	}
 
-	parse (value: T) {
+	parse (value: I) {
 		const sanitizedValue = this.sanitize(value)
 		const v = check(sanitizedValue, this._rules, this.options)
 		return {
 			valid: v.valid,
 			error: v.errors[0] ?? '',
-			value: this.options.original ? value : sanitizedValue
+			value: (this.options.original ? value : sanitizedValue) as unknown as O
 		}
 	}
 
-	sanitize (value: T) {
+	sanitize (value: I) {
 		for (const sanitizer of this._sanitizers) value = sanitizer(value)
-		return value
+		return value as unknown as O
 	}
 
-	addRule (rule: Rule<T>) {
+	addRule (rule: Rule<any>) {
 		this._rules.push(rule)
 		return this
 	}
 
-	addSanitizer (sanitizer: Sanitizer<T>) {
+	addSanitizer (sanitizer: Sanitizer<any>) {
 		this._sanitizers.push(sanitizer)
 		return this
 	}
 }
 
-export class VCore<T> extends VBase<T> {
+export class VCore<I, O = I> extends VBase<I, O> {
 	original (value = true) {
 		this.options.original = value
 		return this
@@ -63,27 +63,27 @@ export class VCore<T> extends VBase<T> {
 		return this
 	}
 
-	default (def: T) {
-		return this.addSanitizer((val: T) => val ?? def)
+	default (def: I) {
+		return this.addSanitizer((val: I) => val ?? def)
 	}
 
-	eq (compare: T, err?: string) {
+	eq (compare: I, err?: string) {
 		return this.addRule(isShallowEqualTo(compare, err))
 	}
 
-	eqD (compare: T, comparer: (val: T, compare: T) => boolean, err?: string) {
+	eqD (compare: I, comparer: (val: I, compare: I) => boolean, err?: string) {
 		return this.addRule(isDeepEqualTo(compare, comparer, err))
 	}
 
-	in (array: T[], comparer: (curr: T, val: T) => boolean, err?: string) {
+	in (array: I[], comparer: (curr: I, val: I) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
 	}
 
-	or (rules: VCore<T>[]) {
+	or (rules: VCore<I>[]) {
 		return this.addRule(or(rules.map((v) => v.rules)))
 	}
 
-	and (rules: VCore<T>[]) {
+	and (rules: VCore<I>[]) {
 		return this.addRule(and(rules.map((v) => v.rules)))
 	}
 }

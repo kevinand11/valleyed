@@ -1,7 +1,7 @@
 import { isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../rules'
 import { VCore } from './core'
 
-export class VNumber extends VCore<number> {
+export class VNumber<I = number> extends VCore<I, number> {
 	constructor (err?: string) {
 		super()
 		this.addRule(isNumber(err))

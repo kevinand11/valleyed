@@ -25,5 +25,22 @@ export const v = {
 		const v = new VCore<undefined>()
 		v.addRule((val: undefined) => isUndefined(err)(val))
 		return v
+	},
+	force: {
+		string: () => {
+			const v = new VString<any>()
+			v.addSanitizer((value) => String(value))
+			return v
+		},
+		number: () => {
+			const v = new VNumber<any>()
+			v.addSanitizer((value) => Number(value))
+			return v
+		},
+		boolean: () => {
+			const v = new VBoolean<any>()
+			v.addSanitizer((value) => Boolean(value))
+			return v
+		}
 	}
 }
