@@ -5,10 +5,13 @@ export type Schema<T extends Record<string, any>> = { [k in keyof T]: VCore<T[k]
 
 export class VObject<T extends Record<string, any>> extends VCore<T> {
 	schema: Schema<T>
+	ignTrim: boolean
 
-	constructor (schema: Schema<T>, err = 'doesn\'t match the schema') {
+	constructor (schema: Schema<T>, ignTrim = false, err = 'doesn\'t match the schema') {
 		super()
 		this.schema = schema
+		this.ignTrim = ignTrim
+		this.addSanitizer((value: T) => this.trim(value))
 		this.addRule(makeRule<T>((value) => {
 			const calculateValidity = (value: T, schema: Schema<T>, path: string[]) => {
 				for (const key of Object.keys(schema)) {
@@ -26,6 +29,16 @@ export class VObject<T extends Record<string, any>> extends VCore<T> {
 			}
 			return calculateValidity(value, schema, [])
 		}))
+	}
+
+	private trim (value: any) {
+		if (this.ignTrim) return value
+		Object.keys(value).forEach((key) => {
+			if (!(key in this.schema)) delete value[key]
+			const scheme = this.schema[key]
+			if (scheme instanceof VObject) value[key] = scheme.trim(value[key])
+		})
+		return value
 	}
 }
 
