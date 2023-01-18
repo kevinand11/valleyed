@@ -2,7 +2,6 @@ import { check, Rule, Sanitizer } from '../utils/rules'
 import { and, arrayContains, isDeepEqualTo, isShallowEqualTo, or } from '../rules'
 
 export class VBase<T> {
-	type = {} as unknown as ReturnType<(typeof this)['parse']>['value']
 	protected options = {
 		required: true,
 		nullable: false

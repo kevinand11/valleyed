@@ -1,7 +1,7 @@
 import { VCore } from './core'
 import { and, isObject, or } from '../rules'
 
-export type Schema<T extends Record<string, any>> = Record<keyof T, VCore<T[keyof T]>>
+export type Schema<T extends Record<string, any>> = { [k in keyof T]: VCore<T[k]> }
 
 export class VObject<T extends Record<string, any>> extends VCore<T> {
 	schema: Schema<T>
@@ -13,8 +13,10 @@ export class VObject<T extends Record<string, any>> extends VCore<T> {
 	}
 }
 
-export class VOr<T> extends VCore<T> {
-	constructor (rules: VCore<T>[], err?: string) {
+type GetVCoreG<C extends VCore<any>> = C extends VCore<infer T> ? T : unknown;
+
+export class VOr<T extends VCore<any>[]> extends VCore<GetVCoreG<T[number]>> {
+	constructor (rules: T, err?: string) {
 		super()
 		this.addRule(or(rules.map((v) => v.rules), err))
 	}

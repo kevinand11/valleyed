@@ -8,8 +8,8 @@ import { Schema, VAnd, VObject, VOr } from './objects'
 import { VBoolean } from './booleans'
 
 export const v = {
-	or: (rules: VCore<any>[]) => new VOr(rules),
-	and: (rules: VCore<any>[]) => new VAnd(rules),
+	or: <T extends VCore<any>[]> (rules: T) => new VOr<T>(rules),
+	and: <T> (rules: VCore<T>[]) => new VAnd<T>(rules),
 	string: (err?: string) => new VString(err),
 	number: (err?: string) => new VNumber(err),
 	boolean: (err?: string) => new VBoolean(err),
@@ -22,8 +22,8 @@ export const v = {
 		return v
 	},
 	undefined: (err?: string) => {
-		const v = new VCore<null>()
-		v.addRule((val: null) => isUndefined(err)(val))
+		const v = new VCore<undefined>()
+		v.addRule((val: undefined) => isUndefined(err)(val))
 		return v
 	}
 }
