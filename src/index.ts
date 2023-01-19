@@ -1,4 +1,4 @@
-export { v } from './api'
+export * from './api'
 
 export { Validator } from './validators'
 export * from './utils/rules'

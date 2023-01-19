@@ -103,3 +103,5 @@ export class VPartial<I, O, P> extends VCore<I | P, O | P> {
 		return v
 	}
 }
+
+export const coreToComp = <T> (core: VCore<T>) => (v: T) => core.parse(v).valid

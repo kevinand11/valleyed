@@ -1,4 +1,4 @@
-import { VCore } from './core'
+import { coreToComp, VCore } from './core'
 import { GetMap, isTuple } from '../rules'
 
 type TupleToCompare<T extends Readonly<any[]>> = { [k in keyof T]: VCore<T[k]> }
@@ -11,7 +11,7 @@ export class VTuple<T extends any[]> extends VCore<T> {
 		const v = new VTuple<T>()
 		v.schema = schema
 		v.addSanitizer((value: T) => v.trim(value))
-		v.addRule(isTuple<T>(schema.map((c) => (v) => c.parse(v).valid) as any, err))
+		v.addRule(isTuple<T>(schema.map(coreToComp) as any, err))
 		return v
 	}
 
