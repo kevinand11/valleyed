@@ -11,8 +11,7 @@ module.exports = {
 		'./'
 	],
 	testMatch: [
-		'**/tests/**/*.[jt]s?(x)',
-		'**/tests/**/?(*.)+(spec|test).[jt]s?(x)'
+		'**/tests/**/?(*.)+(spec|test).ts?(x)'
 	],
 	transform: {
 		'^.+\\.ts(x)?$': 'ts-jest'

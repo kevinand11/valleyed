@@ -1,12 +1,13 @@
 import { check, Rule, Sanitizer } from '../utils/rules'
-import { arrayContains, isDeepEqualTo, isShallowEqualTo } from '../rules'
+import { arrayContains, isCustom, isDeepEqualTo, isShallowEqualTo } from '../rules'
 
 export class VBase<I, O = I> {
 	forced = false as (I extends O ? false : true)
 	protected options = {
 		original: false,
 		required: true,
-		nullable: false
+		nullable: false,
+		default: undefined as unknown as O
 	}
 	private _sanitizers: Sanitizer<any>[] = []
 
@@ -28,7 +29,9 @@ export class VBase<I, O = I> {
 
 	sanitize (value: I) {
 		for (const sanitizer of this._sanitizers) value = sanitizer(value)
-		return value as unknown as O
+		if (value !== undefined) return value as unknown as O
+		if (this.options.default) return this.options.default
+		return undefined as unknown as O
 	}
 
 	addRule (rule: Rule<any>) {
@@ -79,19 +82,24 @@ export class VCore<I, O = I> extends VBase<I, O> {
 		return this.optional().nullable()
 	}
 
-	default (def: I) {
-		return this.addSanitizer((val: I) => val ?? def)
+	default (def: O) {
+		this.options.default = def
+		return this
 	}
 
-	eq (compare: I, err?: string) {
+	custom (fn: (v: O) => boolean, err?: string) {
+		return this.addRule(isCustom(fn, err))
+	}
+
+	eq (compare: O, err?: string) {
 		return this.addRule(isShallowEqualTo(compare, err))
 	}
 
-	eqD (compare: I, comparer: (val: I, compare: I) => boolean, err?: string) {
+	eqD (compare: O, comparer: (val: O, compare: O) => boolean, err?: string) {
 		return this.addRule(isDeepEqualTo(compare, comparer, err))
 	}
 
-	in (array: I[], comparer: (curr: I, val: I) => boolean, err?: string) {
+	in (array: O[], comparer: (curr: O, val: O) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
 	}
 }
