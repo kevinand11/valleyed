@@ -1,4 +1,4 @@
-import { isMap, isRecord } from '@src/rules'
+import { isMap, isRecord } from '../../src/rules'
 
 const rules = [
 	(c: string) => typeof c === 'string',

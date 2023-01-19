@@ -1,4 +1,4 @@
-import { isBoolean, isNull, isUndefined } from '@src/rules'
+import { isBoolean, isNull, isUndefined } from '../../src/rules'
 
 describe('isUndefined', () => {
 	test('undefined', () => {

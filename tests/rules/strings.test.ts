@@ -1,4 +1,4 @@
-import { hasMinOf, isMaxOf, isMinOf, isString } from '@src/rules'
+import { hasMinOf, isMaxOf, isMinOf, isString } from '../../src/rules'
 
 describe('isString', () => {
 	test('truthy string', () => {

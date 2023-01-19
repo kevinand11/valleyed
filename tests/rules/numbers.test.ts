@@ -1,4 +1,4 @@
-import { isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '@src/rules'
+import { isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../../src/rules'
 
 describe('isNumber', () => {
 	test('truthy number', () => {

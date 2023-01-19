@@ -1,4 +1,4 @@
-import { isEmail, isUrl } from '@src/rules'
+import { isEmail, isUrl } from '../../src/rules'
 
 describe('isEmail()', () => {
 	test('valid email', () => {

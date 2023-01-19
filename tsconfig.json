@@ -7,7 +7,6 @@
 		"resolveJsonModule": true,
 		"target": "es2015",
 		"module": "commonjs",
-		"rootDir": "src",
 		"baseUrl": ".",
 		"outDir": "lib",
 		"declaration": true,
@@ -37,11 +36,11 @@
 		]
 	},
 	"include": [
-		"src",
-		"tests"
+		"src"
 	],
 	"exclude": [
 		"node_modules",
-		"lib"
+		"lib",
+		"tests"
 	]
 }

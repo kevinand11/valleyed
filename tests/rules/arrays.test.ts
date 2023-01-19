@@ -1,4 +1,4 @@
-import { hasMaxOf, hasMinOf, isArray, isArrayOf, isBoolean, isNumber, isString } from '@src/rules'
+import { hasMaxOf, hasMinOf, isArray, isArrayOf, isBoolean, isNumber, isString } from '../../src/rules'
 
 describe('isArray', () => {
 	test('empty string', () => {

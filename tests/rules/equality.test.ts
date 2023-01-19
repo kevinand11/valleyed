@@ -1,4 +1,4 @@
-import { arrayContains, isDeepEqualTo, isShallowEqualTo } from '@src/rules'
+import { arrayContains, isDeepEqualTo, isShallowEqualTo } from '../../src/rules'
 
 test('IsShallowEqualTo', () => {
 	expect(isShallowEqualTo(1)(1).valid).toBe(true)

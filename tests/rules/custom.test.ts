@@ -1,4 +1,4 @@
-import { isCustom } from '@src/rules'
+import { isCustom } from '../../src/rules'
 
 describe('isCustom', () => {
 	test('truthy', () => {

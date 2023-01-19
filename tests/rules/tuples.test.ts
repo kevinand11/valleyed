@@ -1,4 +1,4 @@
-import { isTuple } from '@src/rules'
+import { isTuple } from '../../src/rules'
 
 describe('isTuple', () => {
 	test('empty tuple', () => {
