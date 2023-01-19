@@ -4,51 +4,37 @@ import { VFile } from './files'
 import { VCore } from './core'
 import { isInstanceOf, isNull, isUndefined } from '../rules'
 import { VArray } from './arrays'
-import { Schema, VAnd, VObject, VOr } from './objects'
+import { VAnd, VObject, VOr } from './objects'
 import { VBoolean } from './booleans'
 
 export const v = {
-	or: <T extends VCore<any>[]> (rules: T) => new VOr<T>(rules),
-	and: <T> (rules: VCore<T>[]) => new VAnd<T>(rules),
-	string: (err?: string) => new VString(err),
-	number: (err?: string) => new VNumber(err),
-	boolean: (err?: string) => new VBoolean(err),
-	file: (err?: string) => new VFile(err),
-	array: <T> (comparer: VCore<T, T>, type: string, err?: string) => new VArray<T>(comparer, type, err),
-	object: <T extends Record<string, any>> (schema: Schema<T>, ignTrim?: boolean, err?: string) => new VObject<T>(schema, ignTrim, err),
-	null: (err?: string) => {
-		const v = new VCore<null>()
-		v.addRule((val: null) => isNull(err)(val))
-		return v
-	},
-	undefined: (err?: string) => {
-		const v = new VCore<undefined>()
-		v.addRule((val: undefined) => isUndefined(err)(val))
-		return v
-	},
-	instanceof: <T> (classDef: new () => T, err?: string) => {
-		const v = new VCore<T>()
-		v.addRule((val: T) => isInstanceOf(classDef, err)(val))
-		return v
-	},
-	any: () => {
-		return new VCore<any>()
-	},
+	or: VOr.create,
+	and: VAnd.create,
+	string: VString.create,
+	number: VNumber.create,
+	boolean: VBoolean.create,
+	file: VFile.create,
+	array: VArray.create,
+	object: VObject.create,
+	null: (err?: string) => VCore.c<null>().addRule((val: null) => isNull(err)(val)),
+	undefined: (err?: string) => VCore.c<undefined>().addRule((val: undefined) => isUndefined(err)(val)),
+	instanceof: <T> (classDef: new () => T, err?: string) => VCore.c<T>().addRule((val: T) => isInstanceOf(classDef, err)(val)),
+	any: () => VCore.c<any>(),
 	force: {
-		string: () => {
-			const v = new VString<unknown>()
+		string: (err?: string) => {
+			const v = VString.create<unknown>(err)
 			v.addSanitizer((value) => String(value))
 			v.forced = true
 			return v
 		},
-		number: () => {
-			const v = new VNumber<unknown>()
+		number: (err?: string) => {
+			const v = VNumber.create<unknown>(err)
 			v.addSanitizer((value) => Number(value))
 			v.forced = true
 			return v
 		},
-		boolean: () => {
-			const v = new VBoolean<unknown>()
+		boolean: (err?: string) => {
+			const v = VBoolean.create<unknown>(err)
 			v.addSanitizer((value) => Boolean(value))
 			v.forced = true
 			return v

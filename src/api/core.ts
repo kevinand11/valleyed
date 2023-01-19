@@ -50,19 +50,27 @@ export class VBase<I, O = I> {
 }
 
 export class VCore<I, O = I> extends VBase<I, O> {
+	protected constructor () {
+		super()
+	}
+
+	static c<I, O = I> () {
+		return new VCore<I, O>()
+	}
+
 	original () {
 		this.options.original = true
 		return this
 	}
 
 	optional () {
-		const v = new VPartial<I, O, undefined>(this)
+		const v = VPartial.create<I, O, undefined>(this)
 		v.options.required = false
 		return v
 	}
 
 	nullable () {
-		const v = new VPartial<I, O, null>(this)
+		const v = VPartial.create<I, O, null>(this)
 		v.options.nullable = true
 		return v
 	}
@@ -89,8 +97,9 @@ export class VCore<I, O = I> extends VBase<I, O> {
 }
 
 export class VPartial<I, O, P> extends VCore<I | P, O | P> {
-	constructor (c: VCore<I, O>) {
-		super()
-		this.clone(c)
+	static create<I, O, P> (c: VCore<I, O>) {
+		const v = new VPartial<I, O, P>()
+		v.clone(c)
+		return v
 	}
 }

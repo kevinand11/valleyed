@@ -2,9 +2,10 @@ import { isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNum
 import { VCore } from './core'
 
 export class VNumber<I = number> extends VCore<I, number> {
-	constructor (err?: string) {
-		super()
-		this.addRule(isNumber(err))
+	static create<I = number> (err?: string) {
+		const v = new VNumber<I>()
+		v.addRule(isNumber(err))
+		return v
 	}
 
 	gt (length: number, err?: string) {
