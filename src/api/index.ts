@@ -2,7 +2,7 @@ import { VString } from './strings'
 import { VNumber } from './numbers'
 import { VFile } from './files'
 import { VCore } from './core'
-import { isNull, isUndefined } from '../rules'
+import { isInstanceOf, isNull, isUndefined } from '../rules'
 import { VArray } from './arrays'
 import { Schema, VAnd, VObject, VOr } from './objects'
 import { VBoolean } from './booleans'
@@ -24,6 +24,11 @@ export const v = {
 	undefined: (err?: string) => {
 		const v = new VCore<undefined>()
 		v.addRule((val: undefined) => isUndefined(err)(val))
+		return v
+	},
+	instanceof: <T> (classDef: new () => T, err?: string) => {
+		const v = new VCore<T>()
+		v.addRule((val: T) => isInstanceOf(classDef, err)(val))
 		return v
 	},
 	any: () => {
