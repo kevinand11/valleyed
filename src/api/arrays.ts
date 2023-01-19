@@ -19,4 +19,18 @@ export class VArray<T> extends VCore<T[]> {
 	max (length: number, err?: string) {
 		return this.addRule(hasMaxOf(length, err))
 	}
+
+	set (keyFn: (v: T) => any = (v) => v) {
+		return this.addSanitizer((val: T[]) => {
+			const finalArr: T[] = []
+			const obj: Record<any, boolean> = {}
+			val.forEach((v) => {
+				const key = keyFn(v)
+				if (obj[key]) return
+				obj[key] = true
+				finalArr.push(v)
+			})
+			return finalArr
+		})
+	}
 }

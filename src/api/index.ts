@@ -27,8 +27,7 @@ export const v = {
 		return v
 	},
 	any: () => {
-		const v = new VCore<any>()
-		return v
+		return new VCore<any>()
 	},
 	force: {
 		string: () => {
