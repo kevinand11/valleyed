@@ -6,6 +6,7 @@ import { isInstanceOf, isNull, isUndefined } from '../rules'
 import { VArray } from './arrays'
 import { VAnd, VObject, VOr } from './objects'
 import { VBoolean } from './booleans'
+import { VTuple } from './tuples'
 
 export const v = {
 	or: VOr.create,
@@ -15,6 +16,7 @@ export const v = {
 	boolean: VBoolean.create,
 	file: VFile.create,
 	array: VArray.create,
+	tuple: VTuple.create,
 	object: VObject.create,
 	null: (err?: string) => VCore.c<null>().addRule((val: null) => isNull(err)(val)),
 	undefined: (err?: string) => VCore.c<undefined>().addRule((val: undefined) => isUndefined(err)(val)),
