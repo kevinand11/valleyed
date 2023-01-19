@@ -1,5 +1,41 @@
 import { hasMaxOf, hasMinOf, isArray, isArrayOf, isBoolean, isNumber, isString } from '@src/rules'
 
+describe('isArray', () => {
+	test('empty string', () => {
+		const result = isArray()([])
+		expect(result.valid).toBe(true)
+	})
+	test('non-empty string', () => {
+		const result = isArray()([1, '2', [], {}, Symbol()])
+		expect(result.valid).toBe(true)
+	})
+	test('number', () => {
+		const result = isArray()(1)
+		expect(result.valid).toBe(false)
+	})
+	test('string', () => {
+		const result = isArray()('array')
+		expect(result.valid).toBe(false)
+	})
+	test('object', () => {
+		const result = isArray()({})
+		expect(result.valid).toBe(false)
+	})
+	test('function', () => {
+		const result = isArray()(() => {
+		})
+		expect(result.valid).toBe(false)
+	})
+	test('set', () => {
+		const result = isArray()(new Set())
+		expect(result.valid).toBe(false)
+	})
+	test('symbol', () => {
+		const result = isArray()(Symbol())
+		expect(result.valid).toBe(false)
+	})
+})
+
 test('hasMinOf', () => {
 	expect(hasMinOf(4)([1, 2, 3, 4]).valid).toBe(true)
 	expect(hasMinOf(5)([1, 2, 3, 4]).valid).toBe(false)

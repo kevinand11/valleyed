@@ -1,4 +1,40 @@
-import { hasMinOf, isMaxOf, isMinOf } from '@src/rules'
+import { hasMinOf, isMaxOf, isMinOf, isString } from '@src/rules'
+
+describe('isString', () => {
+	test('truthy string', () => {
+		const result = isString()('1')
+		expect(result.valid).toBe(true)
+	})
+	test('falsy string', () => {
+		const result = isString()('')
+		expect(result.valid).toBe(true)
+	})
+	test('number', () => {
+		const result = isString()(1)
+		expect(result.valid).toBe(false)
+	})
+	test('array', () => {
+		const result = isString()([])
+		expect(result.valid).toBe(false)
+	})
+	test('object', () => {
+		const result = isString()({})
+		expect(result.valid).toBe(false)
+	})
+	test('function', () => {
+		const result = isString()(() => {
+		})
+		expect(result.valid).toBe(false)
+	})
+	test('set', () => {
+		const result = isString()(new Set())
+		expect(result.valid).toBe(false)
+	})
+	test('symbol', () => {
+		const result = isString()(Symbol())
+		expect(result.valid).toBe(false)
+	})
+})
 
 test('isMinOf', () => {
 	expect(isMinOf(4)('test').valid).toBe(true)

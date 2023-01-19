@@ -1,6 +1,5 @@
 import { check, Rule, Sanitizer } from '../utils/rules'
 import { arrayContains, isDeepEqualTo, isShallowEqualTo } from '../rules'
-import { VPartial } from './partials'
 
 export class VBase<I, O = I> {
 	forced = false as (I extends O ? false : true)
@@ -86,5 +85,12 @@ export class VCore<I, O = I> extends VBase<I, O> {
 
 	in (array: I[], comparer: (curr: I, val: I) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
+	}
+}
+
+export class VPartial<I, O, P> extends VCore<I | P, O | P> {
+	constructor (c: VCore<I, O>) {
+		super()
+		this.clone(c)
 	}
 }

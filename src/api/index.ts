@@ -26,6 +26,10 @@ export const v = {
 		v.addRule((val: undefined) => isUndefined(err)(val))
 		return v
 	},
+	any: () => {
+		const v = new VCore<any>()
+		return v
+	},
 	force: {
 		string: () => {
 			const v = new VString<unknown>()
