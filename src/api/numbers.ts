@@ -25,6 +25,11 @@ export class VNumber<I = number> extends VCore<I, number> {
 	}
 
 	round (dp: number) {
-		return this.addSanitizer((val: number) => Number(Number(val).toFixed(dp)))
+		return this.addSanitizer((val) => Number(this.conv(val).toFixed(dp)))
+	}
+
+	private conv (value: I) {
+		if (isNumber()(value).valid) return value as number
+		return 0
 	}
 }

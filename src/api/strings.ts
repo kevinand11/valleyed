@@ -30,26 +30,31 @@ export class VString<I = string> extends VCore<I, string> {
 	}
 
 	trim () {
-		return this.addSanitizer((val: string) => val.trim())
+		return this.addSanitizer((val) => this.conv(val).trim())
 	}
 
 	lower () {
-		return this.addSanitizer((val: string) => val.toLowerCase())
+		return this.addSanitizer((val) => this.conv(val).toLowerCase())
 	}
 
 	upper () {
-		return this.addSanitizer((val: string) => val.toUpperCase())
+		return this.addSanitizer((val) => this.conv(val).toUpperCase())
 	}
 
 	capitalize () {
-		return this.addSanitizer((val: string) => capitalizeText(val))
+		return this.addSanitizer((val) => capitalizeText(this.conv(val)))
 	}
 
 	stripHTML () {
-		return this.addSanitizer((val: string) => extractTextFromHTML(val))
+		return this.addSanitizer((val) => extractTextFromHTML(this.conv(val)))
 	}
 
 	slice (length: number) {
-		return this.addSanitizer((val: string) => trimToLength(val, length))
+		return this.addSanitizer((val) => trimToLength(this.conv(val), length))
+	}
+
+	private conv (value: I) {
+		if (isString()(value).valid) return value as string
+		return ''
 	}
 }

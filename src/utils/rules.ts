@@ -1,5 +1,5 @@
 export type Rule<T> = (value: T) => ReturnType<typeof isValid> | ReturnType<typeof isInvalid>
-export type Sanitizer<T> = (value: T) => T
+export type Sanitizer<I, O> = (value: I) => O
 
 export type Options = {
 	required: boolean | (() => boolean),
@@ -11,7 +11,7 @@ export const isValid = (): { valid: true, error: null } => ({ valid: true, error
 export const isInvalid = (error: string): { valid: false, error: string } => ({ valid: false, error })
 
 export const makeRule = <T> (func: Rule<T>): Rule<T> => (val: T) => func(val)
-export const makeSanitizer = <T> (func: Sanitizer<T>) => (val: T) => func(val)
+export const makeSanitizer = <I, O> (func: Sanitizer<I, O>) => (val: I) => func(val)
 
 export const check = <T> (value: T, rules: Rule<T>[], options: Partial<Options>) => {
 	const allOptions = { required: true, nullable: false, ...options }

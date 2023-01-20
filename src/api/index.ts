@@ -8,7 +8,7 @@ import { VAnd, VObject, VOr } from './objects'
 import { VBoolean } from './booleans'
 import { VTuple } from './tuples'
 import { VMap, VRecord } from './records'
-import { Dateable, VTimestamp } from './timestamps'
+import { Timeable, VTime } from './times'
 
 type PrimitiveFunc<T> = (err?: string) => T
 
@@ -28,7 +28,7 @@ export const v = {
 	string: VString.create as PrimitiveFunc<VString>,
 	number: VNumber.create as PrimitiveFunc<VNumber>,
 	boolean: VBoolean.create as PrimitiveFunc<VBoolean>,
-	timestamp: VTimestamp.create as PrimitiveFunc<VTimestamp>,
+	time: VTime.create as PrimitiveFunc<VTime>,
 	file: VFile.create,
 	array: VArray.create,
 	tuple: VTuple.create,
@@ -43,6 +43,6 @@ export const v = {
 		string: force((...args: Parameters<typeof VString.create>) => VString.create<unknown>(...args), String),
 		number: force((...args: Parameters<typeof VNumber.create>) => VNumber.create<unknown>(...args), Number),
 		boolean: force((...args: Parameters<typeof VBoolean.create>) => VBoolean.create<unknown>(...args), Boolean),
-		timestamp: force((...args: Parameters<typeof VTimestamp.create>) => VTimestamp.create<unknown>(...args), Date as () => Dateable)
+		time: force((...args: Parameters<typeof VTime.create>) => VTime.create<unknown>(...args), Date as () => Timeable)
 	}
 }
