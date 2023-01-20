@@ -2,7 +2,6 @@ import { check, Rule, Sanitizer } from '../utils/rules'
 import { arrayContains, isCustom, isDeepEqualTo, isShallowEqualTo } from '../rules'
 
 export class VBase<I, O = I> {
-	forced = false as (I extends O ? false : true)
 	protected options = {
 		original: false,
 		required: true,
@@ -10,6 +9,12 @@ export class VBase<I, O = I> {
 		default: undefined as unknown as O
 	}
 	private _sanitizers: Sanitizer<any>[] = []
+
+	private _forced = false as (I extends O ? false : true)
+
+	get forced () {
+		return this._forced
+	}
 
 	private _rules: Rule<O>[] = []
 
@@ -46,7 +51,7 @@ export class VBase<I, O = I> {
 
 	protected clone (c: VCore<any, any>) {
 		this.options = c.options
-		this.forced = c.forced as any
+		this._forced = c._forced as any
 		this._rules = [...c._rules]
 		this._sanitizers = [...c._sanitizers]
 	}

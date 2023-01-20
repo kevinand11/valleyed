@@ -8,20 +8,20 @@ export class VNumber<I = number> extends VCore<I, number> {
 		return v
 	}
 
-	gt (length: number, err?: string) {
-		return this.addRule(isMoreThan(length, err))
+	gt (value: number, err?: string) {
+		return this.addRule(isMoreThan(value, err))
 	}
 
-	gte (length: number, err?: string) {
-		return this.addRule(isMoreThanOrEqualTo(length, err))
+	gte (value: number, err?: string) {
+		return this.addRule(isMoreThanOrEqualTo(value, err))
 	}
 
-	lt (length: number, err?: string) {
-		return this.addRule(isLessThan(length, err))
+	lt (value: number, err?: string) {
+		return this.addRule(isLessThan(value, err))
 	}
 
-	lte (length: number, err?: string) {
-		return this.addRule(isLessThanOrEqualTo(length, err))
+	lte (value: number, err?: string) {
+		return this.addRule(isLessThanOrEqualTo(value, err))
 	}
 
 	round (dp: number) {

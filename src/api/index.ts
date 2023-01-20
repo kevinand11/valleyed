@@ -11,6 +11,16 @@ import { VMap, VRecord } from './records'
 
 type PrimitiveFunc<T> = (err?: string) => T
 
+const force = <I, O, A extends Array<any>, C extends VCore<I, O>> (create: (...args: A) => C, constructor: (arg: I) => O) => {
+	return ((...args: Parameters<typeof create>) => {
+		const v = create(...args)
+		v.addSanitizer((value) => constructor(value))
+		// @ts-ignore
+		v._forced = true
+		return v as ReturnType<typeof create>
+	})
+}
+
 export const v = {
 	or: VOr.create,
 	and: VAnd.create,
@@ -28,23 +38,8 @@ export const v = {
 	instanceof: <T> (classDef: new () => T, err?: string) => VCore.c<T>().addRule((val: T) => isInstanceOf(classDef, err)(val)),
 	any: () => VCore.c<any>(),
 	force: {
-		string: (err?: string) => {
-			const v = VString.create<unknown>(err)
-			v.addSanitizer((value) => String(value))
-			v.forced = true
-			return v
-		},
-		number: (err?: string) => {
-			const v = VNumber.create<unknown>(err)
-			v.addSanitizer((value) => Number(value))
-			v.forced = true
-			return v
-		},
-		boolean: (err?: string) => {
-			const v = VBoolean.create<unknown>(err)
-			v.addSanitizer((value) => Boolean(value))
-			v.forced = true
-			return v
-		}
+		string: force((...args: Parameters<typeof VString.create>) => VString.create<unknown>(...args), String),
+		number: force((...args: Parameters<typeof VNumber.create>) => VNumber.create<unknown>(...args), Number),
+		boolean: force((...args: Parameters<typeof VBoolean.create>) => VBoolean.create<unknown>(...args), Boolean)
 	}
 }
