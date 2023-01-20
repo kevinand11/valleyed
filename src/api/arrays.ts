@@ -1,10 +1,21 @@
-import { hasLengthOf, hasMaxOf, hasMinOf, isArrayOf } from '../rules'
-import { coreToComp, VCore } from './core'
+import { hasLengthOf, hasMaxOf, hasMinOf, isArray, isArrayOf } from '../rules'
+import { VCore } from './core'
+import { makeRule } from '../utils/rules'
 
 export class VArray<T> extends VCore<T[]> {
 	static create<T> (comparer: VCore<T, T>, type: string, err?: string) {
 		const v = new VArray<T>()
-		v.addRule(isArrayOf<T>(coreToComp(comparer), type, err))
+		v.addRule(makeRule<T[]>((value: T[]) => {
+			const v = isArray()(value)
+			if (!v.valid) return v
+			const mapped = value.reduce((acc, cur) => {
+				const comp = comparer.parse(cur)
+				acc[0].push(comp.value)
+				acc[1].push(comp.valid)
+				return acc
+			}, [[] as T[], [] as boolean[]] as const)
+			return isArrayOf<T>((_, i) => mapped[1][i], type, err)(mapped[0])
+		}))
 		return v
 	}
 
