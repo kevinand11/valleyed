@@ -1,5 +1,5 @@
 import { VCore } from './core'
-import { check, isInvalid, isValid, makeRule } from '../utils/rules'
+import { isInvalid, isValid, makeRule } from '../utils/rules'
 
 export type Schema<T extends Record<string, any>> = { [k in keyof T]: VCore<T[k]> }
 
@@ -40,32 +40,5 @@ export class VObject<T extends Record<string, any>> extends VCore<T> {
 			if (scheme instanceof VObject) value[key] = scheme.trim(value[key])
 		})
 		return value
-	}
-}
-
-type GetVCoreG<C extends VCore<any>> = C extends VCore<infer T> ? T : unknown;
-
-export class VOr<T extends VCore<any>[]> extends VCore<GetVCoreG<T[number]>> {
-	static create<T extends VCore<any>[]> (options: T, err = 'doesnt match any of the schema') {
-		const v = new VOr<T>()
-		v.addRule(makeRule<GetVCoreG<T[number]>>((value) => {
-			const rules = options.map((v) => v.rules)
-			if (rules.length === 0) return isValid(value)
-			const valid = rules.some((set) => check(value, set, {}).valid)
-			return valid ? isValid(value) : isInvalid(err, value)
-		}))
-		return v
-	}
-}
-
-export class VAnd<T> extends VCore<T> {
-	static create<T> (options: VCore<T>[], err = 'doesnt match the schema') {
-		const v = new VAnd<T>()
-		v.addRule(makeRule<T>((value) => {
-			const rules = options.map((v) => v.rules)
-			const invalid = rules.find((set) => !check(value, set, {}).valid)
-			return invalid ? isInvalid(err, value) : isValid(value)
-		}))
-		return v
 	}
 }

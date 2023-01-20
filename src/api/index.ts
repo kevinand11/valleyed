@@ -4,7 +4,8 @@ import { VFile } from './files'
 import { VCore } from './core'
 import { isInstanceOf, isNull, isUndefined } from '../rules'
 import { VArray } from './arrays'
-import { VAnd, VObject, VOr } from './objects'
+import { VObject } from './objects'
+import { VAnd, VOr } from './junctions'
 import { VBoolean } from './booleans'
 import { VTuple } from './tuples'
 import { VMap, VRecord } from './records'
@@ -16,7 +17,7 @@ const force = <I, O, A extends Array<any>, C extends VCore<I, O>> (create: (...a
 	return ((...args: Parameters<typeof create>) => {
 		const v = create(...args)
 		// @ts-ignore
-		v.forced = true
+		v._forced = true
 		v.addSanitizer((value) => constructor(value as any))
 		return v as ReturnType<typeof create>
 	})

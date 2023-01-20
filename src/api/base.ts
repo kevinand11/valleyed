@@ -12,21 +12,14 @@ export class VBase<I, O = I> {
 	#rules: Rule<O>[] = []
 	#forced = false as (I extends O ? false : true)
 
-	get rules () {
-		return this.#rules
-	}
-
-	get forced () {
-		return this.#forced
-	}
-
-	private set forced (forced) {
+	// @ts-ignore
+	private set _forced (forced) {
 		this.#forced = forced
 	}
 
 	parse (input: I) {
 		let value = input as unknown as O
-		if (this.forced && this.#sanitizers.length > 0) value = this.#sanitizers[0](value)
+		if (this.#forced && this.#sanitizers.length > 0) value = this.#sanitizers[0](value)
 		const typeCheck = check(value, this.#typings, this._options)
 		if (!typeCheck.valid) return typeCheck
 		const sanitizedValue = this.#sanitize(value)
