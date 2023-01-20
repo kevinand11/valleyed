@@ -22,14 +22,7 @@
 		"strict": true,
 		"noEmit": false,
 		"experimentalDecorators": true,
-		"paths": {
-			"@src/*": [
-				"src/*"
-			],
-			"@tests/*": [
-				"tests/*"
-			]
-		},
+		"paths": {},
 		"types": [
 			"@types/node",
 			"jest"
