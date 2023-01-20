@@ -1,4 +1,4 @@
-import { coreToComp, VCore } from './core'
+import { VCore } from './core'
 import { GetMap, isArray, isTuple } from '../rules'
 import { makeRule } from '../utils/rules'
 
@@ -11,11 +11,9 @@ export class VTuple<T extends any[]> extends VCore<T> {
 	static create<T extends any[]> (schema: Mapper<T>, err?: string) {
 		const v = new VTuple<T>()
 		v.schema = schema
+		v.addTyping(isArray(err))
 		v.addSanitizer((value: T) => v.trim(value))
-		v.addRule(isTuple<T>(schema.map(coreToComp) as any, err))
 		v.addRule(makeRule<T>((value: T) => {
-			const v = isArray()(value)
-			if (!v.valid) return v
 			const mapped = value.reduce((acc, cur, i) => {
 				const comp = schema[i].parse(cur)
 				acc[0].push(comp.value)

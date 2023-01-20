@@ -7,49 +7,59 @@ export class VBase<I, O = I> {
 		nullable: false,
 		default: undefined as unknown as O
 	}
-	private _sanitizers: Sanitizer<I, O>[] = []
-	private _rules: Rule<O>[] = []
+	#sanitizers: Sanitizer<O>[] = []
+	#typings: Rule<O>[] = []
+	#rules: Rule<O>[] = []
+	#forced = false as (I extends O ? false : true)
 
 	get rules () {
-		return this._rules
+		return this.#rules
 	}
-
-	private _forced = false as (I extends O ? false : true)
 
 	get forced () {
-		return this._forced
+		return this.#forced
 	}
 
-	parse (value: I) {
-		const sanitizedValue = this.sanitize(value)
-		const v = check(sanitizedValue, this._rules, this._options)
-		return {
-			...v,
-			value: this._options.original ? value as unknown as O : v.value
-		}
+	private set forced (forced) {
+		this.#forced = forced
 	}
 
-	sanitize (value: I) {
-		for (const sanitizer of this._sanitizers) value = sanitizer(value) as any
-		if (value !== undefined) return value as unknown as O
-		if (this._options.default) return this._options.default
-		return undefined as unknown as O
+	parse (input: I) {
+		let value = input as unknown as O
+		if (this.forced && this.#sanitizers.length > 0) value = this.#sanitizers[0](value)
+		const typeCheck = check(value, this.#typings, this._options)
+		if (!typeCheck.valid) return typeCheck
+		const sanitizedValue = this.#sanitize(value)
+		const v = check(sanitizedValue, this.#rules, this._options)
+		return { ...v, value: this._options.original ? value : v.value }
 	}
 
-	addRule (rule: Rule<O>) {
-		this._rules.push(rule)
+	addTyping (rule: Rule<O>) {
+		this.#typings.push(rule)
 		return this
 	}
 
-	addSanitizer (sanitizer: Sanitizer<I, O>) {
-		this._sanitizers.push(sanitizer)
+	addRule (rule: Rule<O>) {
+		this.#rules.push(rule)
+		return this
+	}
+
+	addSanitizer (sanitizer: Sanitizer<O>) {
+		this.#sanitizers.push(sanitizer)
 		return this
 	}
 
 	protected clone (c: VBase<I, O>) {
 		this._options = c._options
-		this._forced = c._forced as any
-		this._rules = [...c._rules]
-		this._sanitizers = [...c._sanitizers]
+		this.#forced = c.#forced as any
+		this.#rules = [...c.#rules]
+		this.#sanitizers = [...c.#sanitizers]
+	}
+
+	#sanitize (value: O) {
+		for (const sanitizer of this.#sanitizers) value = sanitizer(value)
+		if (value !== undefined) return value
+		if (this._options.default) return this._options.default
+		return undefined as unknown as O
 	}
 }

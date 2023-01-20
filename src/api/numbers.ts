@@ -4,7 +4,7 @@ import { VCore } from './core'
 export class VNumber<I = number> extends VCore<I, number> {
 	static create<I = number> (err?: string) {
 		const v = new VNumber<I>()
-		v.addRule(isNumber(err))
+		v.addTyping(isNumber(err))
 		return v
 	}
 
@@ -25,11 +25,6 @@ export class VNumber<I = number> extends VCore<I, number> {
 	}
 
 	round (dp: number) {
-		return this.addSanitizer((val) => Number(this.conv(val).toFixed(dp)))
-	}
-
-	private conv (value: I) {
-		if (isNumber()(value).valid) return value as number
-		return 0
+		return this.addSanitizer((val) => Number(val.toFixed(dp)))
 	}
 }

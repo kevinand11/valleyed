@@ -15,9 +15,9 @@ type PrimitiveFunc<T> = (err?: string) => T
 const force = <I, O, A extends Array<any>, C extends VCore<I, O>> (create: (...args: A) => C, constructor: (arg: I) => O) => {
 	return ((...args: Parameters<typeof create>) => {
 		const v = create(...args)
-		v.addSanitizer((value) => constructor(value))
 		// @ts-ignore
-		v._forced = true
+		v.forced = true
+		v.addSanitizer((value) => constructor(value as any))
 		return v as ReturnType<typeof create>
 	})
 }

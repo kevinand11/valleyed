@@ -5,7 +5,7 @@ import { capitalizeText, extractTextFromHTML, trimToLength } from '../utils/func
 export class VString<I = string> extends VCore<I, string> {
 	static create<I = string> (err?: string) {
 		const v = new VString<I>()
-		v.addRule(isString(err))
+		v.addTyping(isString(err))
 		return v
 	}
 
@@ -30,31 +30,26 @@ export class VString<I = string> extends VCore<I, string> {
 	}
 
 	trim () {
-		return this.addSanitizer((val) => this.conv(val).trim())
+		return this.addSanitizer((val) => val.trim())
 	}
 
 	lower () {
-		return this.addSanitizer((val) => this.conv(val).toLowerCase())
+		return this.addSanitizer((val) => val.toLowerCase())
 	}
 
 	upper () {
-		return this.addSanitizer((val) => this.conv(val).toUpperCase())
+		return this.addSanitizer((val) => val.toUpperCase())
 	}
 
 	capitalize () {
-		return this.addSanitizer((val) => capitalizeText(this.conv(val)))
+		return this.addSanitizer((val) => capitalizeText(val))
 	}
 
 	stripHTML () {
-		return this.addSanitizer((val) => extractTextFromHTML(this.conv(val)))
+		return this.addSanitizer((val) => extractTextFromHTML(val))
 	}
 
 	slice (length: number) {
-		return this.addSanitizer((val) => trimToLength(this.conv(val), length))
-	}
-
-	private conv (value: I) {
-		if (isString()(value).valid) return value as string
-		return ''
+		return this.addSanitizer((val) => trimToLength(val, length))
 	}
 }

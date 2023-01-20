@@ -4,7 +4,7 @@ import { VCore } from './core'
 export class VFile extends VCore<File> {
 	static create (err?: string) {
 		const v = new VFile()
-		v.addRule(isFile(err))
+		v.addTyping(isFile(err))
 		return v
 	}
 

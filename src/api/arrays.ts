@@ -5,9 +5,8 @@ import { makeRule } from '../utils/rules'
 export class VArray<T> extends VCore<T[]> {
 	static create<T> (comparer: VCore<T, T>, type: string, err?: string) {
 		const v = new VArray<T>()
+		v.addTyping(isArray(err))
 		v.addRule(makeRule<T[]>((value: T[]) => {
-			const v = isArray()(value)
-			if (!v.valid) return v
 			const mapped = value.reduce((acc, cur) => {
 				const comp = comparer.parse(cur)
 				acc[0].push(comp.value)
