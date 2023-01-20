@@ -1,11 +1,11 @@
 import { hasMaxOf, hasMinOf, isArray, isArrayOf, isBoolean, isNumber, isString } from '../../src/rules'
 
 describe('isArray', () => {
-	test('empty string', () => {
+	test('empty array', () => {
 		const result = isArray()([])
 		expect(result.valid).toBe(true)
 	})
-	test('non-empty string', () => {
+	test('non-empty array', () => {
 		const result = isArray()([1, '2', [], {}, Symbol()])
 		expect(result.valid).toBe(true)
 	})
@@ -36,14 +36,22 @@ describe('isArray', () => {
 	})
 })
 
-test('hasMinOf', () => {
-	expect(hasMinOf(4)([1, 2, 3, 4]).valid).toBe(true)
-	expect(hasMinOf(5)([1, 2, 3, 4]).valid).toBe(false)
+describe('hasMinOf', () => {
+	test('valid', () => {
+		expect(hasMinOf(4)([1, 2, 3, 4]).valid).toBe(true)
+	})
+	test('invalid', () => {
+		expect(hasMinOf(5)([1, 2, 3, 4]).valid).toBe(false)
+	})
 })
 
-test('hasMaxOf', () => {
-	expect(hasMaxOf(4)([1, 2, 3, 4]).valid).toBe(true)
-	expect(hasMaxOf(3)([1, 2, 3, 4]).valid).toBe(false)
+describe('hasMaxOf', () => {
+	test('valid', () => {
+		expect(hasMaxOf(4)([1, 2, 3, 4]).valid).toBe(true)
+	})
+	test('invalid', () => {
+		expect(hasMaxOf(3)([1, 2, 3, 4]).valid).toBe(false)
+	})
 })
 
 describe('isArrayOf', () => {
