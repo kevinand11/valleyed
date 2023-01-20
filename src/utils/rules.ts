@@ -1,4 +1,4 @@
-export type Rule<T> = (value: T) => ReturnType<typeof isValid> | ReturnType<typeof isInvalid>
+export type Rule<T> = (value: T) => ReturnType<typeof isValid<T>> | ReturnType<typeof isInvalid<T>>
 export type Sanitizer<I, O> = (value: I) => O
 
 export type Options = {
@@ -6,9 +6,13 @@ export type Options = {
 	nullable: boolean
 }
 
-export const isValid = (): { valid: true, error: null } => ({ valid: true, error: null })
+export const isValid = <T> (value: T): { valid: true, error: null, value: T } => ({ valid: true, error: null, value })
 
-export const isInvalid = (error: string): { valid: false, error: string } => ({ valid: false, error })
+export const isInvalid = <T> (error: string, value: T): { valid: false, error: string, value: T } => ({
+	valid: false,
+	error,
+	value
+})
 
 export const makeRule = <T> (func: Rule<T>): Rule<T> => (val: T) => func(val)
 export const makeSanitizer = <I, O> (func: Sanitizer<I, O>) => (val: I) => func(val)
@@ -16,14 +20,17 @@ export const makeSanitizer = <I, O> (func: Sanitizer<I, O>) => (val: I) => func(
 export const check = <T> (value: T, rules: Rule<T>[], options: Partial<Options>) => {
 	const allOptions = { required: true, nullable: false, ...options }
 	const presence = typeof allOptions.required === 'function' ? allOptions.required() : allOptions.required
-	if (rules.length === 0) return { valid: true, errors: [] }
-	if (!presence) return { valid: true, errors: [] }
-	if (value === null && allOptions.nullable) return { valid: true, errors: [] }
+	if (rules.length === 0) return { valid: true, errors: [], value }
+	if (!presence) return { valid: true, errors: [], value }
+	if (value === null && allOptions.nullable) return { valid: true, errors: [], value }
 
-	const checks = rules.map((rule) => rule(value))
-	const valid = checks.every((r) => r.valid)
-	const errors = checks.map((r) => r.error)
-		.filter((e) => e !== null) as string[]
+	const res = rules.reduce((acc, rule) => {
+		const v = rule(acc.value)
+		acc.valid = acc.valid && v.valid
+		if (v.valid) acc.value = v.value
+		else acc.errors.add(v.error)
+		return acc
+	}, { value, valid: true, errors: new Set<string>() })
 
-	return { valid, errors }
+	return { ...res, errors: [...res.errors] }
 }

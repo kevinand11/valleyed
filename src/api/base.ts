@@ -24,9 +24,8 @@ export class VBase<I, O = I> {
 		const sanitizedValue = this.sanitize(value)
 		const v = check(sanitizedValue, this._rules, this._options)
 		return {
-			valid: v.valid,
-			error: v.errors[0] ?? '',
-			value: (this._options.original ? value : sanitizedValue) as unknown as O
+			...v,
+			value: this._options.original ? value as unknown as O : v.value
 		}
 	}
 

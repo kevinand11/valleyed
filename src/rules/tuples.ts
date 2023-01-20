@@ -12,5 +12,5 @@ export const isTuple = <T extends any[]> (comparer: Mapper<T, boolean>, error?: 
 	const invIndex = comparer.findIndex((c, i) => !c(value[i]))
 	const invalid = invIndex !== -1
 	error = error ?? `contains an invalid value at index ${invIndex}`
-	return invalid ? isInvalid(error) : isValid()
+	return invalid ? isInvalid(error, value) : isValid(value)
 })

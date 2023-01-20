@@ -1,9 +1,9 @@
 import { isInvalid, isValid } from '../../src/utils/rules'
 
 test('IsValid', () => {
-	expect(isValid()).toEqual({ valid: true, error: null })
+	expect(isValid(1)).toEqual({ valid: true, error: null, value: 1 })
 })
 
 test('IsInvalid', () => {
-	expect(isInvalid('test')).toEqual({ valid: false, error: 'test' })
+	expect(isInvalid('test', 1)).toEqual({ valid: false, error: 'test', value: 1 })
 })

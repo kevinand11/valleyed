@@ -19,13 +19,13 @@ export class VObject<T extends Record<string, any>> extends VCore<T> {
 					const scheme = schema[key]
 					if (scheme instanceof VObject) {
 						const validity = calculateValidity(value?.[key], scheme.schema, newPath)
-						if (!validity.valid) return isInvalid(validity.error)
+						if (!validity.valid) return isInvalid(validity.error, value)
 					} else {
 						const validity = schema[key].parse(value?.[key])
-						if (!validity.valid) return isInvalid(`${newPath.join('.')} ${err}`)
+						if (!validity.valid) return isInvalid(`${newPath.join('.')} ${err}`, value)
 					}
 				}
-				return isValid()
+				return isValid(value)
 			}
 			return calculateValidity(value, schema, [])
 		}))
@@ -48,11 +48,11 @@ type GetVCoreG<C extends VCore<any>> = C extends VCore<infer T> ? T : unknown;
 export class VOr<T extends VCore<any>[]> extends VCore<GetVCoreG<T[number]>> {
 	static create<T extends VCore<any>[]> (options: T, err = 'doesnt match any of the schema') {
 		const v = new VOr<T>()
-		v.addRule(makeRule<T>((value) => {
+		v.addRule(makeRule<GetVCoreG<T[number]>>((value) => {
 			const rules = options.map((v) => v.rules)
-			if (rules.length === 0) return isValid()
+			if (rules.length === 0) return isValid(value)
 			const valid = rules.some((set) => check(value, set, {}).valid)
-			return valid ? isValid() : isInvalid(err)
+			return valid ? isValid(value) : isInvalid(err, value)
 		}))
 		return v
 	}
@@ -64,7 +64,7 @@ export class VAnd<T> extends VCore<T> {
 		v.addRule(makeRule<T>((value) => {
 			const rules = options.map((v) => v.rules)
 			const invalid = rules.find((set) => !check(value, set, {}).valid)
-			return invalid ? isInvalid(err) : isValid()
+			return invalid ? isInvalid(err, value) : isValid(value)
 		}))
 		return v
 	}
