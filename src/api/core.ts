@@ -1,30 +1,29 @@
 import { arrayContains, isCustom, isDeepEqualTo, isShallowEqualTo } from '../rules'
 import { VBase } from './base'
 
-export class VCore<I, O = I> extends VBase<I, O> {
+export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
 	protected constructor () {
 		super()
 	}
 
-	static c<I, O = I> () {
-		return new VCore<I, O>()
+	static c<I, O = I, T = O> () {
+		return new VCore<I, O, T>()
 	}
 
 	original () {
-		this._options.original = true
-		return this
+		return this._setOption('original', true)
 	}
 
 	optional () {
-		const v = VPartial.create<I, O, undefined>(this)
-		v._options.required = false
-		return v
+		return VCore.c<I | undefined, O | undefined, T | undefined>()
+			.clone(this as any)
+			._setOption('required', false)
 	}
 
 	nullable () {
-		const v = VPartial.create<I, O, null>(this)
-		v._options.nullable = true
-		return v
+		return VCore.c<I | null, O | null, T | null>()
+			.clone(this as any)
+			._setOption('nullable', true)
 	}
 
 	nullish () {
@@ -32,8 +31,7 @@ export class VCore<I, O = I> extends VBase<I, O> {
 	}
 
 	default (def: O) {
-		this._options.default = def
-		return this
+		return this._setOption('default', def)
 	}
 
 	custom (fn: (v: O) => boolean, err?: string) {
@@ -54,9 +52,8 @@ export class VCore<I, O = I> extends VBase<I, O> {
 }
 
 export class VPartial<I, O, P> extends VCore<I | P, O | P> {
-	static create<I, O, P> (c: VCore<I, O>) {
-		const v = new VPartial<I, O, P>()
-		v.clone(c as any)
-		return v
+	constructor (c: VCore<I, O, any>) {
+		super()
+		this.clone(c as any)
 	}
 }

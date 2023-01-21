@@ -1,6 +1,6 @@
-import { check, Rule, Sanitizer } from '../utils/rules'
+import { check, Rule, Sanitizer, Transformer } from '../utils/rules'
 
-export class VBase<I, O = I> {
+export class VBase<I, O = I, T = O> {
 	protected _options = {
 		original: false,
 		required: true,
@@ -21,10 +21,19 @@ export class VBase<I, O = I> {
 		let value = input as unknown as O
 		if (this.#forced && this.#sanitizers.length > 0) value = this.#sanitizers[0](value)
 		const typeCheck = check(value, this.#typings, this._options)
-		if (!typeCheck.valid) return typeCheck
+		if (!typeCheck.valid) return {
+			errors: typeCheck.errors,
+			valid: typeCheck.valid,
+			value: typeCheck.value as unknown as T
+		}
 		const sanitizedValue = this.#sanitize(value)
 		const v = check(sanitizedValue, this.#rules, this._options)
-		return { ...v, value: this._options.original ? value : v.value }
+		const retValue: T = this._options.original ? value as unknown as T : this.#transform(v.value)
+		return {
+			errors: v.errors,
+			valid: v.valid,
+			value: retValue
+		}
 	}
 
 	addTyping (rule: Rule<O>) {
@@ -42,12 +51,26 @@ export class VBase<I, O = I> {
 		return this
 	}
 
-	protected clone (c: VBase<I, O>) {
+	setTransform (transformer: Transformer<O, T>) {
+		this.#transform = transformer
+		return this
+	}
+
+	protected _setOption<K extends keyof typeof this._options> (key: K, value: typeof this._options[K]) {
+		this._options[key] = value
+		return this
+	}
+
+	protected clone (c: VBase<I, O, any>) {
 		this._options = c._options
 		this.#forced = c.#forced as any
 		this.#rules = [...c.#rules]
 		this.#sanitizers = [...c.#sanitizers]
+		this.#transform = c.#transform
+		return this
 	}
+
+	#transform: Transformer<O, T> = (v) => v as unknown as T
 
 	#sanitize (value: O) {
 		for (const sanitizer of this.#sanitizers) value = sanitizer(value)

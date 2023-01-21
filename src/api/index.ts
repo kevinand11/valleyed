@@ -9,9 +9,7 @@ import { VAnd, VOr } from './junctions'
 import { VBoolean } from './booleans'
 import { VTuple } from './tuples'
 import { VMap, VRecord } from './records'
-import { Timeable, VTime } from './times'
-
-type PrimitiveFunc<T> = (err?: string) => T
+import { VTime } from './times'
 
 const force = <I, O, A extends Array<any>, C extends VCore<I, O>> (create: (...args: A) => C, constructor: (arg: I) => O) => {
 	return ((...args: Parameters<typeof create>) => {
@@ -26,10 +24,10 @@ const force = <I, O, A extends Array<any>, C extends VCore<I, O>> (create: (...a
 export const v = {
 	or: VOr.create,
 	and: VAnd.create,
-	string: VString.create as PrimitiveFunc<VString>,
-	number: VNumber.create as PrimitiveFunc<VNumber>,
-	boolean: VBoolean.create as PrimitiveFunc<VBoolean>,
-	time: VTime.create as PrimitiveFunc<VTime>,
+	string: VString.create as typeof VString.create<string>,
+	number: VNumber.create as typeof VNumber.create<number>,
+	boolean: VBoolean.create as typeof VBoolean.create<boolean>,
+	time: VTime.create as typeof VTime.create,
 	file: VFile.create,
 	array: VArray.create,
 	tuple: VTuple.create,
@@ -44,6 +42,6 @@ export const v = {
 		string: force((...args: Parameters<typeof VString.create>) => VString.create<unknown>(...args), String),
 		number: force((...args: Parameters<typeof VNumber.create>) => VNumber.create<unknown>(...args), Number),
 		boolean: force((...args: Parameters<typeof VBoolean.create>) => VBoolean.create<unknown>(...args), Boolean),
-		time: force((...args: Parameters<typeof VTime.create>) => VTime.create<unknown>(...args), Date as () => Timeable)
+		time: force((...args: Parameters<typeof VTime.create<Date>>) => VTime.create<Date, unknown>(...args), (v: unknown) => new Date(v as any))
 	}
 }
