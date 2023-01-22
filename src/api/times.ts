@@ -1,29 +1,29 @@
 import { VCore } from './core'
 import { isTime } from '../rules'
 
-type Timeable = Date | string | number
+export type Timeable = Date | string | number
 
-export class VTime<T extends Timeable = Timeable, I = T, Tr = T> extends VCore<I, T, Tr> {
+export class VTime<I extends Timeable = Timeable, O = I, Tr = I> extends VCore<I, O, Tr> {
 	constructor (err?: string) {
 		super()
 		this.addTyping(isTime(err))
 	}
 
 	asStamp () {
-		return new VTime<T, I, number>()
+		return new VTime<I, O, number>()
 			.clone(this)
-			.setTransform((v) => new Date(v).valueOf())
+			.setTransform((v) => new Date(v as any).valueOf())
 	}
 
 	asString () {
-		return new VTime<T, I, string>()
+		return new VTime<I, O, string>()
 			.clone(this)
-			.setTransform((v) => new Date(v).toString())
+			.setTransform((v) => new Date(v as any).toString())
 	}
 
 	asDate () {
-		return new VTime<T, I, Date>()
+		return new VTime<I, O, Date>()
 			.clone(this)
-			.setTransform((v) => new Date(v))
+			.setTransform((v) => new Date(v as any))
 	}
 }

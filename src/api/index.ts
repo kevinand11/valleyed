@@ -9,7 +9,7 @@ import { VAnd, VOr } from './junctions'
 import { VBoolean } from './booleans'
 import { VTuple } from './tuples'
 import { VMap, VRecord } from './records'
-import { VTime } from './times'
+import { Timeable, VTime } from './times'
 import { VBase } from './base'
 
 export const v = {
@@ -18,7 +18,7 @@ export const v = {
 	string: VBase.createType(VString) as (...args: ConstructorParameters<typeof VString>) => VString,
 	number: VBase.createType(VNumber) as (...args: ConstructorParameters<typeof VNumber>) => VNumber,
 	boolean: VBase.createType(VBoolean) as (...args: ConstructorParameters<typeof VBoolean>) => VBoolean,
-	time: VBase.createType(VTime),
+	time: VBase.createType(VTime) as <T extends Timeable = Timeable>(...args: ConstructorParameters<typeof VTime>) => VTime<T>,
 	file: VBase.createType(VFile),
 	array: VBase.createType(VArray),
 	tuple: VBase.createType(VTuple),
