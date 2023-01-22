@@ -1,12 +1,13 @@
 import { VCore } from './core'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 
-type GetVCoreG<C extends VCore<any>> = C extends VCore<infer T> ? T : unknown;
+type G1<C extends VCore<any, any>> = C extends VCore<infer T, any> ? T : unknown;
+type G2<C extends VCore<any>> = C extends VCore<any, infer T> ? T : unknown;
 
-export class VOr<T extends VCore<any>[]> extends VCore<GetVCoreG<T[number]>> {
+export class VOr<T extends VCore<any, any>[]> extends VCore<G1<T[number]>, G2<T[number]>> {
 	constructor (options: T, err = 'doesnt match any of the schema') {
 		super()
-		this.addRule(makeRule<GetVCoreG<T[number]>>((value) => {
+		this.addRule(makeRule((value) => {
 			if (options.length === 0) return isValid(value)
 			for (const opt of options) {
 				const valid = opt.parse(value)
@@ -17,13 +18,13 @@ export class VOr<T extends VCore<any>[]> extends VCore<GetVCoreG<T[number]>> {
 	}
 }
 
-export class VAnd<T> extends VCore<T> {
-	constructor (options: VCore<T>[], err = 'doesnt match the schema') {
+export class VAnd<I, O> extends VCore<I, O> {
+	constructor (options: VCore<I, O>[], err = 'doesnt match the schema') {
 		super()
-		this.addRule(makeRule<T>((value) => {
+		this.addRule(makeRule((value) => {
 			if (options.length === 0) return isValid(value)
 			for (const opt of options) {
-				const valid = opt.parse(value)
+				const valid = opt.parse(value as any)
 				if (valid.valid) value = valid.value
 				else return isInvalid(err, value)
 			}

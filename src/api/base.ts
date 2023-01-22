@@ -10,7 +10,7 @@ export class VBase<I, O = I, T = O> {
 	#sanitizers: Sanitizer<O>[] = []
 	#typings: Rule<O>[] = []
 	#rules: Rule<O>[] = []
-	#forced = false as boolean
+	#forced = false
 
 	get forced () {
 		return this.#forced

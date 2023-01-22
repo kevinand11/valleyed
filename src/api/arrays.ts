@@ -2,18 +2,18 @@ import { hasLengthOf, hasMaxOf, hasMinOf, isArray, isArrayOf } from '../rules'
 import { VCore } from './core'
 import { makeRule } from '../utils/rules'
 
-export class VArray<T> extends VCore<T[]> {
-	constructor (comparer: VCore<T, T>, type: string, err?: string) {
+export class VArray<I, O> extends VCore<I[], O[]> {
+	constructor (comparer: VCore<I, O>, type: string, err?: string) {
 		super()
 		this.addTyping(isArray(err))
-		this.addRule(makeRule<T[]>((value: T[]) => {
+		this.addRule(makeRule((value) => {
 			const mapped = value.reduce((acc, cur) => {
-				const comp = comparer.parse(cur)
+				const comp = comparer.parse(cur as any)
 				acc[0].push(comp.value)
 				acc[1].push(comp.valid)
 				return acc
-			}, [[] as T[], [] as boolean[]] as const)
-			return isArrayOf<T>((_, i) => mapped[1][i], type, err)(mapped[0])
+			}, [[] as O[], [] as boolean[]] as const)
+			return isArrayOf<O>((_, i) => mapped[1][i], type, err)(mapped[0])
 		}))
 	}
 
@@ -29,9 +29,9 @@ export class VArray<T> extends VCore<T[]> {
 		return this.addRule(hasMaxOf(length, err))
 	}
 
-	set (keyFn: (v: T) => any = (v) => v) {
-		return this.addSanitizer((val: T[]) => {
-			const finalArr: T[] = []
+	set (keyFn: (v: O) => any = (v) => v) {
+		return this.addSanitizer((val: O[]) => {
+			const finalArr: O[] = []
 			const obj: Record<any, boolean> = {}
 			val.forEach((v) => {
 				const key = keyFn(v)

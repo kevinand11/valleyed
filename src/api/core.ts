@@ -46,10 +46,3 @@ export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
 		return this.addRule(arrayContains(array, comparer, err))
 	}
 }
-
-export class VPartial<I, O, P> extends VCore<I | P, O | P> {
-	constructor (c: VCore<I, O, any>) {
-		super()
-		this.clone(c as any)
-	}
-}

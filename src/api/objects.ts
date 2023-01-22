@@ -3,11 +3,10 @@ import { isInvalid, isValid, makeRule } from '../utils/rules'
 
 type Schema<T extends Record<string, any>> = { [k in keyof T]: VCore<T[k]> }
 
-export class VObject<T extends Record<string, any>> extends VCore<T> {
-
-	constructor (schema: Schema<T>, trim = true, err?: string) {
+export class VObject<I extends Record<string, any>> extends VCore<I> {
+	constructor (schema: Schema<I>, trim = true, err?: string) {
 		super()
-		this.addRule(makeRule<T>((value) => {
+		this.addRule(makeRule((value) => {
 			const keys = new Set([...Object.keys(value), ...Object.keys(schema)])
 			for (const key of keys) {
 				if (!(key in schema)) {
