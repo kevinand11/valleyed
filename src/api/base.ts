@@ -10,11 +10,21 @@ export class VBase<I, O = I, T = O> {
 	#sanitizers: Sanitizer<O>[] = []
 	#typings: Rule<O>[] = []
 	#rules: Rule<O>[] = []
-	#forced = false as (I extends O ? false : true)
+	#forced = false as boolean
 
-	// @ts-ignore
-	private set _forced (forced) {
-		this.#forced = forced
+	get forced () {
+		return this.#forced
+	}
+
+	static createType<C extends VBase<any, any, any>, A extends Array<any>> (c: new (...args: A) => C) {
+		return ((...args: A) => new c(...args))
+	}
+
+	static createForcedType<C extends VBase<unknown, any, any>, O, T extends any[] = any[]> (c: new (...args: T) => C, conv: (arg: unknown) => O) {
+		return ((...args: T) => {
+			return new c(...args).#setForced()
+				.addSanitizer((value) => conv(value as any))
+		})
 	}
 
 	parse (input: I) {
@@ -63,10 +73,15 @@ export class VBase<I, O = I, T = O> {
 
 	protected clone (c: VBase<I, O, any>) {
 		this._options = c._options
-		this.#forced = c.#forced as any
+		this.#forced = c.#forced
 		this.#rules = [...c.#rules]
 		this.#sanitizers = [...c.#sanitizers]
 		this.#transform = c.#transform
+		return this
+	}
+
+	#setForced () {
+		this.#forced = true
 		return this
 	}
 

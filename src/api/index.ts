@@ -10,38 +10,29 @@ import { VBoolean } from './booleans'
 import { VTuple } from './tuples'
 import { VMap, VRecord } from './records'
 import { VTime } from './times'
-
-const force = <I, O, A extends Array<any>, C extends VCore<I, O>> (create: (...args: A) => C, constructor: (arg: I) => O) => {
-	return ((...args: Parameters<typeof create>) => {
-		const v = create(...args)
-		// @ts-ignore
-		v._forced = true
-		v.addSanitizer((value) => constructor(value as any))
-		return v as ReturnType<typeof create>
-	})
-}
+import { VBase } from './base'
 
 export const v = {
-	or: VOr.create,
-	and: VAnd.create,
-	string: VString.create as typeof VString.create<string>,
-	number: VNumber.create as typeof VNumber.create<number>,
-	boolean: VBoolean.create as typeof VBoolean.create<boolean>,
-	time: VTime.create as typeof VTime.create,
-	file: VFile.create,
-	array: VArray.create,
-	tuple: VTuple.create,
-	object: VObject.create,
-	record: VRecord.create,
-	map: VMap.create,
-	null: (err?: string) => VCore.c<null>().addRule((val: null) => isNull(err)(val)),
-	undefined: (err?: string) => VCore.c<undefined>().addRule((val: undefined) => isUndefined(err)(val)),
-	instanceof: <T> (classDef: new () => T, err?: string) => VCore.c<T>().addRule((val: T) => isInstanceOf(classDef, err)(val)),
-	any: () => VCore.c<any>(),
+	or: VBase.createType(VOr),
+	and: VBase.createType(VAnd),
+	string: VBase.createType(VString) as (...args: ConstructorParameters<typeof VString>) => VString,
+	number: VBase.createType(VNumber) as (...args: ConstructorParameters<typeof VNumber>) => VNumber,
+	boolean: VBase.createType(VBoolean) as (...args: ConstructorParameters<typeof VBoolean>) => VBoolean,
+	time: VBase.createType(VTime),
+	file: VBase.createType(VFile),
+	array: VBase.createType(VArray),
+	tuple: VBase.createType(VTuple),
+	object: VBase.createType(VObject),
+	record: VBase.createType(VRecord),
+	map: VBase.createType(VMap),
+	null: (err?: string) => new VCore<null>().addRule((val: null) => isNull(err)(val)),
+	undefined: (err?: string) => new VCore<undefined>().addRule((val: undefined) => isUndefined(err)(val)),
+	instanceof: <T> (classDef: new () => T, err?: string) => new VCore<T>().addRule((val: T) => isInstanceOf(classDef, err)(val)),
+	any: () => new VCore<any>(),
 	force: {
-		string: force((...args: Parameters<typeof VString.create>) => VString.create<unknown>(...args), String),
-		number: force((...args: Parameters<typeof VNumber.create>) => VNumber.create<unknown>(...args), Number),
-		boolean: force((...args: Parameters<typeof VBoolean.create>) => VBoolean.create<unknown>(...args), Boolean),
-		time: force((...args: Parameters<typeof VTime.create<Date>>) => VTime.create<Date, unknown>(...args), (v: unknown) => new Date(v as any))
+		string: VBase.createForcedType<VString<unknown>, string, ConstructorParameters<typeof VString>>(VString, (v) => String(v)),
+		number: VBase.createForcedType<VNumber<unknown>, number, ConstructorParameters<typeof VNumber>>(VNumber, (v) => Number(v)),
+		boolean: VBase.createForcedType<VBoolean<unknown>, boolean, ConstructorParameters<typeof VBoolean>>(VBoolean, (v) => Boolean(v)),
+		time: VBase.createForcedType<VTime<Date, unknown>, Date, ConstructorParameters<typeof VTime>>(VTime, (v) => new Date(v as any))
 	}
 }

@@ -3,10 +3,10 @@ import { VCore } from './core'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 
 export class VMap<K, V> extends VCore<Map<K, V>> {
-	static create<K, V> (kCom: VCore<K>, vCom: VCore<V>, err?: string) {
-		const v = new VMap<K, V>()
-		v.addTyping(isInstanceOf(Map, err))
-		v.addRule(makeRule<Map<K, V>>((value: Map<K, V>) => {
+	constructor (kCom: VCore<K>, vCom: VCore<V>, err?: string) {
+		super()
+		this.addTyping(isInstanceOf(Map, err))
+		this.addRule(makeRule<Map<K, V>>((value: Map<K, V>) => {
 			for (const k of value.keys()) {
 				const v = value.get(k)!
 				const kValid = kCom.parse(k)
@@ -18,14 +18,13 @@ export class VMap<K, V> extends VCore<Map<K, V>> {
 			}
 			return isValid(value)
 		}))
-		return v
 	}
 }
 
 export class VRecord<V> extends VCore<Record<string, V>> {
-	static create<V> (vCom: VCore<V>, err?: string) {
-		const v = new VRecord<V>()
-		v.addTyping(makeRule<Record<string, V>>((value: Record<string, V>) => {
+	constructor (vCom: VCore<V>, err?: string) {
+		super()
+		this.addTyping(makeRule<Record<string, V>>((value: Record<string, V>) => {
 			for (const [k, v] of Object.entries(value)) {
 				const validity = vCom.parse(v)
 				err = err ?? `contains an invalid value for key ${k}`
@@ -34,6 +33,5 @@ export class VRecord<V> extends VCore<Record<string, V>> {
 			}
 			return isValid(value)
 		}))
-		return v
 	}
 }

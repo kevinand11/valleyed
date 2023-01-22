@@ -3,10 +3,10 @@ import { VCore } from './core'
 import { makeRule } from '../utils/rules'
 
 export class VArray<T> extends VCore<T[]> {
-	static create<T> (comparer: VCore<T, T>, type: string, err?: string) {
-		const v = new VArray<T>()
-		v.addTyping(isArray(err))
-		v.addRule(makeRule<T[]>((value: T[]) => {
+	constructor (comparer: VCore<T, T>, type: string, err?: string) {
+		super()
+		this.addTyping(isArray(err))
+		this.addRule(makeRule<T[]>((value: T[]) => {
 			const mapped = value.reduce((acc, cur) => {
 				const comp = comparer.parse(cur)
 				acc[0].push(comp.value)
@@ -15,7 +15,6 @@ export class VArray<T> extends VCore<T[]> {
 			}, [[] as T[], [] as boolean[]] as const)
 			return isArrayOf<T>((_, i) => mapped[1][i], type, err)(mapped[0])
 		}))
-		return v
 	}
 
 	has (length: number, err?: string) {

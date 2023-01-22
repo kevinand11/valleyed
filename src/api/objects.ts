@@ -5,9 +5,9 @@ type Schema<T extends Record<string, any>> = { [k in keyof T]: VCore<T[k]> }
 
 export class VObject<T extends Record<string, any>> extends VCore<T> {
 
-	static create<T extends Record<string, any>> (schema: Schema<T>, trim = true, err?: string) {
-		const v = new VObject<T>()
-		v.addRule(makeRule<T>((value) => {
+	constructor (schema: Schema<T>, trim = true, err?: string) {
+		super()
+		this.addRule(makeRule<T>((value) => {
 			const keys = new Set([...Object.keys(value), ...Object.keys(schema)])
 			for (const key of keys) {
 				if (!(key in schema)) {
@@ -21,6 +21,5 @@ export class VObject<T extends Record<string, any>> extends VCore<T> {
 			}
 			return isValid(value)
 		}))
-		return v
 	}
 }

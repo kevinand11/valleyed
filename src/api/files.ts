@@ -2,10 +2,9 @@ import { File, isAudio, isFile, isImage, isVideo } from '../rules'
 import { VCore } from './core'
 
 export class VFile extends VCore<File> {
-	static create (err?: string) {
-		const v = new VFile()
-		v.addTyping(isFile(err))
-		return v
+	constructor (err?: string) {
+		super()
+		this.addTyping(isFile(err))
 	}
 
 	image (err?: string) {

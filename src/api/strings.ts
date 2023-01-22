@@ -3,10 +3,9 @@ import { VCore } from './core'
 import { capitalizeText, extractTextFromHTML, trimToLength } from '../utils/functions'
 
 export class VString<I = string> extends VCore<I, string> {
-	static create<I = string> (err?: string) {
-		const v = new VString<I>()
-		v.addTyping(isString(err))
-		return v
+	constructor (err?: string) {
+		super()
+		this.addTyping(isString(err))
 	}
 
 	has (length: number, err?: string) {

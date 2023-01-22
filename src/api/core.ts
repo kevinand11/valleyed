@@ -2,12 +2,8 @@ import { arrayContains, isCustom, isDeepEqualTo, isShallowEqualTo } from '../rul
 import { VBase } from './base'
 
 export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
-	protected constructor () {
+	constructor () {
 		super()
-	}
-
-	static c<I, O = I, T = O> () {
-		return new VCore<I, O, T>()
 	}
 
 	original () {
@@ -15,13 +11,13 @@ export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
 	}
 
 	optional () {
-		return VCore.c<I | undefined, O | undefined, T | undefined>()
+		return new VCore<I | undefined, O | undefined, T | undefined>()
 			.clone(this as any)
 			._setOption('required', false)
 	}
 
 	nullable () {
-		return VCore.c<I | null, O | null, T | null>()
+		return new VCore<I | null, O | null, T | null>()
 			.clone(this as any)
 			._setOption('nullable', true)
 	}
