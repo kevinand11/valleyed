@@ -1,11 +1,14 @@
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 import { isArray } from './arrays'
 
-export type GetMap<T extends any[]> = readonly [...T]
-type TupleToCompare<T extends Readonly<any[]>, R> = { [k in keyof T]: (v: T[k], idx: number) => R }
-type Mapper<A extends any[], B> = TupleToCompare<GetMap<A>, B>
+export type GetMap<T extends ReadonlyArray<any>> = readonly [...T]
+type Func<T> = (v: T, idx: number) => boolean
+type ExtractArgs<T extends ReadonlyArray<Func<any>>> =
+	{ [K in keyof T]: T[K] extends Func<infer V> ? V : never }
 
-export const isTuple = <T extends any[]> (comparer: Mapper<T, boolean>, error?: string) => makeRule<T>((value) => {
+export const isTuple = <T extends ReadonlyArray<Func<any>>> (
+	comparer: GetMap<T>, error?: string
+) => makeRule<ExtractArgs<T>>((value) => {
 	const v = isArray()(value)
 	if (!v.valid) return v
 

@@ -56,31 +56,31 @@ describe('hasMaxOf', () => {
 
 describe('isArrayOf', () => {
 	test('array of string', () => {
-		const result = isArrayOf((val) => isString()(val).valid, 'string')(['a', 'b'])
+		const result = isArrayOf((val) => isString()(val).valid)(['a', 'b'])
 		expect(result.valid).toBe(true)
 	})
 	test('array of number', () => {
-		const result = isArrayOf((val) => isNumber()(val).valid, 'number')([1, 2])
+		const result = isArrayOf((val) => isNumber()(val).valid)([1, 2])
 		expect(result.valid).toBe(true)
 	})
 	test('array of boolean', () => {
-		const result = isArrayOf((val) => isBoolean()(val).valid, 'boolean')([true, false])
+		const result = isArrayOf((val) => isBoolean()(val).valid)([true, false])
 		expect(result.valid).toBe(true)
 	})
 	test('array of array', () => {
-		const result = isArrayOf((val) => isArray()(val).valid, 'array')([[], []])
+		const result = isArrayOf((val) => isArray()(val).valid)([[], []])
 		expect(result.valid).toBe(true)
 	})
 	test('array of objects', () => {
-		const result = isArrayOf((val: { id: number }) => isNumber()(val.id).valid, 'objects')([{ id: 1 }, { id: 2 }])
+		const result = isArrayOf((val: { id: number }) => isNumber()(val.id).valid)([{ id: 1 }, { id: 2 }])
 		expect(result.valid).toBe(true)
 	})
 	test('mixed array', () => {
-		const result = isArrayOf((val) => isNumber()(val).valid, 'number')(['1', 2, true, [], { id: 1 }])
+		const result = isArrayOf((val) => isNumber()(val).valid)(['1', 2, true, [], { id: 1 }])
 		expect(result.valid).toBe(false)
 	})
 	test('not an array', () => {
-		const result = isArrayOf((val) => isNumber()(val).valid, 'number')(1 as any)
+		const result = isArrayOf((val) => isNumber()(val).valid)(1 as any)
 		expect(result.valid).toBe(false)
 	})
 })
