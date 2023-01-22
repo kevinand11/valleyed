@@ -1,10 +1,15 @@
 import { VCore } from './core'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 
-type Schema<T extends Record<string, any>> = { [k in keyof T]: VCore<T[k]> }
+type ExtractI<T extends Record<string, VCore<any>>> =
+	{ [K in keyof T]: T[K] extends VCore<infer I, any, any> ? I : never }
+type ExtractO<T extends Record<string, VCore<any>>> =
+	{ [K in keyof T]: T[K] extends VCore<any, infer O, any> ? O : never }
+type ExtractTr<T extends Record<string, VCore<any>>> =
+	{ [K in keyof T]: T[K] extends VCore<any, any, infer Tr> ? Tr : never }
 
-export class VObject<I extends Record<string, any>> extends VCore<I> {
-	constructor (schema: Schema<I>, trim = true, err?: string) {
+export class VObject<T extends Record<string, VCore<any, any, any>>> extends VCore<ExtractI<T>, ExtractO<T>, ExtractTr<T>> {
+	constructor (schema: T, trim = true, err?: string) {
 		super()
 		this.addRule(makeRule((value) => {
 			const keys = new Set([...Object.keys(value), ...Object.keys(schema)])
