@@ -1,4 +1,4 @@
-import { capitalizeText, extractTextFromHTML, extractUrls, trimToLength } from '../../../src/utils/functions'
+import { capitalizeText, extractUrls, stripHTML, trimToLength } from '../../../src/utils/functions'
 
 test('CapitalizeText', () => {
 	expect(capitalizeText('test')).toBe('Test')
@@ -9,16 +9,16 @@ test('CapitalizeText', () => {
 	expect(capitalizeText(undefined as unknown as string)).toBe(undefined)
 })
 
-test('ExtractTextFromHTML', () => {
-	expect(extractTextFromHTML('test')).toBe('test')
-	expect(extractTextFromHTML(2 as unknown as string)).toBe('2')
+test('stripHTML', () => {
+	expect(stripHTML('test')).toBe('test')
+	expect(stripHTML(2 as unknown as string)).toBe('2')
 
-	expect(extractTextFromHTML('<p>a</p>')).toBe('a')
-	expect(extractTextFromHTML('<p>a<a>b</a></p>')).toBe('ab')
-	expect(extractTextFromHTML('<p>a<img src="/" /></p>')).toBe('a')
+	expect(stripHTML('<p>a</p>')).toBe('a')
+	expect(stripHTML('<p>a<a>b</a></p>')).toBe('ab')
+	expect(stripHTML('<p>a<img src="/" /></p>')).toBe('a')
 
-	expect(extractTextFromHTML(null as unknown as string)).toBe(null)
-	expect(extractTextFromHTML(undefined as unknown as string)).toBe(undefined)
+	expect(stripHTML(null as unknown as string)).toBe(null)
+	expect(stripHTML(undefined as unknown as string)).toBe(undefined)
 })
 
 test('TrimToLength', () => {

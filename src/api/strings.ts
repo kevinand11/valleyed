@@ -1,6 +1,6 @@
 import { isEmail, isLengthOf, isMaxOf, isMinOf, isString, isUrl } from '../rules'
 import { VCore } from './core'
-import { capitalizeText, extractTextFromHTML, trimToLength } from '../utils/functions'
+import { capitalizeText, stripHTML, trimToLength } from '../utils/functions'
 
 export class VString<I = string> extends VCore<I, string> {
 	constructor (err?: string) {
@@ -45,7 +45,7 @@ export class VString<I = string> extends VCore<I, string> {
 	}
 
 	stripHTML () {
-		return this.addSanitizer((val) => extractTextFromHTML(val))
+		return this.addSanitizer((val) => stripHTML(val))
 	}
 
 	slice (length: number) {

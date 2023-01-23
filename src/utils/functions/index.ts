@@ -9,7 +9,7 @@ export const capitalizeText = (text: string) => {
 	return text.trim().split(' ').map(c).join(' ')
 }
 
-export const extractTextFromHTML = (html: string) => {
+export const stripHTML = (html: string) => {
 	if (html === null || html === undefined) return html
 	return html?.toString()?.trim().replace(/<[^>]+>/g, '') ?? ''
 }
