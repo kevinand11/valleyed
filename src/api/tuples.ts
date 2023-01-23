@@ -1,15 +1,13 @@
 import { VCore } from './core'
 import { GetMap, isArray, isTuple } from '../rules'
 import { makeRule } from '../utils/rules'
+import { ExtractI, ExtractO, ExtractTr } from './base'
 
-type ExtractI<T extends ReadonlyArray<VCore<any>>> =
-	{ [K in keyof T]: T[K] extends VCore<infer I, any, any> ? I : never }
-type ExtractO<T extends ReadonlyArray<VCore<any>>> =
-	{ [K in keyof T]: T[K] extends VCore<any, infer O> ? O : never }
-type ExtractTr<T extends ReadonlyArray<VCore<any>>> =
-	{ [K in keyof T]: T[K] extends VCore<any, any, infer Tr> ? Tr : never }
+type G1<T extends ReadonlyArray<VCore<any>>> = { [K in keyof T]: ExtractI<T[K]> }
+type G2<T extends ReadonlyArray<VCore<any>>> = { [K in keyof T]: ExtractO<T[K]> }
+type G3<T extends ReadonlyArray<VCore<any>>> = { [K in keyof T]: ExtractTr<T[K]> }
 
-export class VTuple<T extends ReadonlyArray<VCore<any>>> extends VCore<ExtractI<T>, ExtractO<T>, ExtractTr<T>> {
+export class VTuple<T extends ReadonlyArray<VCore<any>>> extends VCore<G1<T>, G2<T>, G3<T>> {
 	constructor (schema: GetMap<T>, err?: string) {
 		super()
 		this.addTyping(isArray(err))
@@ -22,7 +20,7 @@ export class VTuple<T extends ReadonlyArray<VCore<any>>> extends VCore<ExtractI<
 				acc[0].push(comp.value)
 				acc[1].push(comp.valid)
 				return acc
-			}, [[] as ExtractO<T>, [] as boolean[]] as const)
+			}, [[] as G2<T>, [] as boolean[]] as const)
 			return isTuple(mapped[1].map((v) => () => v), err)(mapped[0])
 		}))
 	}

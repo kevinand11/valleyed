@@ -94,3 +94,7 @@ export class VBase<I, O = I, T = O> {
 		return undefined as unknown as O
 	}
 }
+
+export type ExtractI<T extends VBase<any>> = T extends VBase<infer I, any, any> ? I : never
+export type ExtractO<T extends VBase<any>> = T extends VBase<any, infer O, any> ? O : never
+export type ExtractTr<T extends VBase<any>> = T extends VBase<any, any, infer Tr> ? Tr : never

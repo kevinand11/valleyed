@@ -1,11 +1,8 @@
 import { VCore } from './core'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
+import { ExtractI, ExtractO, ExtractTr } from './base'
 
-type G1<C extends VCore<any>> = C extends VCore<infer T, any, any> ? T : unknown;
-type G2<C extends VCore<any>> = C extends VCore<any, infer T, any> ? T : unknown;
-type G3<C extends VCore<any>> = C extends VCore<any, any, infer T> ? T : unknown;
-
-export class VOr<T extends VCore<any, any, any>[]> extends VCore<G1<T[number]>, G2<T[number]>, G3<T[number]>> {
+export class VOr<T extends VCore<any, any, any>[]> extends VCore<ExtractI<T[number]>, ExtractO<T[number]>, ExtractTr<T[number]>> {
 	constructor (options: T, err = 'doesnt match any of the schema') {
 		super()
 		this.addRule(makeRule((value) => {

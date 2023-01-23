@@ -1,5 +1,5 @@
 import { arrayContains, isCustom, isDeepEqualTo, isShallowEqualTo } from '../rules'
-import { VBase } from './base'
+import { ExtractI, ExtractO, ExtractTr, VBase } from './base'
 
 export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
 	constructor () {
@@ -10,15 +10,13 @@ export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
 		return this._setOption('original', true)
 	}
 
-	optional () {
-		return new VCore<I | undefined, O | undefined, T | undefined>()
-			.clone(this as any)
+	optional (): VPartial<this, undefined> {
+		return new VPartial<this, undefined>(this)
 			._setOption('required', false)
 	}
 
-	nullable () {
-		return new VCore<I | null, O | null, T | null>()
-			.clone(this as any)
+	nullable (): VPartial<this, null> {
+		return new VPartial<this, null>(this)
 			._setOption('nullable', true)
 	}
 
@@ -44,5 +42,12 @@ export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
 
 	in (array: O[], comparer: (curr: O, val: O) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
+	}
+}
+
+class VPartial<T extends VCore<any>, P> extends VCore<P | ExtractI<T>, P | ExtractO<T>, P | ExtractTr<T>> {
+	constructor (base: T) {
+		super()
+		this.clone(base)
 	}
 }
