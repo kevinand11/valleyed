@@ -1,12 +1,20 @@
 import { VCore } from './core'
-import { isTime } from '../rules'
+import { isEarlierThan, isLaterThan, isTime, Timeable } from '../rules'
 
-export type Timeable = Date | string | number
+export type { Timeable }
 
-export class VTime<I extends Timeable = Timeable, O = I, Tr = I> extends VCore<I, O, Tr> {
+export class VTime<I extends Timeable = Timeable, O extends Timeable = I, Tr extends Timeable = I> extends VCore<I, O, Tr> {
 	constructor (err?: string) {
 		super()
 		this.addTyping(isTime(err))
+	}
+
+	min (compare: O, err?: string) {
+		return this.addRule(isLaterThan(compare, err))
+	}
+
+	max (compare: O, err?: string) {
+		return this.addRule(isEarlierThan(compare, err))
 	}
 
 	asStamp () {

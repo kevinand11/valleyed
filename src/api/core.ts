@@ -24,7 +24,7 @@ export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
 		return this.optional().nullable()
 	}
 
-	default (def: O) {
+	default (def: O | (() => O)) {
 		return this._setOption('default', def)
 	}
 

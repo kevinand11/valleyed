@@ -5,7 +5,7 @@ export class VBase<I, O = I, T = O> {
 		original: false,
 		required: true,
 		nullable: false,
-		default: undefined as unknown as O
+		default: undefined as unknown as (() => O) | O
 	}
 	#sanitizers: Sanitizer<O>[] = []
 	#typings: Rule<O>[] = []
@@ -90,7 +90,9 @@ export class VBase<I, O = I, T = O> {
 	#sanitize (value: O) {
 		for (const sanitizer of this.#sanitizers) value = sanitizer(value)
 		if (value !== undefined) return value
-		if (this._options.default) return this._options.default
+		const def = this._options.default
+		// @ts-ignore
+		if (def !== undefined) return typeof def === 'function' ? def() : def
 		return undefined as unknown as O
 	}
 }
