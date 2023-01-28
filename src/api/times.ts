@@ -3,7 +3,7 @@ import { isEarlierThan, isLaterThan, isTime, Timeable } from '../rules'
 
 export type { Timeable }
 
-export class VTime<I extends Timeable = Timeable, O extends Timeable = I, Tr extends Timeable = I> extends VCore<I, O, Tr> {
+export class VTime<I extends Timeable = Timeable, O extends Timeable = I> extends VCore<I, O> {
 	constructor (err?: string) {
 		super()
 		this.addTyping(isTime(err))
@@ -18,19 +18,19 @@ export class VTime<I extends Timeable = Timeable, O extends Timeable = I, Tr ext
 	}
 
 	asStamp () {
-		return new VTime<I, O, number>()
+		return new VTime<I, number>()
 			.clone(this)
 			.setTransform((v) => new Date(v as any).valueOf())
 	}
 
 	asString () {
-		return new VTime<I, O, string>()
+		return new VTime<I, string>()
 			.clone(this)
 			.setTransform((v) => new Date(v as any).toString())
 	}
 
 	asDate () {
-		return new VTime<I, O, Date>()
+		return new VTime<I, Date>()
 			.clone(this)
 			.setTransform((v) => new Date(v as any))
 	}

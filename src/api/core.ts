@@ -1,7 +1,7 @@
 import { arrayContains, isCustom, isDeepEqualTo, isShallowEqualTo } from '../rules'
-import { ExtractI, ExtractO, ExtractTr, VBase } from './base'
+import { ExtractI, ExtractO, VBase } from './base'
 
-export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
+export class VCore<I, O = I> extends VBase<I, O> {
 	constructor () {
 		super()
 	}
@@ -24,28 +24,28 @@ export class VCore<I, O = I, T = O> extends VBase<I, O, T> {
 		return this.optional().nullable()
 	}
 
-	default (def: O | (() => O)) {
+	default (def: I | (() => I)) {
 		return this._setOption('default', def)
 	}
 
-	custom (fn: (v: O) => boolean, err?: string) {
+	custom (fn: (v: I) => boolean, err?: string) {
 		return this.addRule(isCustom(fn, err))
 	}
 
-	eq (compare: O, err?: string) {
+	eq (compare: I, err?: string) {
 		return this.addRule(isShallowEqualTo(compare, err))
 	}
 
-	eqD (compare: O, comparer: (val: O, compare: O) => boolean, err?: string) {
+	eqD (compare: I, comparer: (val: I, compare: I) => boolean, err?: string) {
 		return this.addRule(isDeepEqualTo(compare, comparer, err))
 	}
 
-	in (array: O[], comparer: (curr: O, val: O) => boolean, err?: string) {
+	in (array: I[], comparer: (curr: I, val: I) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
 	}
 }
 
-class VPartial<T extends VCore<any>, P> extends VCore<P | ExtractI<T>, P | ExtractO<T>, P | ExtractTr<T>> {
+class VPartial<T extends VCore<any>, P> extends VCore<P | ExtractI<T>, P | ExtractO<T>> {
 	constructor (base: T) {
 		super()
 		this.clone(base)

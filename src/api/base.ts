@@ -1,44 +1,49 @@
 import { check, Rule, Sanitizer, Transformer } from '../utils/rules'
 
-export class VBase<I, O = I, T = O> {
+export class VBase<I, O = I> {
 	protected _options = {
 		original: false,
 		required: true,
 		nullable: false,
-		default: undefined as unknown as (() => O) | O
+		default: undefined as unknown as (() => I) | I
 	}
-	#sanitizers: Sanitizer<O>[] = []
-	#typings: Rule<O>[] = []
-	#rules: Rule<O>[] = []
+	#sanitizers: Sanitizer<I>[] = []
+	#typings: Rule<I>[] = []
+	#rules: Rule<I>[] = []
 	#forced = false
 
 	get forced () {
 		return this.#forced
 	}
 
-	static createType<C extends VBase<any, any, any>, A extends Array<any>> (c: new (...args: A) => C) {
+	static createType<C extends VBase<any>, A extends Array<any>> (c: new (...args: A) => C) {
 		return ((...args: A) => new c(...args))
 	}
 
-	static createForcedType<C extends VBase<unknown, any, any>, O, T extends any[] = any[]> (c: new (...args: T) => C, conv: (arg: unknown) => O) {
+	static createForcedType<C extends VBase<any>, I, T extends any[] = any[]> (c: new (...args: T) => C, conv: (arg: unknown) => I) {
 		return ((...args: T) => {
 			return new c(...args).#setForced()
 				.addSanitizer((value) => conv(value as any))
 		})
 	}
 
-	parse (input: I) {
-		let value = input as unknown as O
+	parse (input: unknown) {
+		let value = input as I
 		if (this.#forced && this.#sanitizers.length > 0) value = this.#sanitizers[0](value)
-		const typeCheck = check(value, this.#typings, this._options)
+		const typeCheck = check<I>(value, this.#typings, this._options)
 		if (!typeCheck.valid) return {
 			errors: typeCheck.errors,
 			valid: typeCheck.valid,
-			value: typeCheck.value as unknown as T
+			value: typeCheck.value
 		}
 		const sanitizedValue = this.#sanitize(value)
-		const v = check(sanitizedValue, this.#rules, this._options)
-		const retValue: T = this._options.original ? value as unknown as T : this.#transform(v.value)
+		const v = check<I>(sanitizedValue, this.#rules, this._options)
+		if (!v.valid) return {
+			errors: v.errors,
+			valid: v.valid,
+			value: v.value
+		}
+		const retValue: O = this._options.original ? value as unknown as O : this.#transform(v.value)
 		return {
 			errors: v.errors,
 			valid: v.valid,
@@ -46,22 +51,22 @@ export class VBase<I, O = I, T = O> {
 		}
 	}
 
-	addTyping (rule: Rule<O>) {
+	addTyping (rule: Rule<I>) {
 		this.#typings.push(rule)
 		return this
 	}
 
-	addRule (rule: Rule<O>) {
+	addRule (rule: Rule<I>) {
 		this.#rules.push(rule)
 		return this
 	}
 
-	addSanitizer (sanitizer: Sanitizer<O>) {
+	addSanitizer (sanitizer: Sanitizer<I>) {
 		this.#sanitizers.push(sanitizer)
 		return this
 	}
 
-	setTransform (transformer: Transformer<O, T>) {
+	setTransform (transformer: Transformer<I, O>) {
 		this.#transform = transformer
 		return this
 	}
@@ -71,7 +76,7 @@ export class VBase<I, O = I, T = O> {
 		return this
 	}
 
-	protected clone (c: VBase<I, O, any>) {
+	protected clone (c: VBase<any>) {
 		this._options = c._options
 		this.#forced = c.#forced
 		this.#rules = [...c.#rules]
@@ -85,18 +90,17 @@ export class VBase<I, O = I, T = O> {
 		return this
 	}
 
-	#transform: Transformer<O, T> = (v) => v as unknown as T
+	#transform: Transformer<I, O> = (v) => v as unknown as O
 
-	#sanitize (value: O) {
+	#sanitize (value: I) {
 		for (const sanitizer of this.#sanitizers) value = sanitizer(value)
 		if (value !== undefined) return value
 		const def = this._options.default
 		// @ts-ignore
 		if (def !== undefined) return typeof def === 'function' ? def() : def
-		return undefined as unknown as O
+		return undefined as unknown as I
 	}
 }
 
-export type ExtractI<T extends VBase<any>> = T extends VBase<infer I, any, any> ? I : never
-export type ExtractO<T extends VBase<any>> = T extends VBase<any, infer O, any> ? O : never
-export type ExtractTr<T extends VBase<any>> = T extends VBase<any, any, infer Tr> ? Tr : never
+export type ExtractI<T extends VBase<any>> = T extends VBase<infer I, any> ? I : never
+export type ExtractO<T extends VBase<any>> = T extends VBase<any, infer O> ? O : never

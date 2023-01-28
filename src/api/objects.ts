@@ -1,12 +1,11 @@
 import { VCore } from './core'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
-import { ExtractI, ExtractO, ExtractTr } from './base'
+import { ExtractI, ExtractO } from './base'
 
 type G1<T extends Record<string, VCore<any>>> = { [K in keyof T]: ExtractI<T[K]> }
 type G2<T extends Record<string, VCore<any>>> = { [K in keyof T]: ExtractO<T[K]> }
-type G3<T extends Record<string, VCore<any>>> = { [K in keyof T]: ExtractTr<T[K]> }
 
-export class VObject<T extends Record<string, VCore<any, any, any>>> extends VCore<G1<T>, G2<T>, G3<T>> {
+export class VObject<T extends Record<string, VCore<any, any>>> extends VCore<G1<T>, G2<T>> {
 	constructor (schema: T, trim = true, err?: string) {
 		super()
 		this.addRule(makeRule((value) => {

@@ -2,7 +2,7 @@ import { isEmail, isLengthOf, isMaxOf, isMinOf, isString, isUrl } from '../rules
 import { VCore } from './core'
 import { capitalizeText, stripHTML, trimToLength } from '../utils/functions'
 
-export class VString<I = string> extends VCore<I, string> {
+export class VString extends VCore<string> {
 	constructor (err?: string) {
 		super()
 		this.addTyping(isString(err))

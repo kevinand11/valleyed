@@ -1,8 +1,8 @@
 import { VCore } from './core'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
-import { ExtractI, ExtractO, ExtractTr } from './base'
+import { ExtractI, ExtractO } from './base'
 
-export class VOr<T extends VCore<any, any, any>[]> extends VCore<ExtractI<T[number]>, ExtractO<T[number]>, ExtractTr<T[number]>> {
+export class VOr<T extends VCore<any, any>[]> extends VCore<ExtractI<T[number]>, ExtractO<T[number]>> {
 	constructor (options: T, err = 'doesnt match any of the schema') {
 		super()
 		this.addRule(makeRule((value) => {
@@ -16,8 +16,8 @@ export class VOr<T extends VCore<any, any, any>[]> extends VCore<ExtractI<T[numb
 	}
 }
 
-export class VAnd<I, O, Tr> extends VCore<I, O, Tr> {
-	constructor (options: VCore<I, O, Tr>[], err = 'doesnt match the schema') {
+export class VAnd<I, O> extends VCore<I, O> {
+	constructor (options: VCore<I, O>[], err = 'doesnt match the schema') {
 		super()
 		this.addRule(makeRule((value) => {
 			let v = value as any

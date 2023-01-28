@@ -1,6 +1,6 @@
 export type Rule<T> = (value: T) => ReturnType<typeof isValid<T>> | ReturnType<typeof isInvalid<T>>
 export type Sanitizer<T> = (value: T) => T
-export type Transformer<O, T> = (value: O) => T
+export type Transformer<I, O> = (value: I) => O
 
 export type Options = {
 	required: boolean | (() => boolean),
