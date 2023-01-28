@@ -66,7 +66,7 @@ export class VBase<I, O = I> {
 		return this
 	}
 
-	setTransform (transformer: Transformer<I, O>) {
+	protected _transform (transformer: Transformer<I, O>) {
 		this.#transform = transformer
 		return this
 	}

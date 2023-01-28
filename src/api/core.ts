@@ -1,5 +1,6 @@
 import { arrayContains, isCustom, isDeepEqualTo, isShallowEqualTo } from '../rules'
 import { ExtractI, ExtractO, VBase } from './base'
+import { Transformer } from '../utils/rules'
 
 export class VCore<I, O = I> extends VBase<I, O> {
 	constructor () {
@@ -42,6 +43,12 @@ export class VCore<I, O = I> extends VBase<I, O> {
 
 	in (array: I[], comparer: (curr: I, val: I) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
+	}
+
+	transform<T> (transformer: Transformer<I, T>) {
+		return new VCore<I, T>()
+			.clone(this)
+			._transform(transformer)
 	}
 }
 
