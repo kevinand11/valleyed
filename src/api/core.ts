@@ -41,7 +41,7 @@ export class VCore<I, O = I> extends VBase<I, O> {
 		return this.addRule(isDeepEqualTo(compare, comparer, err))
 	}
 
-	in (array: I[], comparer: (curr: I, val: I) => boolean, err?: string) {
+	in (array: I[], comparer: (val: I, curr: I) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
 	}
 

@@ -11,7 +11,13 @@
 		"release": "standard-version",
 		"prepare": "husky install"
 	},
-	"keywords": [],
+	 "keywords": [
+		"typescript",
+		"schema",
+		"validation",
+		"type",
+		"inference"
+	],
 	"author": "Kevin Izuchukwu",
 	"license": "ISC",
 	"devDependencies": {

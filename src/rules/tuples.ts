@@ -12,6 +12,7 @@ export const isTuple = <T extends ReadonlyArray<Func<any>>> (
 	const v = isArray()(value)
 	if (!v.valid) return v
 
+	if (comparer.length !== value.length) return isInvalid('value length is not equal to comparer length', value)
 	const invIndex = comparer.findIndex((c, i) => !c(value[i], i))
 	const invalid = invIndex !== -1
 	error = error ?? `contains an invalid value at index ${invIndex}`

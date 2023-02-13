@@ -12,8 +12,8 @@ export const isDeepEqualTo = <Type> (compare: Type, comparer: (val: Type, compar
 	return isInvalid(error, value)
 })
 
-export const arrayContains = <Type> (array: Type[], comparer: (curr: Type, val: Type) => boolean, error?: string) => makeRule<Type>((value) => {
+export const arrayContains = <Type> (array: Type[], comparer: (val: Type, curr: Type) => boolean, error?: string) => makeRule<Type>((value) => {
 	error = error ?? `is not in the supported list [${array.join(',')}]`
-	if (array.find((x) => comparer(x, value))) return isValid(value)
+	if (array.find((x) => comparer(value, x))) return isValid(value)
 	return isInvalid(error, value)
 })
