@@ -1,6 +1,6 @@
 import { isEmail, isLengthOf, isMaxOf, isMinOf, isString, isUrl } from '../rules'
+import { capitalize, stripHTML, trimToLength } from '../utils/functions'
 import { VCore } from './core'
-import { capitalizeText, stripHTML, trimToLength } from '../utils/functions'
 
 export class VString extends VCore<string> {
 	constructor (err?: string) {
@@ -41,7 +41,7 @@ export class VString extends VCore<string> {
 	}
 
 	capitalize () {
-		return this.addSanitizer((val) => capitalizeText(val))
+		return this.addSanitizer((val) => capitalize(val))
 	}
 
 	stripHTML () {

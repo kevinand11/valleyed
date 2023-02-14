@@ -1,12 +1,12 @@
-import { capitalizeText, extractUrls, stripHTML, trimToLength } from '../../../src/utils/functions'
+import { capitalize, extractUrls, stripHTML, trimToLength } from '../../../src/utils/functions'
 
 test('CapitalizeText', () => {
-	expect(capitalizeText('test')).toBe('Test')
-	expect(capitalizeText('test home')).toBe('Test Home')
-	expect(capitalizeText('')).toBe('')
-	expect(capitalizeText(2 as unknown as string)).toBe('2')
-	expect(capitalizeText(null as unknown as string)).toBe(null)
-	expect(capitalizeText(undefined as unknown as string)).toBe(undefined)
+	expect(capitalize('test')).toBe('Test')
+	expect(capitalize('test home')).toBe('Test Home')
+	expect(capitalize('')).toBe('')
+	expect(capitalize(2 as unknown as string)).toBe('2')
+	expect(capitalize(null as unknown as string)).toBe(null)
+	expect(capitalize(undefined as unknown as string)).toBe(undefined)
 })
 
 test('stripHTML', () => {

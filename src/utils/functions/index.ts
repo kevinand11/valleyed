@@ -1,8 +1,8 @@
-import { normalizeUrl } from './urls/normalize'
-import { urlRegex } from '../regexes'
 import { isNumber } from '../../rules'
+import { urlRegex } from '../regexes'
+import { normalizeUrl } from './urls/normalize'
 
-export const capitalizeText = (text: string) => {
+export const capitalize = (text: string) => {
 	if (text === null || text === undefined) return text
 	text = text.toString()
 	const c = (v: string) => (v[0]?.toUpperCase() ?? '') + v.slice(1)
@@ -74,9 +74,9 @@ export const addToArray = <T> (array: T[], item: T, getKey: (a: T) => any, getCo
 	return array
 }
 
-export const catchDivideByZero = (num: number, den: number) => den === 0 ? 0 : num / den
+export const divideByZero = (num: number, den: number) => den === 0 ? 0 : num / den
 
-export const getPercentage = (num: number, den: number) => 100 * (catchDivideByZero(num, den) > 1 ? 1 : catchDivideByZero(num, den))
+export const getPercentage = (num: number, den: number) => 100 * (divideByZero(num, den) > 1 ? 1 : divideByZero(num, den))
 
 export const getRandomSample = <Type> (population: Array<Type>, n: number) => {
 	const indexes = [] as number[]
