@@ -1,6 +1,6 @@
 {
-	"name": "@stranerd/validate",
-	"version": "4.0.0-alpha.0",
+	"name": "valleyed",
+	"version": "0.0.0",
 	"description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
 	"main": "lib/index.js",
 	"sideEffects": false,
@@ -44,7 +44,7 @@
 		"lib/src"
 	],
 	"repository": {
-		"url": "git://github.com/stranerd/validate.git"
+		"url": "git://github.com/kevinand11/valleyed.git"
 	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
