@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.4-alpha.1](https://github.com/kevinand11/valleyed/compare/v4.0.4...v4.0.4-alpha.1) (2023-02-14)
+
+
+### Bug Fixes
+
+* add generic type for v.any ([becf9f9](https://github.com/kevinand11/valleyed/commit/becf9f94be7931a663a0db9b9c44369300edc7de))
+
 ### [4.0.4](https://github.com/kevinand11/valleyed/compare/v4.0.3...v4.0.4) (2023-02-14)
 
 
