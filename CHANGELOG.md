@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.2](https://github.com/kevinand11/valleyed/compare/v4.0.1...v4.0.2) (2023-02-14)
+
+
+### Bug Fixes
+
+* skipping lib folder when publishing ([163fdd1](https://github.com/kevinand11/valleyed/commit/163fdd19a74e55313e88a86d040d69a6a1c9b72d))
+
 ### [4.0.1](https://github.com/kevinand11/valleyed/compare/v0.0.0-alpha.0...v4.0.1) (2023-02-14)
 
 
