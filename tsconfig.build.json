@@ -7,7 +7,7 @@
 		"resolveJsonModule": true,
 		"target": "es2015",
 		"module": "commonjs",
-		"baseUrl": ".",
+		"baseUrl": "src",
 		"outDir": "lib",
 		"declaration": true,
 		"moduleResolution": "Node",
