@@ -28,7 +28,7 @@ export const v = {
 	null: (err?: string) => new VCore<null>().addRule((val) => isNull(err)(val)),
 	undefined: (err?: string) => new VCore<undefined>().addRule((val) => isUndefined(err)(val)),
 	instanceof: <T>(classDef: new () => T, err?: string) => new VCore<T>().addRule((val) => isInstanceOf(classDef, err)(val)),
-	any: () => new VCore<any>(),
+	any: <T = any>() => new VCore<T>(),
 	force: {
 		string: VBase.createForcedType<VString, string, ConstructorParameters<typeof VString>>(VString, (v) => String(v)),
 		number: VBase.createForcedType<VNumber, number, ConstructorParameters<typeof VNumber>>(VNumber, (v) => Number(v)),
