@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.1](https://github.com/kevinand11/valleyed/compare/v0.0.0-alpha.0...v4.0.1) (2023-02-14)
+
+
+### Bug Fixes
+
+* readme ([e9005dd](https://github.com/kevinand11/valleyed/commit/e9005dd985fde28c8bd3ad3723facf62ee6a3c38))
+* rename some utils ([4fd53d8](https://github.com/kevinand11/valleyed/commit/4fd53d8e2fd32d6ec77fda29e3e0c064eb329021))
+
 ## [0.0.0-alpha.0](https://github.com/kevinand11/valleyed/compare/v4.0.0-alpha.0...v0.0.0-alpha.0) (2023-02-14)
 
 
