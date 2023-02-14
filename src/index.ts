@@ -1,5 +1,6 @@
-export { Validator, Rule } from './validators'
-export { isValid, isInvalid } from './utils/rules'
+export * from './api'
+
+export { Validator } from './validators'
+export * from './utils/rules'
 export * from './rules'
-export * from './santizers'
-export * from './utils/helpers'
+export * from './utils/functions'

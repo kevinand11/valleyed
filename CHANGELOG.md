@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0-alpha.0](https://github.com/stranerd/validate/compare/v3.5.1...v4.0.0-alpha.0) (2023-02-13)
+
+
+### Features
+
+* and and or rules ([fb7e34e](https://github.com/stranerd/validate/commit/fb7e34edb13ae495214618008ee301eeb439aeed))
+* array set sanitizer ([c55d22f](https://github.com/stranerd/validate/commit/c55d22f250e668af17687d0e49bae4f5eedd5dac))
+* custom rule and api ([36ddeef](https://github.com/stranerd/validate/commit/36ddeef0dbf624dc6fd0f4aaf42663ababf68b80))
+* date lt & gt & default as func ([465d015](https://github.com/stranerd/validate/commit/465d015abe17ea23d3da9dc1228263a32a7af6bb))
+* differ utils ([91803dd](https://github.com/stranerd/validate/commit/91803dd106353cbe5b1625bfdfb1dd852d5b156c))
+* ignore type of input ([724408d](https://github.com/stranerd/validate/commit/724408daf341378a046271f1482a4d87e955ad64))
+* instanceof ([ff311c2](https://github.com/stranerd/validate/commit/ff311c2d838b505ca063d2c813a789c17883cfa6))
+* isTuple rule ([2c86e08](https://github.com/stranerd/validate/commit/2c86e08beed0f3cb767b2b942705f1d334f1026c))
+* object validation ([387a99c](https://github.com/stranerd/validate/commit/387a99c91732d3bd7406bcb1ac152a93a6186f00))
+* partial types ([058de1e](https://github.com/stranerd/validate/commit/058de1e87d6b5e3b5573c2d0b7069e26e392d33d))
+* records and maps ([5e0d677](https://github.com/stranerd/validate/commit/5e0d677a8cbb5001f69950b65a0f7fd9d2683a5f))
+* time as stamp, string or date ([74ff734](https://github.com/stranerd/validate/commit/74ff734c21912986a2033d1dfb4de10d1b63c746))
+* timestamp api ([2be26c0](https://github.com/stranerd/validate/commit/2be26c06b5f804e3ba5ac0f4207065cece90c02e))
+* trim objects ([25f8e71](https://github.com/stranerd/validate/commit/25f8e71718caef713bf379a64c0f31212d0e6661))
+* tuples ([5e91409](https://github.com/stranerd/validate/commit/5e914090ab30bc613ae82e2921e9795681ba4261))
+* url validation ([dda182e](https://github.com/stranerd/validate/commit/dda182e133c529f535720ef990394459c9a2ab5a))
+
+
+### Bug Fixes
+
+* allowing forced in other types ([0202329](https://github.com/stranerd/validate/commit/02023296b0e062de4882a94e96d6ab8fe0a328ed))
+* allowing transforms in arrays in tuples and arrays ([35ae0f6](https://github.com/stranerd/validate/commit/35ae0f67c66948d9ec889a67e354f4b64d87ff00))
+* allowing transforms in junctions and records ([71d4a91](https://github.com/stranerd/validate/commit/71d4a910eca52b4695b4ca0781424e6760336e4b))
+* allowing transforms in objects ([ffc2c03](https://github.com/stranerd/validate/commit/ffc2c03c2f15dd62ce33962161f27e97ee4b10e0))
+* time typings ([793f9d7](https://github.com/stranerd/validate/commit/793f9d7de4408504971705a1935eb2fa9d042121))
+* type of object & or ([513330b](https://github.com/stranerd/validate/commit/513330b120bdeb240957389e0dec67abc7756672))
+* vpartial typing ([771e179](https://github.com/stranerd/validate/commit/771e179654fd3a85c3808a442979af40a11d1fb4))
+
 ### [3.5.1](https://github.com/stranerd/validate/compare/v3.5.0...v3.5.1) (2023-01-16)
 
 

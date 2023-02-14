@@ -1,6 +1,6 @@
-import urlRegex from 'url-regex-safe'
-import { normalizeUrl } from './normalize'
-import { isNumber } from '../rules'
+import { normalizeUrl } from './urls/normalize'
+import { urlRegex } from '../regexes'
+import { isNumber } from '../../rules'
 
 export const capitalizeText = (text: string) => {
 	if (text === null || text === undefined) return text
@@ -9,7 +9,7 @@ export const capitalizeText = (text: string) => {
 	return text.trim().split(' ').map(c).join(' ')
 }
 
-export const extractTextFromHTML = (html: string) => {
+export const stripHTML = (html: string) => {
 	if (html === null || html === undefined) return html
 	return html?.toString()?.trim().replace(/<[^>]+>/g, '') ?? ''
 }
@@ -26,7 +26,7 @@ export const trimToLength = (body: string, length: number) => {
 }
 
 export const extractUrls = (text: string) => {
-	const urls = text.match(urlRegex()) || [] as string[]
+	const urls = text.match(urlRegex) || [] as string[]
 	return urls.filter(((url, index) => urls.indexOf(url) === index)).map((url) => {
 		url = url.trim()
 		return {
@@ -38,7 +38,7 @@ export const extractUrls = (text: string) => {
 
 export const formatNumber = (num: number, dp?: number) => Intl
 	.NumberFormat('en', { notation: 'compact', ...(dp ? { maximumFractionDigits: dp } : {}) })
-	.format(isNumber(num).valid ? num : 0)
+	.format(isNumber()(num).valid ? num : 0)
 
 export const pluralize = (count: number, singular: string, plural: string) => Math.round(count) === 1 ? singular : plural
 
