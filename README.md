@@ -18,17 +18,17 @@ Installation is done using the [`npm install` command](https://docs.npmjs.com/ge
 
 ### Using CDN:
 
-[Validate jsDelivr CDN](https://www.jsdelivr.com/package/npm/valleyed)
+[Valleyed jsDelivr CDN](https://www.jsdelivr.com/package/npm/valleyed)
 
 ### Using Skypack:
 
-[Validate Skypack CDN](https://www.skypack.dev/view/valleyed)
+[Valleyed Skypack CDN](https://www.skypack.dev/view/valleyed)
 
 ## Contributing
 
 [Contributing Guide](Contributing.md)
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/valleyed)&nbsp;
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/kevinand11/valleyed)&nbsp;
 
 
 ## Basic Usage
