@@ -18,14 +18,14 @@ export class VTime<T extends Timeable = Timeable> extends VCore<T> {
 	}
 
 	asStamp () {
-		return this.transform((v) => new Date(v as any).valueOf())
+		return this.transform((v) => new Date(v).valueOf())
 	}
 
 	asString () {
-		return this.transform((v) => new Date(v as any).toString())
+		return this.transform((v) => new Date(v).toString())
 	}
 
 	asDate () {
-		return this.transform((v) => new Date(v as any))
+		return this.transform((v) => new Date(v))
 	}
 }

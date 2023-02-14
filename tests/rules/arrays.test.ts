@@ -80,7 +80,7 @@ describe('isArrayOf', () => {
 		expect(result.valid).toBe(false)
 	})
 	test('not an array', () => {
-		const result = isArrayOf((val) => isNumber()(val).valid)(1 as any)
+		const result = isArrayOf((val) => isNumber()(val).valid)(1 )
 		expect(result.valid).toBe(false)
 	})
 })

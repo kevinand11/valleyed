@@ -1,4 +1,4 @@
-export type Rule<T> = (value: T) => ReturnType<typeof isValid<T>> | ReturnType<typeof isInvalid<T>>
+export type Rule<T> = (value: unknown) => ReturnType<typeof isValid<T>> | ReturnType<typeof isInvalid<T>>
 export type Sanitizer<T> = (value: T) => T
 export type Transformer<I, O> = (value: I) => O
 
@@ -9,9 +9,9 @@ export type Options = {
 
 export const isValid = <T> (value: T): { valid: true, errors: string[], value: T } => ({ valid: true, errors: [], value })
 
-export const isInvalid = <T>(errors: string[], value: T): { valid: false, errors: string[], value: T } => ({ valid: false, errors, value })
+export const isInvalid = <T>(errors: string[], value: T): { valid: false, errors: string[], value: unknown } => ({ valid: false, errors, value })
 
-export const makeRule = <T> (func: Rule<T>): Rule<T> => (val: T) => func(val)
+export const makeRule = <T> (func: Rule<T>): Rule<T> => (val: unknown) => func(val)
 export const makeSanitizer = <T> (func: Sanitizer<T>) => (val: T) => func(val)
 
 export const check = <T> (value: T, rules: Rule<T>[], options?: Partial<Options>) => {

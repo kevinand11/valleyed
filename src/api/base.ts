@@ -34,14 +34,14 @@ export class VBase<I, O = I> {
 		if (!typeCheck.valid) return {
 			errors: typeCheck.errors,
 			valid: typeCheck.valid,
-			value: typeCheck.value
+			value: typeCheck.value as unknown
 		}
 		const sanitizedValue = this.#sanitize(value)
 		const v = check<I>(sanitizedValue, this.#rules, this._options)
 		if (!v.valid) return {
 			errors: v.errors,
 			valid: v.valid,
-			value: v.value
+			value: v.value as unknown
 		}
 		const retValue: O = this._options.original ? value as unknown as O : this.#transform(v.value)
 		return {

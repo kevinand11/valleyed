@@ -16,7 +16,7 @@ describe('isTuple', () => {
 		const result = isTuple([
 			(v: string) => typeof v === 'string',
 			(v: number) => typeof v === 'number'
-		])([1, 2] as any)
+		])([1, 2] )
 		expect(result.valid).toBe(false)
 	})
 })

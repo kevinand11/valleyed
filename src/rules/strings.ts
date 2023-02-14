@@ -1,3 +1,4 @@
+import { stripHTML } from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 
@@ -8,41 +9,46 @@ export const isString = (error = 'is not a string') => makeRule<any>((value) => 
 	return isValid(value)
 })
 
-export const isLengthOf = (length: number, error?: string) => makeRule<string>((value) => {
+export const isLengthOf = (length: number, stripHTMLTags = false, error?: string) => makeRule<string>((value) => {
 	const v = isString()(value)
 	if (!v.valid) return v
-	value = value.trim()
+	let val = value as string
+	val = val.trim()
 	error = error ?? `must contain ${length} characters`
-	if (value.length === length) return isValid(value)
-	return isInvalid([error], value)
+	if ((stripHTMLTags ? stripHTML(val) : val).length === length) return isValid(val)
+	return isInvalid([error], val)
 })
 
-export const isMinOf = (length: number, error?: string) => makeRule<string>((value) => {
+export const isMinOf = (length: number, stripHTMLTags = false, error?: string) => makeRule<string>((value) => {
 	const v = isString()(value)
 	if (!v.valid) return v
-	value = value.trim()
+	let val = value as string
+	val = val.trim()
 	error = error ?? `must contain ${length} or more characters`
-	if (value.length >= length) return isValid(value)
-	return isInvalid([error], value)
+	if ((stripHTMLTags ? stripHTML(val) : val).length >= length) return isValid(val)
+	return isInvalid([error], val)
 })
 
-export const isMaxOf = (length: number, error?: string) => makeRule<string>((value) => {
+export const isMaxOf = (length: number, stripHTMLTags = false, error?: string) => makeRule<string>((value) => {
 	const v = isString()(value)
 	if (!v.valid) return v
-	value = value.trim()
+	let val = value as string
+	val = val.trim()
 	error = error ?? `must contain ${length} or less characters`
-	if (value.length <= length) return isValid(value)
-	return isInvalid([error], value)
+	if ((stripHTMLTags ? stripHTML(val) : val).length <= length) return isValid(val)
+	return isInvalid([error], val)
 })
 
 export const isEmail = (error = 'is not a valid email') => makeRule<string>((value) => {
 	const v = isString()(value)
 	if (!v.valid) return v
-	return emailRegex.test(value) ? isValid(value) : isInvalid([error], value)
+	const val = value as string
+	return emailRegex.test(val) ? isValid(val) : isInvalid([error], val)
 })
 
 export const isUrl = (error = 'is not a valid url') => makeRule<string>((value) => {
 	const v = isString()(value)
 	if (!v.valid) return v
-	return urlRegex.test(value) ? isValid(value) : isInvalid([error], value)
+	const val = value as string
+	return urlRegex.test(val) ? isValid(val) : isInvalid([error], val)
 })

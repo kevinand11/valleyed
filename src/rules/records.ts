@@ -20,7 +20,7 @@ export const isRecord = <V>(
 	com: (cur: V) => boolean,
 	error?: string) =>
 		makeRule<Record<string, V>>((value) =>
-			parse(value, Object.entries(value ?? []) as any, () => true, com, error))
+			parse(value as Record<string, V>, Object.entries(value ?? []) as any, () => true, com, error))
 
 export const isMap = <K, V>(
 	kCom: (cur: K) => boolean,
@@ -29,5 +29,6 @@ export const isMap = <K, V>(
 		makeRule<Map<K, V>>((value) => {
 			const v = isInstanceOf(Map)(value)
 			if (!v.valid) return v
-			return parse(value, [...value?.entries() ?? []], kCom, vCom, error)
+			const val = value as Map<K, V>
+			return parse(val, [...val.entries() ?? []], kCom, vCom, error)
 		})

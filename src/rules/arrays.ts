@@ -9,32 +9,37 @@ export const hasLengthOf = <Type> (length: number, error?: string) => makeRule<T
 	const v = isArray()(value)
 	if (!v.valid) return v
 	error = error ?? `must contain ${length} items`
-	if (value.length === length) return isValid(value)
-	return isInvalid([error], value)
+	const val = value as Type[]
+	if (val.length === length) return isValid(val)
+	return isInvalid([error], val)
 })
 
 export const hasMinOf = <Type> (length: number, error?: string) => makeRule<Type[]>((value) => {
 	const v = isArray()(value)
 	if (!v.valid) return v
 	error = error ?? `must contain ${length} or more items`
-	if (value.length >= length) return isValid(value)
-	return isInvalid([error], value)
+	const val = value as Type[]
+	if (val.length >= length) return isValid(val)
+	return isInvalid([error], val)
 })
 
 export const hasMaxOf = <Type> (length: number, error?: string) => makeRule<Type[]>((value) => {
 	const v = isArray()(value)
 	if (!v.valid) return v
 	error = error ?? `must contain ${length} or less items`
-	if (value.length <= length) return isValid(value)
-	return isInvalid([error], value)
+	const val = value as Type[]
+	if (val.length <= length) return isValid(val)
+	return isInvalid([error], val)
 })
 
-export const isArrayOf = <T> (comparer: (cur: T, idx: number) => boolean, error?: string) => makeRule<T[]>((value) => {
+export const isArrayOf = <Type> (comparer: (cur: Type, idx: number) => boolean, error?: string) => makeRule<Type[]>((value) => {
 	const v = isArray()(value)
 	if (!v.valid) return v
 
-	const invIndex = value.findIndex((elem, i) => !comparer(elem, i))
+	const val = value as Type[]
+
+	const invIndex = val.findIndex((elem, i) => !comparer(elem, i))
 	const invalid = invIndex !== -1
 	error = error ?? `contains invalid values at index ${invIndex}`
-	return invalid ? isInvalid([error], value) : isValid(value)
+	return invalid ? isInvalid([error], val) : isValid(val)
 })

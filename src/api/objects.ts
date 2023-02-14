@@ -8,21 +8,22 @@ type G2<T extends Record<string, VCore<any>>> = { [K in keyof T]: ExtractO<T[K]>
 export class VObject<T extends Record<string, VCore<any, any>>> extends VCore<G1<T>, G2<T>> {
 	constructor (schema: T, trim = true, err?: string) {
 		super()
-		this.addRule(makeRule((value) => {
-			const keys = new Set([...Object.keys(value ?? {}), ...Object.keys(schema)])
+		this.addRule(makeRule<G1<T>>((value) => {
+			const val = value as G1<T>
+			const keys = new Set([...Object.keys(val ?? {}), ...Object.keys(schema)])
 			const errors: string[] = []
 			for (const key of keys) {
 				if (!(key in schema)) {
-					if (trim) delete value[key]
+					if (trim) delete val[key]
 					continue
 				}
-				const validity = schema[key].parse(value?.[key])
+				const validity = schema[key].parse(val?.[key])
 				const errorStart = schema[key] instanceof VObject ? `${key}.` : `${key}: `
 				if (!validity.valid) errors.push(...validity.errors.map((e) => errorStart + e))
 				// @ts-ignore
-				if (value) value[key] = validity.value
+				if (val) val[key] = validity.value
 			}
-			return errors.length > 0 ? isInvalid(err ? [err] : errors, value) : isValid(value)
+			return errors.length > 0 ? isInvalid(err ? [err] : errors, val) : isValid(val)
 		}))
 	}
 }

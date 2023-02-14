@@ -4,29 +4,30 @@ import { isString } from './strings'
 
 export type Timeable = Date | string | number
 
-export const isTime = <T extends Timeable> (error = 'is not a valid datetime') => makeRule<T>((value) => {
-	if (isNumber()(value instanceof Date ? value.valueOf() : value).valid) return isValid(value)
+export const isTime = <T extends Timeable>(error = 'is not a valid datetime') => makeRule<T>((value) => {
+	const val = value as T
+	if (isNumber()(val instanceof Date ? val.valueOf() : val).valid) return isValid(val)
 	// @ts-ignore
-	if (isString()(value).valid) return isNumber()(Date.parse(value)).valid ? isValid(value) : isInvalid([error], value)
-	return isInvalid([error], value)
+	if (isString()(val).valid) return isNumber()(Date.parse(val)).valid ? isValid(val) : isInvalid([error], val)
+	return isInvalid([error], val)
 })
 
 export const isLaterThan = <T extends Timeable> (compare: Timeable, error = 'is not later than compared value') => makeRule<T>((value) => {
-	const date = new Date(value)
+	const val = value as T
+	const date = new Date(val)
 	const compareDate = new Date(compare)
-	const errors: string[] = []
-	if (!isTime()(date).valid) errors.push('is not a valid datetime')
-	if (!isTime()(compareDate).valid) errors.push('compare is not a valid datetime')
-	if (date <= compareDate) errors.push(error)
-	return errors.length === 0 ? isValid(value) : isInvalid(errors, value)
+	if (!isTime()(date).valid) return isInvalid(['is not a valid datetime'], val)
+	if (!isTime()(compareDate).valid) return isInvalid(['compare is not a valid datetime'], val)
+	if (date <= compareDate) return isInvalid([error], val)
+	return isValid(val)
 })
 
 export const isEarlierThan = <T extends Timeable> (compare: Timeable, error = 'is not earlier than compared value') => makeRule<T>((value) => {
-	const date = new Date(value)
+	const val = value as T
+	const date = new Date(val)
 	const compareDate = new Date(compare)
-	const errors: string[] = []
-	if (!isTime()(date).valid) errors.push('is not a valid datetime')
-	if (!isTime()(compareDate).valid) errors.push('compare is not a valid datetime')
-	if (date >= compareDate) errors.push(error)
-	return errors.length === 0 ? isValid(value) : isInvalid(errors, value)
+	if (!isTime()(date).valid) return isInvalid(['is not a valid datetime'], val)
+	if (!isTime()(compareDate).valid) return isInvalid(['compare is not a valid datetime'], val)
+	if (date >= compareDate) return isInvalid([error], val)
+	return isValid(val)
 })

@@ -6,8 +6,8 @@ export class VArray<I, O> extends VCore<I[], O[]> {
 	constructor (comparer: VCore<I, O>, err?: string) {
 		super()
 		this.addTyping(isArray(err))
-		this.addRule(makeRule((value) => {
-			const mapped = (value ?? []).reduce((acc, cur) => {
+		this.addRule(makeRule<I[]>((value) => {
+			const mapped = (value as I[] ?? []).reduce((acc, cur) => {
 				const comp = comparer.parse(cur)
 				acc[0].push(comp.value)
 				acc[1].push(comp.valid)

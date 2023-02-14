@@ -1,22 +1,26 @@
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 
-export const isUndefined = (error = 'is not undefined') => makeRule<any>((value) => {
-	if (value === undefined) return isValid(value)
-	return isInvalid([error], value)
+export const isUndefined = (error = 'is not undefined') => makeRule<undefined>((value) => {
+	const val = value as undefined
+	if (value === undefined) return isValid(val)
+	return isInvalid([error], val)
 })
 
-export const isNull = (error = 'is not null') => makeRule<any>((value) => {
-	if (value === null) return isValid(value)
-	return isInvalid([error], value)
+export const isNull = (error = 'is not null') => makeRule<null>((value) => {
+	const val = value as null
+	if (val === null) return isValid(val)
+	return isInvalid([error], val)
 })
 
-export const isBoolean = (error = 'is not a boolean') => makeRule<any>((value) => {
-	if (value === true || value === false) return isValid(value)
-	return isInvalid([error], value)
+export const isBoolean = (error = 'is not a boolean') => makeRule<boolean>((value) => {
+	const val = value as boolean
+	if (val === true || val === false) return isValid(val)
+	return isInvalid([error], val)
 })
 
-export const isInstanceOf = <T> (classDef: new () => T, error?: string) => makeRule<any>((value) => {
+export const isInstanceOf = <T> (classDef: new () => T, error?: string) => makeRule<T>((value) => {
 	error = error ?? `is not an instance of ${classDef.name}`
-	if (value instanceof classDef) return isValid(value)
-	return isInvalid([error], value)
+	const val = value as T
+	if (value instanceof classDef) return isValid(val)
+	return isInvalid([error], val)
 })

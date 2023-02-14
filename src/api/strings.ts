@@ -8,16 +8,16 @@ export class VString extends VCore<string> {
 		this.addTyping(isString(err))
 	}
 
-	has (length: number, err?: string) {
-		return this.addRule(isLengthOf(length, err))
+	has (length: number, stripHTML = false, err?: string) {
+		return this.addRule(isLengthOf(length,  stripHTML, err))
 	}
 
-	min (length: number, err?: string) {
-		return this.addRule(isMinOf(length, err))
+	min (length: number, stripHTML = false,err?: string) {
+		return this.addRule(isMinOf(length, stripHTML, err))
 	}
 
-	max (length: number, err?: string) {
-		return this.addRule(isMaxOf(length, err))
+	max (length: number, stripHTML = false, err?: string) {
+		return this.addRule(isMaxOf(length,  stripHTML, err))
 	}
 
 	email (err?: string) {
