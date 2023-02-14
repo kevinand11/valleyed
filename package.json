@@ -41,7 +41,7 @@
 		"CHANGELOG.md",
 		"README.md",
 		"bin",
-		"lib/src"
+		"lib"
 	],
 	"repository": {
 		"url": "git://github.com/kevinand11/valleyed.git"
