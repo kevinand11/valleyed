@@ -7,9 +7,9 @@ export type Options = {
 	nullable: boolean
 }
 
-export const isValid = <T> (value: T): { valid: true, error: null, value: T } => ({ valid: true, error: null, value })
+export const isValid = <T> (value: T): { valid: true, errors: string[], value: T } => ({ valid: true, errors: [], value })
 
-export const isInvalid = <T> (error: string, value: T): { valid: false, error: string, value: T } => ({ valid: false, error, value })
+export const isInvalid = <T>(errors: string[], value: T): { valid: false, errors: string[], value: T } => ({ valid: false, errors, value })
 
 export const makeRule = <T> (func: Rule<T>): Rule<T> => (val: T) => func(val)
 export const makeSanitizer = <T> (func: Sanitizer<T>) => (val: T) => func(val)
@@ -26,9 +26,9 @@ export const check = <T> (value: T, rules: Rule<T>[], options?: Partial<Options>
 		const v = rule(acc.value)
 		acc.valid = acc.valid && v.valid
 		if (v.valid) acc.value = v.value
-		else acc.errors.add(v.error)
+		else acc.errors.push(...v.errors)
 		return acc
-	}, { value, valid: true, errors: new Set<string>() })
+	}, { value, valid: true, errors: [] as string[] })
 
-	return { ...res, errors: [...res.errors] }
+	return { ...res, errors: [...new Set(res.errors)] }
 }

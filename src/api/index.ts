@@ -1,16 +1,16 @@
-import { VString } from './strings'
-import { VNumber } from './numbers'
-import { VFile } from './files'
-import { VCore } from './core'
 import { isInstanceOf, isNull, isUndefined } from '../rules'
 import { VArray } from './arrays'
-import { VObject } from './objects'
-import { VAnd, VOr } from './junctions'
-import { VBoolean } from './booleans'
-import { VTuple } from './tuples'
-import { VMap, VRecord } from './records'
-import { VTime } from './times'
 import { VBase } from './base'
+import { VBoolean } from './booleans'
+import { VCore } from './core'
+import { VFile } from './files'
+import { VAnd, VOr } from './junctions'
+import { VNumber } from './numbers'
+import { VObject } from './objects'
+import { VMap, VRecord } from './records'
+import { VString } from './strings'
+import { VTime } from './times'
+import { VTuple } from './tuples'
 
 export const v = {
 	or: VBase.createType(VOr),
@@ -27,7 +27,7 @@ export const v = {
 	map: VBase.createType(VMap),
 	null: (err?: string) => new VCore<null>().addRule((val: null) => isNull(err)(val)),
 	undefined: (err?: string) => new VCore<undefined>().addRule((val: undefined) => isUndefined(err)(val)),
-	instanceof: <T> (classDef: new () => T, err?: string) => new VCore<T>().addRule((val: T) => isInstanceOf(classDef, err)(val)),
+	instanceof: <T>(classDef: new () => T, err?: string) => new VCore<T>().addRule((val: T) => isInstanceOf(classDef, err)(val)),
 	any: () => new VCore<any>(),
 	force: {
 		string: VBase.createForcedType<VString, string, ConstructorParameters<typeof VString>>(VString, (v) => String(v)),

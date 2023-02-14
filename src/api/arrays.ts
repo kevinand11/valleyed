@@ -7,7 +7,7 @@ export class VArray<I, O> extends VCore<I[], O[]> {
 		super()
 		this.addTyping(isArray(err))
 		this.addRule(makeRule((value) => {
-			const mapped = value.reduce((acc, cur) => {
+			const mapped = (value ?? []).reduce((acc, cur) => {
 				const comp = comparer.parse(cur)
 				acc[0].push(comp.value)
 				acc[1].push(comp.valid)

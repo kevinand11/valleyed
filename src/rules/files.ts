@@ -11,23 +11,23 @@ export type File = { type: string, [k: string]: any }
 export const isImage = (error = 'is not a recognized image file') => makeRule<File>((file) => {
 	//@ts-ignore
 	if (imageMimeTypes.includes(file?.type)) return isValid(file)
-	return isInvalid(error, file)
+	return isInvalid([error], file)
 })
 
 export const isAudio = (error = 'is not a recognized audio file') => makeRule<File>((file) => {
 	//@ts-ignore
 	if (audioMimeTypes.includes(file?.type)) return isValid(file)
-	return isInvalid(error, file)
+	return isInvalid([error], file)
 })
 
 export const isVideo = (error = 'is not a recognized video file') => makeRule<File>((file) => {
 	//@ts-ignore
 	if (videoMimeTypes.includes(file?.type)) return isValid(file)
-	return isInvalid(error, file)
+	return isInvalid([error], file)
 })
 
 export const isFile = (error = 'is not a recognized file') => makeRule<File>((file) => {
 	//@ts-ignore
 	if (fileMimeTypes.includes(file?.type)) return isValid(file)
-	return isInvalid(error, file)
+	return isInvalid([error], file)
 })
