@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.5](https://github.com/kevinand11/valleyed/compare/v4.0.4-alpha.2...v4.0.5) (2023-02-15)
+
+
+### Features
+
+* add default comparer ([dd0add2](https://github.com/kevinand11/valleyed/commit/dd0add2703cad7984d7fbc21e44627796ec683c8))
+
 ### [4.0.4-alpha.2](https://github.com/kevinand11/valleyed/compare/v4.0.4-alpha.1...v4.0.4-alpha.2) (2023-02-15)
 
 ### [4.0.4-alpha.1](https://github.com/kevinand11/valleyed/compare/v4.0.4...v4.0.4-alpha.1) (2023-02-14)
