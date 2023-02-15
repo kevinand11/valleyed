@@ -1,6 +1,8 @@
-import { arrayContains, isCustom, isDeepEqualTo, isShallowEqualTo } from '../rules'
-import { ExtractI, ExtractO, VBase } from './base'
+import { Differ } from 'utils/differ'
+import { arrayContains, isCustom } from '../rules'
 import { Transformer } from '../utils/rules'
+import { isEqualTo } from './../rules/equality'
+import { ExtractI, ExtractO, VBase } from './base'
 
 export class VCore<I, O = I> extends VBase<I, O> {
 	constructor () {
@@ -9,6 +11,11 @@ export class VCore<I, O = I> extends VBase<I, O> {
 
 	original () {
 		return this._setOption('original', true)
+	}
+
+	requiredIf (required: () => boolean): VPartial<this, undefined> {
+		return new VPartial<this, undefined>(this)
+			._setOption('required', required)
 	}
 
 	optional (): VPartial<this, undefined> {
@@ -33,15 +40,18 @@ export class VCore<I, O = I> extends VBase<I, O> {
 		return this.addRule(isCustom(fn, err))
 	}
 
-	eq (compare: I, err?: string) {
-		return this.addRule(isShallowEqualTo(compare, err))
+	eq (
+		compare: I,
+		comparer = Differ.equal as (val: any, compare: I) => boolean,
+		err?: string) {
+		return this.addRule(isEqualTo(compare, comparer, err))
 	}
 
-	eqD (compare: I, comparer: (val: I, compare: I) => boolean, err?: string) {
-		return this.addRule(isDeepEqualTo(compare, comparer, err))
-	}
-
-	in (array: I[], comparer: (val: I, curr: I) => boolean, err?: string) {
+	in (
+		array: I[],
+		comparer = Differ.equal as (val: any, arrayItem: I) => boolean,
+		err?: string
+	) {
 		return this.addRule(arrayContains(array, comparer, err))
 	}
 

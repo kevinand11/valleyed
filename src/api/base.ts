@@ -3,7 +3,7 @@ import { check, Rule, Sanitizer, Transformer } from '../utils/rules'
 export class VBase<I, O = I> {
 	protected _options = {
 		original: false,
-		required: true,
+		required: true as (() => boolean) | boolean,
 		nullable: false,
 		default: undefined as unknown as (() => I) | I
 	}
