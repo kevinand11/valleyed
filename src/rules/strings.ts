@@ -12,30 +12,27 @@ export const isString = (error = 'is not a string') => makeRule<any>((value) => 
 export const isLengthOf = (length: number, stripHTMLTags = false, error?: string) => makeRule<string>((value) => {
 	const v = isString()(value)
 	if (!v.valid) return v
-	let val = value as string
-	val = val.trim()
+	const val = value as string
 	error = error ?? `must contain ${length} characters`
-	if ((stripHTMLTags ? stripHTML(val) : val).length === length) return isValid(val)
+	if ((stripHTMLTags ? stripHTML(val) : val).trim().length === length) return isValid(val)
 	return isInvalid([error], val)
 })
 
 export const isMinOf = (length: number, stripHTMLTags = false, error?: string) => makeRule<string>((value) => {
 	const v = isString()(value)
 	if (!v.valid) return v
-	let val = value as string
-	val = val.trim()
+	const val = value as string
 	error = error ?? `must contain ${length} or more characters`
-	if ((stripHTMLTags ? stripHTML(val) : val).length >= length) return isValid(val)
+	if ((stripHTMLTags ? stripHTML(val) : val).trim().length >= length) return isValid(val)
 	return isInvalid([error], val)
 })
 
 export const isMaxOf = (length: number, stripHTMLTags = false, error?: string) => makeRule<string>((value) => {
 	const v = isString()(value)
 	if (!v.valid) return v
-	let val = value as string
-	val = val.trim()
+	const val = value as string
 	error = error ?? `must contain ${length} or less characters`
-	if ((stripHTMLTags ? stripHTML(val) : val).length <= length) return isValid(val)
+	if ((stripHTMLTags ? stripHTML(val) : val).trim().length <= length) return isValid(val)
 	return isInvalid([error], val)
 })
 

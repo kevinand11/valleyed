@@ -7,7 +7,7 @@ export class VMap<KI, VI, KO, VO> extends VCore<Map<KI, VI>, Map<KO, VO>> {
 		super()
 		this.addTyping(isInstanceOf<Map<KI, VI>>(Map, err))
 		this.addRule(makeRule<Map<KI, VI>>((value) => {
-			const val = value as Map<KI, VI>
+			const val = structuredClone(value) as Map<KI, VI>
 			for (const k of val?.keys() ?? []) {
 				const v = val?.get(k)!
 				const kValid = kCom.parse(k as any)
@@ -28,7 +28,7 @@ export class VRecord<VI, VO> extends VCore<Record<string, VI>, Record<string, VO
 	constructor (vCom: VCore<VI, VO>, err?: string) {
 		super()
 		this.addTyping(makeRule<Record<string, VI>>((value) => {
-			const val = value as Record<string, VI>
+			const val = structuredClone(value) as Record<string, VI>
 			for (const [k, v] of Object.entries(val ?? {})) {
 				const validity = vCom.parse(v as any)
 				err = err ?? `contains an invalid value for key ${k}`

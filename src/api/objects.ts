@@ -9,7 +9,7 @@ export class VObject<T extends Record<string, VCore<any, any>>> extends VCore<G1
 	constructor (schema: T, trim = true, err?: string) {
 		super()
 		this.addRule(makeRule<G1<T>>((value) => {
-			const val = value as G1<T>
+			const val = structuredClone(value) as G1<T>
 			const keys = new Set([...Object.keys(val ?? {}), ...Object.keys(schema)])
 			const errors: string[] = []
 			for (const key of keys) {
