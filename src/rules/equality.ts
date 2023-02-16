@@ -1,4 +1,4 @@
-import { Differ } from './../utils/differ'
+import { Differ } from '../utils/differ'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 
 export const isEqualTo = <Type> (

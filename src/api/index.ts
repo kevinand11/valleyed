@@ -12,6 +12,8 @@ import { VString } from './strings'
 import { VTime } from './times'
 import { VTuple } from './tuples'
 
+export { VCore }
+
 export const v = {
 	or: VBase.createType(VOr),
 	and: VBase.createType(VAnd),
@@ -27,8 +29,8 @@ export const v = {
 	map: VBase.createType(VMap),
 	null: (err?: string) => new VCore<null>().addRule((val) => isNull(err)(val)),
 	undefined: (err?: string) => new VCore<undefined>().addRule((val) => isUndefined(err)(val)),
-	instanceof: <T>(classDef: new () => T, err?: string) => new VCore<T>().addRule((val) => isInstanceOf(classDef, err)(val)),
-	any: <T = any>() => new VCore<T>(),
+	instanceof: <T> (classDef: new () => T, err?: string) => new VCore<T>().addRule((val) => isInstanceOf(classDef, err)(val)),
+	any: <T = any> () => new VCore<T>(),
 	force: {
 		string: VBase.createForcedType<VString, string, ConstructorParameters<typeof VString>>(VString, (v) => String(v)),
 		number: VBase.createForcedType<VNumber, number, ConstructorParameters<typeof VNumber>>(VNumber, (v) => Number(v)),

@@ -1,4 +1,4 @@
-import { Differ } from 'utils/differ'
+import { Differ } from '../utils/differ'
 import { arrayContains, isCustom } from '../rules'
 import { Transformer } from '../utils/rules'
 import { isEqualTo } from './../rules/equality'
