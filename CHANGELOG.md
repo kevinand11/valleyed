@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.7](https://github.com/kevinand11/valleyed/compare/v4.0.6...v4.0.7) (2023-02-16)
+
+
+### Bug Fixes
+
+* error from cloning objects and maps ([26b2213](https://github.com/kevinand11/valleyed/commit/26b221393981d76e303a46254d4918c2f059b066))
+
 ### [4.0.6](https://github.com/kevinand11/valleyed/compare/v4.0.5...v4.0.6) (2023-02-16)
 
 
