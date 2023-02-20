@@ -5,6 +5,7 @@
 	"main": "lib/index.js",
 	"sideEffects": false,
 	"scripts": {
+		"dev": "tsc -watch",
 		"build": "tsc --project tsconfig.build.json",
 		"lint": "eslint src/ --ext .ts --fix",
 		"test": "jest",
