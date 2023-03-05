@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { isEmail, isUrl } from '../../src/rules'
 
 describe('isEmail()', () => {

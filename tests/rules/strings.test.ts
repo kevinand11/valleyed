@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { hasMinOf, isMaxOf, isMinOf, isString } from '../../src/rules'
 
 describe('isString', () => {

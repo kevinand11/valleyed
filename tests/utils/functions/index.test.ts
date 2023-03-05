@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest'
 import { capitalize, extractUrls, stripHTML, trimToLength } from '../../../src/utils/functions'
 
 test('CapitalizeText', () => {

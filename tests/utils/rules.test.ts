@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest'
 import { isInvalid, isValid } from '../../src/utils/rules'
 
 test('IsValid', () => {

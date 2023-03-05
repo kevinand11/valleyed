@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { isMap, isRecord } from '../../src/rules'
 
 const rules = [
@@ -10,7 +11,7 @@ describe('isRecord', () => {
 		expect(result.valid).toBe(true)
 	})
 	test('bad record', () => {
-		const result = isRecord(rules[1])({ a: 2, b: true } )
+		const result = isRecord(rules[1])({ a: 2, b: true })
 		expect(result.valid).toBe(false)
 	})
 })
@@ -21,7 +22,7 @@ describe('isMap', () => {
 		expect(result.valid).toBe(true)
 	})
 	test('bad map', () => {
-		const result = isMap(...rules)(new Map([['a', false], ['b', true] ]))
+		const result = isMap(...rules)(new Map([['a', false], ['b', true]]))
 		expect(result.valid).toBe(false)
 	})
 })

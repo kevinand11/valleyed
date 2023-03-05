@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { isTuple } from '../../src/rules'
 
 describe('isTuple', () => {
@@ -16,7 +17,7 @@ describe('isTuple', () => {
 		const result = isTuple([
 			(v: string) => typeof v === 'string',
 			(v: number) => typeof v === 'number'
-		])([1, 2] )
+		])([1, 2])
 		expect(result.valid).toBe(false)
 	})
 })

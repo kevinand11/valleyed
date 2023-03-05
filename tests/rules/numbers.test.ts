@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../../src/rules'
 
 describe('isNumber', () => {

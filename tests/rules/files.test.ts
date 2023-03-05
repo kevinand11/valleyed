@@ -1,10 +1,11 @@
+import { describe, expect, test } from 'vitest'
 import { isAudio, isFile, isImage, isVideo } from '../../src/rules'
 
 describe('IsFile', () => {
 	test('null & undefined', () => {
-		let result = isFile()(null )
+		let result = isFile()(null)
 		expect(result.valid).toBe(false)
-		result = isFile()(undefined )
+		result = isFile()(undefined)
 		expect(result.valid).toBe(false)
 	})
 	test('invalid file', () => {
@@ -12,9 +13,9 @@ describe('IsFile', () => {
 		expect(result.valid).toBe(false)
 		result = isFile()([])
 		expect(result.valid).toBe(false)
-		result = isFile()('' )
+		result = isFile()('')
 		expect(result.valid).toBe(false)
-		result = isFile()(0 )
+		result = isFile()(0)
 		expect(result.valid).toBe(false)
 	})
 	test('valid file', () => {
@@ -27,19 +28,19 @@ describe('IsImage', () => {
 	test('undefined & null', () => {
 		let result = isFile()({ type: 'image' })
 		expect(result.valid).toBe(false)
-		result = isImage()(undefined )
+		result = isImage()(undefined)
 		expect(result.valid).toBe(false)
-		result = isImage()(null )
+		result = isImage()(null)
 		expect(result.valid).toBe(false)
 	})
 	test('invalid image', () => {
 		let result = isImage()({ type: 'video/mp4' })
 		expect(result.valid).toBe(false)
-		result = isImage()([] )
+		result = isImage()([])
 		expect(result.valid).toBe(false)
-		result = isImage()('' )
+		result = isImage()('')
 		expect(result.valid).toBe(false)
-		result = isImage()(0 )
+		result = isImage()(0)
 		expect(result.valid).toBe(false)
 	})
 	test('valid image', () => {
@@ -50,19 +51,19 @@ describe('IsImage', () => {
 
 describe('IsVideo', () => {
 	test('undefined & null', () => {
-		let result = isVideo()(undefined )
+		let result = isVideo()(undefined)
 		expect(result.valid).toBe(false)
-		result = isVideo()(null )
+		result = isVideo()(null)
 		expect(result.valid).toBe(false)
 	})
 	test('invalid video', () => {
 		let result = isVideo()({ type: 'video' })
 		expect(result.valid).toBe(false)
-		result = isVideo()([] )
+		result = isVideo()([])
 		expect(result.valid).toBe(false)
-		result = isVideo()('' )
+		result = isVideo()('')
 		expect(result.valid).toBe(false)
-		result = isVideo()(0 )
+		result = isVideo()(0)
 		expect(result.valid).toBe(false)
 	})
 	test('valid video', () => {
@@ -73,19 +74,19 @@ describe('IsVideo', () => {
 
 describe('IsAudio', () => {
 	test('undefined & null', () => {
-		let result = isAudio()(undefined )
+		let result = isAudio()(undefined)
 		expect(result.valid).toBe(false)
-		result = isAudio()(null )
+		result = isAudio()(null)
 		expect(result.valid).toBe(false)
 	})
 	test('invalid audio', () => {
 		let result = isAudio()({ type: 'audio' })
 		expect(result.valid).toBe(false)
-		result = isAudio()([] )
+		result = isAudio()([])
 		expect(result.valid).toBe(false)
-		result = isAudio()('' )
+		result = isAudio()('')
 		expect(result.valid).toBe(false)
-		result = isAudio()(0 )
+		result = isAudio()(0)
 		expect(result.valid).toBe(false)
 	})
 	test('valid audio', () => {

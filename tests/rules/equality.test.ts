@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest'
 import { arrayContains, isEqualTo } from '../../src/rules'
 
 test('IsEqualTo', () => {

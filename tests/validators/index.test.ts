@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { isMinOf, isNumber, isString } from '../../src/rules'
 import { Validator } from '../../src/validators'
 

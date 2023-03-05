@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { hasMaxOf, hasMinOf, isArray, isArrayOf, isBoolean, isNumber, isString } from '../../src/rules'
 
 describe('isArray', () => {
@@ -80,7 +81,7 @@ describe('isArrayOf', () => {
 		expect(result.valid).toBe(false)
 	})
 	test('not an array', () => {
-		const result = isArrayOf((val) => isNumber()(val).valid)(1 )
+		const result = isArrayOf((val) => isNumber()(val).valid)(1)
 		expect(result.valid).toBe(false)
 	})
 })

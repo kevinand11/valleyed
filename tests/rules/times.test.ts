@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { isEarlierThan, isLaterThan, isTime } from '../../src/rules'
 
 describe('isTime', () => {
@@ -7,9 +8,9 @@ describe('isTime', () => {
 		expect(isTime()(new Date()).valid).toBe(true)
 	})
 	test('falsy', () => {
-		expect(isTime()(true ).valid).toBe(false)
-		expect(isTime()([] ).valid).toBe(false)
-		expect(isTime()({} ).valid).toBe(false)
+		expect(isTime()(true).valid).toBe(false)
+		expect(isTime()([]).valid).toBe(false)
+		expect(isTime()({}).valid).toBe(false)
 	})
 })
 
