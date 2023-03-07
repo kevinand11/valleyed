@@ -9,26 +9,13 @@ If this is a brand new project, make sure to create a `package.json` first with 
 Installation is done using the [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
 
 ### Using npm:
-
     npm install valleyed
 
 ### Using yarn:
-
     yarn add valleyed
 
 ### Using CDN:
-
 [Valleyed jsDelivr CDN](https://www.jsdelivr.com/package/npm/valleyed)
-
-### Using Skypack:
-
-[Valleyed Skypack CDN](https://www.skypack.dev/view/valleyed)
-
-## Contributing
-
-[Contributing Guide](Contributing.md)
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/kevinand11/valleyed)&nbsp;
 
 
 ## Basic Usage
