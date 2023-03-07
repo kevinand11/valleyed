@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/kevinand11/valleyed/compare/v4.0.7...v4.1.0) (2023-03-07)
+
+
+### Features
+
+* add geohash functionality ([9d816e0](https://github.com/kevinand11/valleyed/commit/9d816e04ff764ae17521e98edb479973e75d2ca6))
+
 ### [4.0.7](https://github.com/kevinand11/valleyed/compare/v4.0.6...v4.0.7) (2023-02-16)
 
 
