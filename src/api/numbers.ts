@@ -23,7 +23,7 @@ export class VNumber extends VCore<number> {
 		return this.addRule(isLessThanOrEqualTo(value, err))
 	}
 
-	round (dp: number) {
+	round (dp = 0) {
 		return this.addSanitizer((val) => Number(val.toFixed(dp)))
 	}
 }
