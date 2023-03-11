@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.1](https://github.com/kevinand11/valleyed/compare/v4.1.0...v4.1.1) (2023-03-11)
+
+
+### Bug Fixes
+
+* use default 0 for round function ([7e4863e](https://github.com/kevinand11/valleyed/commit/7e4863eb406ba07c678c92c7b8a63bd7ef7fc23f))
+
 ## [4.1.0](https://github.com/kevinand11/valleyed/compare/v4.0.7...v4.1.0) (2023-03-07)
 
 
