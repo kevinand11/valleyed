@@ -1,3 +1,4 @@
+import { Differ } from 'utils/differ'
 import { isInstanceOf, isNull, isUndefined } from '../rules'
 import { VArray } from './arrays'
 import { VBase } from './base'
@@ -15,6 +16,8 @@ import { VTuple } from './tuples'
 export { VCore }
 
 export const v = {
+	is: <T = any> (value: T) => new VCore<T>().eq(value),
+	in: <T = any> (values: Readonly<T[]>, comparer = Differ.equal as (val: any, arrayItem: T) => boolean) => new VCore<T>().in(values, comparer),
 	or: VBase.createType(VOr),
 	and: VBase.createType(VAnd),
 	string: VBase.createType(VString),

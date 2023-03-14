@@ -13,7 +13,7 @@ export const isEqualTo = <Type> (
 	})
 
 export const arrayContains = <Type> (
-	array: Type[],
+	array: Readonly<Type[]>,
 	comparer = Differ.equal as (val: any, arrayItem: Type) => boolean,
 	error?: string) => makeRule<Type>((value) => {
 		error = error ?? `is not in the supported list [${array.join(',')}]`

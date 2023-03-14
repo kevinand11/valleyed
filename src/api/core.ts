@@ -48,7 +48,7 @@ export class VCore<I, O = I> extends VBase<I, O> {
 	}
 
 	in (
-		array: I[],
+		array: Readonly<I[]>,
 		comparer = Differ.equal as (val: any, arrayItem: I) => boolean,
 		err?: string
 	) {
