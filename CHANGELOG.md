@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.2](https://github.com/kevinand11/valleyed/compare/v4.1.1...v4.1.2) (2023-03-14)
+
+
+### Features
+
+* is and in helpers on v object ([47d8359](https://github.com/kevinand11/valleyed/commit/47d835946e2b160a9f83984427926794381e8a5e))
+* number int ([4e6b96b](https://github.com/kevinand11/valleyed/commit/4e6b96b885c257b2c67ebe817b1672a3a92fad07))
+
 ### [4.1.1](https://github.com/kevinand11/valleyed/compare/v4.1.0...v4.1.1) (2023-03-11)
 
 
