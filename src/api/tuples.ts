@@ -1,12 +1,11 @@
-import { VCore } from './core'
 import { GetMap, isArray, isTuple } from '../rules'
 import { makeRule } from '../utils/rules'
-import { ExtractI, ExtractO } from './base'
+import { ExtractI } from './base'
+import { VCore } from './core'
 
 type G1<T extends ReadonlyArray<VCore<any>>> = { [K in keyof T]: ExtractI<T[K]> }
-type G2<T extends ReadonlyArray<VCore<any>>> = { [K in keyof T]: ExtractO<T[K]> }
 
-export class VTuple<T extends ReadonlyArray<VCore<any>>> extends VCore<G1<T>, G2<T>> {
+export class VTuple<T extends ReadonlyArray<VCore<any>>> extends VCore<G1<T>> {
 	constructor (schema: GetMap<T>, err?: string) {
 		super()
 		this.addTyping(isArray(err))

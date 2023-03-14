@@ -1,9 +1,9 @@
 import { hasLengthOf, hasMaxOf, hasMinOf, isArray, isArrayOf } from '../rules'
-import { VCore } from './core'
 import { makeRule } from '../utils/rules'
+import { VCore } from './core'
 
-export class VArray<I, O> extends VCore<I[], O[]> {
-	constructor (comparer: VCore<I, O>, err?: string) {
+export class VArray<I> extends VCore<I[]> {
+	constructor (comparer: VCore<I>, err?: string) {
 		super()
 		this.addTyping(isArray(err))
 		this.addRule(makeRule<I[]>((value) => {

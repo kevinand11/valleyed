@@ -1,5 +1,5 @@
-import { VCore } from './core'
 import { isEarlierThan, isLaterThan, isTime, Timeable } from '../rules'
+import { VCore } from './core'
 
 export type { Timeable }
 

@@ -9,12 +9,12 @@ export type Options = {
 
 export const isValid = <T> (value: T): { valid: true, errors: string[], value: T } => ({ valid: true, errors: [], value })
 
-export const isInvalid = <T>(errors: string[], value: T): { valid: false, errors: string[], value: unknown } => ({ valid: false, errors, value })
+export const isInvalid = <T> (errors: string[], value: T): { valid: false, errors: string[], value: unknown } => ({ valid: false, errors, value })
 
 export const makeRule = <T> (func: Rule<T>): Rule<T> => (val: unknown) => func(val)
 export const makeSanitizer = <T> (func: Sanitizer<T>) => (val: T) => func(val)
 
-export const check = <T> (value: T, rules: Rule<T>[], options?: Partial<Options>) => {
+export const check = <T> (value: T, rules: Rule<T>[], options?: Partial<Options>): ReturnType<Rule<T>> => {
 	const allOptions = { required: true, nullable: false, ...(options ?? {}) }
 
 	if (rules.length === 0) return { valid: true, errors: [], value }

@@ -1,6 +1,6 @@
 import { check, Options, Rule } from '../utils/rules'
 
-type Validity<T> = { valid: true, value: T, errors: string[] } | { valid: false, value: T, errors: string[] }
+type Validity<T> = ReturnType<Rule<T>>
 
 export class Validator {
 	public static and<T>(value: T, rules: Rule<any>[][], options?: Partial<Options>) : Validity<T> {
