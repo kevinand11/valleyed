@@ -10,6 +10,7 @@ export class VBase<I, O = I> {
 	#sanitizers: Sanitizer<I>[] = []
 	#typings: Rule<I>[] = []
 	#rules: Rule<I>[] = []
+	#transformers: Transformer<O, any>[] = []
 	#forced = false
 
 	get forced () {
@@ -43,7 +44,9 @@ export class VBase<I, O = I> {
 			valid: v.valid,
 			value: v.value as unknown
 		}
-		const retValue: O = this._options.original ? value as unknown as O : this.#transform(v.value)
+		const retValue: O = this._options.original
+			? value as unknown as O
+			: this.#transformers.reduce((acc, func) => func(acc as any), v.value as unknown as O)
 		return {
 			errors: v.errors,
 			valid: v.valid,
@@ -66,8 +69,8 @@ export class VBase<I, O = I> {
 		return this
 	}
 
-	protected _transform (transformer: Transformer<I, O>) {
-		this.#transform = transformer
+	protected _addTransform<T> (transformer: Transformer<O, T>) {
+		this.#transformers.push(transformer)
 		return this
 	}
 
@@ -76,21 +79,10 @@ export class VBase<I, O = I> {
 		return this
 	}
 
-	protected clone (c: VBase<any>) {
-		this._options = c._options
-		this.#forced = c.#forced
-		this.#rules = [...c.#rules]
-		this.#sanitizers = [...c.#sanitizers]
-		this.#transform = c.#transform
-		return this
-	}
-
 	#setForced () {
 		this.#forced = true
 		return this
 	}
-
-	#transform: Transformer<I, O> = (v) => v as unknown as O
 
 	#sanitize (value: I) {
 		for (const sanitizer of this.#sanitizers) value = sanitizer(value)

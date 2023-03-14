@@ -1,5 +1,5 @@
-import { Differ } from '../utils/differ'
 import { arrayContains, isCustom } from '../rules'
+import { Differ } from '../utils/differ'
 import { Transformer } from '../utils/rules'
 import { isEqualTo } from './../rules/equality'
 import { ExtractI, ExtractO, VBase } from './base'
@@ -13,18 +13,18 @@ export class VCore<I, O = I> extends VBase<I, O> {
 		return this._setOption('original', true)
 	}
 
-	requiredIf (required: () => boolean): VPartial<this, undefined> {
-		return new VPartial<this, undefined>(this)
+	requiredIf (required: () => boolean) {
+		return makePartial<this, undefined>(this)
 			._setOption('required', required)
 	}
 
-	optional (): VPartial<this, undefined> {
-		return new VPartial<this, undefined>(this)
+	optional () {
+		return makePartial<this, undefined>(this)
 			._setOption('required', false)
 	}
 
-	nullable (): VPartial<this, null> {
-		return new VPartial<this, null>(this)
+	nullable () {
+		return makePartial<this, null>(this)
 			._setOption('nullable', true)
 	}
 
@@ -55,16 +55,9 @@ export class VCore<I, O = I> extends VBase<I, O> {
 		return this.addRule(arrayContains(array, comparer, err))
 	}
 
-	transform<T> (transformer: Transformer<I, T>) {
-		return new VCore<I, T>()
-			.clone(this)
-			._transform(transformer)
+	transform<T> (transformer: Transformer<O, T>) {
+		return this._addTransform(transformer) as unknown as VCore<O, T>
 	}
 }
 
-class VPartial<T extends VCore<any>, P> extends VCore<P | ExtractI<T>, P | ExtractO<T>> {
-	constructor (base: T) {
-		super()
-		this.clone(base)
-	}
-}
+const makePartial = <T extends VCore<any>, P> (base: T) => base as VCore<P | ExtractI<T>, P | ExtractO<T>>

@@ -1,5 +1,5 @@
-import { Differ } from 'utils/differ'
 import { isInstanceOf, isNull, isUndefined } from '../rules'
+import { Differ } from '../utils/differ'
 import { VArray } from './arrays'
 import { VBase } from './base'
 import { VBoolean } from './booleans'
