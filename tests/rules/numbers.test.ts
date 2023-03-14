@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../../src/rules'
+import { isInt, isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../../src/rules'
 
 describe('isNumber', () => {
 	test('truthy number', () => {
@@ -39,6 +39,11 @@ describe('isNumber', () => {
 		const result = isNumber()(Symbol())
 		expect(result.valid).toBe(false)
 	})
+})
+
+test('isInt', () => {
+	expect(isInt()(5).valid).toBe(true)
+	expect(isInt()(2.6).valid).toBe(false)
 })
 
 test('IsMoreThan', () => {

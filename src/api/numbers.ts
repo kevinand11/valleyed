@@ -1,4 +1,4 @@
-import { isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../rules'
+import { isInt, isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../rules'
 import { VCore } from './core'
 
 export class VNumber extends VCore<number> {
@@ -21,6 +21,10 @@ export class VNumber extends VCore<number> {
 
 	lte (value: number, err?: string) {
 		return this.addRule(isLessThanOrEqualTo(value, err))
+	}
+
+	int (err?: string) {
+		return this.addRule(isInt(err))
 	}
 
 	round (dp = 0) {

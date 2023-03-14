@@ -5,6 +5,14 @@ export const isNumber = (error = 'is not a number') => makeRule<any>((value) => 
 	return isInvalid([error], value)
 })
 
+export const isInt = (error = 'is not an integer') => makeRule<any>((value) => {
+	const v = isNumber()(value)
+	if (!v.valid) return v
+	const val = value as number
+	if (val === parseInt(val as any)) return isValid(val)
+	return isInvalid([error], val)
+})
+
 export const isMoreThan = (compare: number, error?: string) => makeRule<number>((value) => {
 	const v = isNumber()(value)
 	if (!v.valid) return v
