@@ -47,15 +47,15 @@ export class VBase<I> {
 
 		for (const indx in this.#groups) {
 			const group = this.#groups[indx]
-			const val = res.value
+			const val = this.#value(res.value, group.options)
 			const typeCheck = check(val, group.typings, group.options)
 			if (!typeCheck.valid) return typeCheck
 
-			const sanitizedValue = this.#sanitize(val, group.sanitizers, group.options)
+			const sanitizedValue = this.#sanitize(val, group.sanitizers)
 			const v = check(sanitizedValue, group.rules, group.options)
 			if (!v.valid) return v
 
-			const retValue = group.options.original ? val : group.transformer(v.value)
+			const retValue = group.options.original ? res.value : group.transformer(v.value)
 
 			res = { ...v, valid: true, value: retValue }
 		}
@@ -103,13 +103,16 @@ export class VBase<I> {
 		return this
 	}
 
-	#sanitize (value: I, sanitizers: Sanitizer<I>[], options: Options<I>) {
-		for (const sanitizer of sanitizers) value = sanitizer(value)
+	#value (value: I, options: Options<I>) {
 		if (value !== undefined) return value
 		const def = options.default
 		// @ts-ignore
-		if (def !== undefined) return typeof def === 'function' ? def() : def
-		return undefined as unknown as I
+		if (def !== undefined) return typeof def === 'function' ? def() : def as I
+		return undefined as unknown
+	}
+
+	#sanitize (value: I, sanitizers: Sanitizer<I>[]) {
+		return sanitizers.reduce((v, sanitizer) => sanitizer(v), value)
 	}
 }
 
