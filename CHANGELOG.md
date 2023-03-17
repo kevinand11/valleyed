@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.3](https://github.com/kevinand11/valleyed/compare/v4.1.2...v4.1.3) (2023-03-17)
+
+
+### Bug Fixes
+
+* get default value before checking typings ([c44071f](https://github.com/kevinand11/valleyed/commit/c44071f1b7c84a080f28335587261474164dd435))
+
 ### [4.1.2](https://github.com/kevinand11/valleyed/compare/v4.1.1...v4.1.2) (2023-03-14)
 
 
