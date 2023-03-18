@@ -23,13 +23,12 @@ export const check = <T> (value: T, rules: Rule<T>[], options?: Partial<Options>
 	if (!presence && (value === undefined || allOptions.ignoreRulesIfNotRequired)) return { valid: true, errors: [], value }
 	if (value === null && allOptions.nullable) return { valid: true, errors: [], value }
 
-	const res = rules.reduce((acc, rule) => {
-		const v = rule(acc.value)
-		acc.valid = acc.valid && v.valid
-		if (v.valid) acc.value = v.value
-		else acc.errors.push(...v.errors)
-		return acc
-	}, { value, valid: true, errors: [] as string[] })
+	let res = { errors: [] as string[], valid: true, value }
+
+	for (const rule of rules) {
+		res = rule(res.value) as any
+		if (!res.valid) break
+	}
 
 	return { ...res, errors: [...new Set(res.errors)] }
 }

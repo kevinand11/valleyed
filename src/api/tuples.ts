@@ -9,7 +9,7 @@ export class VTuple<T extends ReadonlyArray<VCore<any>>> extends VCore<G1<T>> {
 	constructor (schema: GetMap<T>, err?: string) {
 		super()
 		this.addTyping(isArray(err))
-		this.addRule(makeRule<G1<T>>((value) => {
+		this.addTyping(makeRule<G1<T>>((value) => {
 			const val = value as G1<T>
 			// @ts-ignore
 			if (schema.length !== val.length) val.length = schema.length

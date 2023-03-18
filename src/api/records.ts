@@ -6,7 +6,7 @@ export class VMap<KI, VI> extends VCore<Map<KI, VI>> {
 	constructor (kCom: VCore<KI>, vCom: VCore<VI>, err?: string) {
 		super()
 		this.addTyping(isInstanceOf<Map<KI, VI>>(Map, err))
-		this.addRule(makeRule<Map<KI, VI>>((value) => {
+		this.addTyping(makeRule<Map<KI, VI>>((value) => {
 			const val = structuredClone(value) as Map<KI, VI>
 			for (const k of val?.keys() ?? []) {
 				const v = val?.get(k)!
