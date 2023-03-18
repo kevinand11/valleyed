@@ -3,7 +3,7 @@ import { check, Options as Opts, Rule, Sanitizer, Transformer } from '../utils/r
 type Options<I> = Opts & { original: boolean, default: (() => I) | I }
 
 export class VBase<I> {
-	#forced = false
+	#force: ((val: unknown) => I) | undefined = undefined
 	#groups: {
 		transformer: Transformer<I, any>,
 		typings: Rule<I>[],
@@ -19,40 +19,37 @@ export class VBase<I> {
 		]
 
 	get forced () {
-		return this.#forced
+		return !!this.#force
 	}
 
 	static createType<C extends VBase<any>, A extends Array<any>> (c: new (...args: A) => C) {
-		return ((...args: A) => new c(...args))
+		return (...args: A) => new c(...args)
 	}
 
-	static createForcedType<C extends VBase<any>, I, T extends any[] = any[]> (c: new (...args: T) => C, conv: (arg: unknown) => I) {
-		return ((...args: T) => {
-			return new c(...args).#setForced()
-				.addSanitizer((value) => conv(value as any))
-		})
+	static createForcedType<C extends VBase<any>, A extends any[] = any[]> (c: new (...args: A) => C, conv: (arg: unknown) => ExtractI<C>) {
+		return (...args: A) => new c(...args)._setForced(conv)
 	}
 
 	protected clone (base: VBase<I>) {
-		this.#forced = base.#forced
+		this.#force = base.#force
 		this.#groups = base.#groups
 		return this
 	}
 
-	parse (input: unknown) {
+	parse (input: unknown, ignoreRulesIfNotRequired = false) {
 		let value = input as I
-		if (this.#forced && this.#groups[0]?.sanitizers.length > 0) value = this.#groups[0].sanitizers[0](value)
+		if (this.#force) value = this.#force(value)
 
 		let res = { errors: [] as string[], valid: true as true, value }
 
 		for (const indx in this.#groups) {
 			const group = this.#groups[indx]
 			const val = this.#value(res.value, group.options)
-			const typeCheck = check(val, group.typings, group.options)
+			const typeCheck = check(val, group.typings, { ignoreRulesIfNotRequired, ...group.options })
 			if (!typeCheck.valid) return typeCheck
 
 			const sanitizedValue = this.#sanitize(typeCheck.value, group.sanitizers)
-			const v = check(sanitizedValue, group.rules, group.options)
+			const v = check(sanitizedValue, group.rules, { ignoreRulesIfNotRequired, ...group.options })
 			if (!v.valid) return v
 
 			const retValue = group.options.original ? res.value : group.transformer(v.value)
@@ -98,8 +95,8 @@ export class VBase<I> {
 		return this
 	}
 
-	#setForced () {
-		this.#forced = true
+	protected _setForced (conv: (val: unknown) => I) {
+		this.#force = conv
 		return this
 	}
 

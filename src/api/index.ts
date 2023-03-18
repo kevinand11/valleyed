@@ -35,9 +35,9 @@ export const v = {
 	instanceof: <T> (classDef: new () => T, err?: string) => new VCore<T>().addRule(isInstanceOf(classDef, err)),
 	any: <T = any> () => new VCore<T>(),
 	force: {
-		string: VBase.createForcedType<VString, string, ConstructorParameters<typeof VString>>(VString, (v) => String(v)),
-		number: VBase.createForcedType<VNumber, number, ConstructorParameters<typeof VNumber>>(VNumber, (v) => Number(v)),
-		boolean: VBase.createForcedType<VBoolean, boolean, ConstructorParameters<typeof VBoolean>>(VBoolean, (v) => Boolean(v)),
-		time: VBase.createForcedType<VTime<Date>, Date, ConstructorParameters<typeof VTime>>(VTime, (v) => new Date(v as any))
+		string: VBase.createForcedType<VString, ConstructorParameters<typeof VString>>(VString, (v) => String(v)),
+		number: VBase.createForcedType<VNumber, ConstructorParameters<typeof VNumber>>(VNumber, (v) => Number(v)),
+		boolean: VBase.createForcedType<VBoolean, ConstructorParameters<typeof VBoolean>>(VBoolean, (v) => Boolean(v)),
+		time: VBase.createForcedType<VTime<Date>, ConstructorParameters<typeof VTime>>(VTime, (v) => new Date(v as any))
 	}
 }

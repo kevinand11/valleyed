@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { arrayContains, isEqualTo } from '../../src/rules'
+import { arrayContains, arrayNotContains, isEqualTo, isNotEqualTo } from '../../src/rules'
 
 test('IsEqualTo', () => {
 	expect(isEqualTo(1)(1).valid).toBe(true)
@@ -20,6 +20,11 @@ test('IsEqualTo', () => {
 	expect(isEqualTo([1], (a, b) => a === b)([2]).valid).toBe(false)
 })
 
+test('IsNotEqualTo', () => {
+	expect(isNotEqualTo(1)(1).valid).toBe(false)
+	expect(isNotEqualTo(1)('1').valid).toBe(true)
+})
+
 test('ArrayContains', () => {
 	expect(arrayContains([5])(5).valid).toBe(true)
 	expect(arrayContains([4])(5).valid).toBe(false)
@@ -29,4 +34,15 @@ test('ArrayContains', () => {
 
 	expect(arrayContains([{ id: 1 }])({ id: 1 }).valid).toBe(true)
 	expect(arrayContains([{ id: 2 }])({ id: 1 }).valid).toBe(false)
+})
+
+test('ArrayNotContains', () => {
+	expect(arrayNotContains([5])(5).valid).toBe(false)
+	expect(arrayNotContains([4])(5).valid).toBe(true)
+
+	expect(arrayNotContains(['1'])('1').valid).toBe(false)
+	expect(arrayNotContains(['2'])('1').valid).toBe(true)
+
+	expect(arrayNotContains([{ id: 1 }])({ id: 1 }).valid).toBe(false)
+	expect(arrayNotContains([{ id: 2 }])({ id: 1 }).valid).toBe(true)
 })

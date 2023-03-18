@@ -1,7 +1,7 @@
 import { arrayContains, isCustom } from '../rules'
 import { Differ } from '../utils/differ'
 import { Transformer } from '../utils/rules'
-import { isEqualTo } from './../rules/equality'
+import { arrayNotContains, isEqualTo, isNotEqualTo } from './../rules/equality'
 import { ExtractI, VBase } from './base'
 
 export class VCore<I> extends VBase<I> {
@@ -47,12 +47,27 @@ export class VCore<I> extends VBase<I> {
 		return this.addRule(isEqualTo(compare, comparer, err))
 	}
 
+	ne (
+		compare: I,
+		comparer = Differ.equal as (val: any, compare: I) => boolean,
+		err?: string) {
+		return this.addRule(isNotEqualTo(compare, comparer, err))
+	}
+
 	in (
 		array: Readonly<I[]>,
 		comparer = Differ.equal as (val: any, arrayItem: I) => boolean,
 		err?: string
 	) {
 		return this.addRule(arrayContains(array, comparer, err))
+	}
+
+	nin (
+		array: Readonly<I[]>,
+		comparer = Differ.equal as (val: any, arrayItem: I) => boolean,
+		err?: string
+	) {
+		return this.addRule(arrayNotContains(array, comparer, err))
 	}
 
 	transform<T> (transformer: Transformer<I, T>) {
