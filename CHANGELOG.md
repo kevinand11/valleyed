@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.4](https://github.com/kevinand11/valleyed/compare/v4.1.3...v4.1.4) (2023-03-18)
+
+
+### Bug Fixes
+
+* add ne and nin rules, tests for v-core ([c65b7a3](https://github.com/kevinand11/valleyed/commit/c65b7a3e4315a035d746233a6c55fb915e1a4d49))
+* array run validator before sanitizer, fix instanceof, add tests for api ([1191e93](https://github.com/kevinand11/valleyed/commit/1191e938b497974e11ae2b8d2f9fc4af07a31406))
+* move non literal type check to typings not rules ([db29366](https://github.com/kevinand11/valleyed/commit/db293662be00422629c19766b10d3adf34bcfa74))
+
 ### [4.1.3](https://github.com/kevinand11/valleyed/compare/v4.1.2...v4.1.3) (2023-03-17)
 
 
