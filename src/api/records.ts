@@ -28,6 +28,7 @@ export class VRecord<VI> extends VCore<Record<string, VI>> {
 	constructor (vCom: VCore<VI>, err?: string) {
 		super()
 		this.addTyping(makeRule<Record<string, VI>>((value) => {
+			if (Array.isArray(value)) return isInvalid(err ? [err] : ['is not an object'], value)
 			const val = structuredClone(value) as Record<string, VI>
 			for (const [k, v] of Object.entries(val ?? {})) {
 				const validity = vCom.parse(v as any)

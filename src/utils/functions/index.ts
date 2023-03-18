@@ -18,7 +18,7 @@ export const trimToLength = (body: string, length: number) => {
 	if (body === null || body === undefined) return body
 
 	body = body.toString()
-	if (body.length < length) return body
+	if (body.length <= length) return body
 
 	const indexOfSpace = body.indexOf(' ', length)
 	const indexToTrim = indexOfSpace === -1 ? length : indexOfSpace

@@ -21,6 +21,7 @@ export const isBoolean = (error = 'is not a boolean') => makeRule<boolean>((valu
 export const isInstanceOf = <T> (classDef: new () => T, error?: string) => makeRule<T>((value) => {
 	error = error ?? `is not an instance of ${classDef.name}`
 	const val = value as T
+	if ((val as any)?.constructor === classDef) return isValid(val)
 	if (value instanceof classDef) return isValid(val)
 	return isInvalid([error], val)
 })

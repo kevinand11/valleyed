@@ -16,8 +16,8 @@ import { VTuple } from './tuples'
 export { VCore }
 
 export const v = {
-	is: <T = any> (value: T) => new VCore<T>().eq(value),
-	in: <T = any> (values: Readonly<T[]>, comparer = Differ.equal as (val: any, arrayItem: T) => boolean) => new VCore<T>().in(values, comparer),
+	is: <T> (value: T) => new VCore<T>().eq(value),
+	in: <T> (values: Readonly<T[]>, comparer = Differ.equal as (val: any, arrayItem: T) => boolean) => new VCore<T>().in(values, comparer),
 	or: VBase.createType(VOr),
 	and: VBase.createType(VAnd),
 	string: VBase.createType(VString),
@@ -30,9 +30,9 @@ export const v = {
 	object: VBase.createType(VObject),
 	record: VBase.createType(VRecord),
 	map: VBase.createType(VMap),
-	null: (err?: string) => new VCore<null>().addRule((val) => isNull(err)(val)),
-	undefined: (err?: string) => new VCore<undefined>().addRule((val) => isUndefined(err)(val)),
-	instanceof: <T> (classDef: new () => T, err?: string) => new VCore<T>().addRule((val) => isInstanceOf(classDef, err)(val)),
+	null: (err?: string) => new VCore<null>().addRule(isNull(err)),
+	undefined: (err?: string) => new VCore<undefined>().addRule(isUndefined(err)),
+	instanceof: <T> (classDef: new () => T, err?: string) => new VCore<T>().addRule(isInstanceOf(classDef, err)),
 	any: <T = any> () => new VCore<T>(),
 	force: {
 		string: VBase.createForcedType<VString, string, ConstructorParameters<typeof VString>>(VString, (v) => String(v)),

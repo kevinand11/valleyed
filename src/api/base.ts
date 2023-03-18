@@ -51,7 +51,7 @@ export class VBase<I> {
 			const typeCheck = check(val, group.typings, group.options)
 			if (!typeCheck.valid) return typeCheck
 
-			const sanitizedValue = this.#sanitize(val, group.sanitizers)
+			const sanitizedValue = this.#sanitize(typeCheck.value, group.sanitizers)
 			const v = check(sanitizedValue, group.rules, group.options)
 			if (!v.valid) return v
 

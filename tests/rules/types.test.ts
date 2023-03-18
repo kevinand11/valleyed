@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { isBoolean, isNull, isUndefined } from '../../src/rules'
+import { isBoolean, isInstanceOf, isNull, isUndefined } from '../../src/rules'
 
 describe('isUndefined', () => {
 	test('undefined', () => {
@@ -86,6 +86,17 @@ describe('IsBoolean', () => {
 	})
 	test('array', () => {
 		const result = isBoolean()([])
+		expect(result.valid).toBe(false)
+	})
+})
+
+describe('IsInstanceOf', () => {
+	test('true', () => {
+		const result = isInstanceOf(String)('')
+		expect(result.valid).toBe(true)
+	})
+	test('false', () => {
+		const result = isInstanceOf(String)(2)
 		expect(result.valid).toBe(false)
 	})
 })
