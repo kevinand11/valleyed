@@ -221,24 +221,24 @@ const res = isCustom((value) => typeof value === 'function')(() => {}) // res.va
 import { Validator, isEmail, isMinOf, isString, isNumber } from 'valleyed'
 
 // The Validator.and function is used to build up a schema or list of rules to validate a value against
-let res = Validator.and('johndoe@mail.com', [[isEmail(), isMinOf(1)]])
+let res = Validator.and([[isEmail(), isMinOf(1)]])('johndoe@mail.com')
 console.log(res) // { valid: true, errors: [], value: 'johndoe@mail.com' }
 
 // if the value fails validation, it returns a list of all errors in the errors array
-res = Validator.and('', [[isEmail(), isMinOf(1)]])
+res = Validator.and([[isEmail(), isMinOf(1)]])('')
 console.log(res) // { valid: false, value: '', errors: [ 'is not a valid email', 'must contain 1 or more characters' ] }
 
 // Similar to the And function, Validator has an or function that checks if the value passes validation for any of the list of rules passed in
-let res = Validator.or(2, [[isString(), isMinOf(1)], [isNumber()]])
+let res = Validator.or([[isString(), isMinOf(1)], [isNumber()]])(2)
 console.log(res) // { valid: true, value: 2, errors: [] }
 
 // if the value fails validation, it returns a list of all errors in the errors array
-res = Validator.or(false, [[isString(), isMinOf(1)], [isNumber()]])
+res = Validator.or([[isString(), isMinOf(1)], [isNumber()]])(false)
 console.log(res) // { valid: false, value: false, errors: [ 'doesn't match any of the schema' ] }
 
 // An optional third paramater can be passed into the And/Or functions to control if null and undefined are allowed to pass validation
-Validator.and('', [[isEmail()]], {
+Validator.and([[isEmail()]], {
 	nullable: true, // Boolean: if true, null passed as the first argument passes validation
 	required: () => false // Boolean or Function that returns a boolean: if false, undefined passed as the first argument passes validation
-})
+})('')
 ```
