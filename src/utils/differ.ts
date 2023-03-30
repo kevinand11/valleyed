@@ -46,8 +46,8 @@ export class Differ {
 			return val1.every((c, i) => Differ.equal(c, val2.at(i)))
 		}
 
-		const keys1 = Object.keys(val1)
-		const keys2 = Object.keys(val2)
+		const keys1 = Object.keys(val1 ?? {})
+		const keys2 = Object.keys(val2 ?? {})
 		if (keys1.length !== keys2.length) return false
 		const keys = [...new Set(keys1.concat(keys2))]
 		return keys.every((key) => key in val1 && key in val2 && Differ.equal(val1[key], val2[key]))
