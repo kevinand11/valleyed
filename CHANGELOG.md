@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.7](https://github.com/kevinand11/valleyed/compare/v4.1.6...v4.1.7) (2023-04-10)
+
+
+### Bug Fixes
+
+* vOr not trimming objects and objects with same keys but different type ([666e06f](https://github.com/kevinand11/valleyed/commit/666e06f14c0715037099883a3c53e03235968702))
+
 ### [4.1.6](https://github.com/kevinand11/valleyed/compare/v4.1.5...v4.1.6) (2023-03-30)
 
 
