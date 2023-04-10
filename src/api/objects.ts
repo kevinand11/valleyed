@@ -13,14 +13,18 @@ export class VObject<T extends Record<string, VCore<any>>> extends VCore<G1<T>> 
 			const errors: string[] = []
 			for (const key of keys) {
 				if (!(key in schema)) {
-					if (trim) delete val[key]
+					if (trim) {
+						try {
+							delete val[key]
+						} catch {/* */ }
+					}
 					continue
 				}
 				const validity = schema[key].parse(val?.[key])
 				const errorStart = schema[key] instanceof VObject ? `${key}.` : `${key}: `
 				if (!validity.valid) errors.push(...validity.errors.map((e) => errorStart + e))
 				// @ts-ignore
-				if (val) val[key] = validity.value
+				if (val && validity.valid) val[key] = validity.value
 			}
 			return errors.length > 0 ? isInvalid(err ? [err] : errors, val) : isValid(val)
 		}))

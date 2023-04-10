@@ -10,7 +10,7 @@ export class VOr<T extends VCore<any>[]> extends VCore<ExtractI<T[number]>> {
 			if (options.length === 0) return isValid(val)
 			for (const opt of options) {
 				const valid = opt.parse(val)
-				if (valid.valid) return isValid(val)
+				if (valid.valid) return valid
 			}
 			return isInvalid([err], val)
 		}))
