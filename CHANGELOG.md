@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.8](https://github.com/kevinand11/valleyed/compare/v4.1.7...v4.1.8) (2023-08-13)
+
+
+### Features
+
+* add file type ([64c108b](https://github.com/kevinand11/valleyed/commit/64c108b3e7ac29c68e1243835ed8af0ef654193b))
+
 ### [4.1.7](https://github.com/kevinand11/valleyed/compare/v4.1.6...v4.1.7) (2023-04-10)
 
 
