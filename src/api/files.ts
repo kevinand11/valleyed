@@ -1,7 +1,8 @@
 import { isAudio, isFile, isImage, isVideo } from '../rules'
+import { File } from '../types'
 import { VCore } from './core'
 
-export class VFile extends VCore<any> {
+export class VFile extends VCore<File> {
 	constructor (err?: string) {
 		super()
 		this.addTyping(isFile(err))
