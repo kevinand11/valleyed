@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0](https://github.com/kevinand11/valleyed/compare/v4.1.8...v4.2.0) (2023-08-16)
+
+
+### Features
+
+* add chunk array function ([10a3f13](https://github.com/kevinand11/valleyed/commit/10a3f13c3d395954d8bf28d83340fe528df15c5d))
+
 ### [4.1.8](https://github.com/kevinand11/valleyed/compare/v4.1.7...v4.1.8) (2023-08-13)
 
 
