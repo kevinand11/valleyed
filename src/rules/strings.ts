@@ -47,5 +47,5 @@ export const isUrl = (error = 'is not a valid url') => makeRule<string>((value) 
 	const v = isString()(value)
 	if (!v.valid) return v
 	const val = value as string
-	return urlRegex.test(val) ? isValid(val) : isInvalid([error], val)
+	return urlRegex().test(val) ? isValid(val) : isInvalid([error], val)
 })

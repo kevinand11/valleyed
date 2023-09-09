@@ -24,15 +24,15 @@
 	"devDependencies": {
 		"@commitlint/cli": "^17.7.1",
 		"@commitlint/config-conventional": "^17.7.0",
-		"@types/node": "^20.5.0",
-		"@typescript-eslint/eslint-plugin": "^6.4.0",
-		"@typescript-eslint/parser": "^6.4.0",
-		"eslint": "^8.47.0",
+		"@types/node": "^20.6.0",
+		"@typescript-eslint/eslint-plugin": "^6.6.0",
+		"@typescript-eslint/parser": "^6.6.0",
+		"eslint": "^8.49.0",
 		"eslint-plugin-promise": "^6.1.1",
 		"husky": "^8.0.3",
 		"standard-version": "^9.5.0",
-		"typescript": "^5.1.6",
-		"vitest": "^0.34.1"
+		"typescript": "^5.2.2",
+		"vitest": "^0.34.4"
 	},
 	"files": [
 		"LICENSE",
