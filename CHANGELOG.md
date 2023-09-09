@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.2](https://github.com/kevinand11/valleyed/compare/v4.2.1...v4.2.2) (2023-09-09)
+
+
+### Bug Fixes
+
+* url regex fails if run twice immediately ([fdc832c](https://github.com/kevinand11/valleyed/commit/fdc832c60c12a6be6da0711493367f15339f2f7d))
+
 ### [4.2.1](https://github.com/kevinand11/valleyed/compare/v4.2.0...v4.2.1) (2023-08-16)
 
 ## [4.2.0](https://github.com/kevinand11/valleyed/compare/v4.1.8...v4.2.0) (2023-08-16)
