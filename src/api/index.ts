@@ -5,7 +5,7 @@ import { VBase } from './base'
 import { VBoolean } from './booleans'
 import { VCore } from './core'
 import { VFile } from './files'
-import { VAnd, VOr } from './junctions'
+import { VAnd, VDiscriminator, VOr } from './junctions'
 import { VNumber } from './numbers'
 import { VObject } from './objects'
 import { VMap, VRecord } from './records'
@@ -21,6 +21,7 @@ export const v = {
 	or: VBase.createType(VOr),
 	and: VBase.createType(VAnd),
 	string: VBase.createType(VString),
+	discriminate: VBase.createType(VDiscriminator),
 	number: VBase.createType(VNumber),
 	boolean: VBase.createType(VBoolean),
 	time: VBase.createType(VTime),

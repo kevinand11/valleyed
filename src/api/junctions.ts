@@ -32,3 +32,15 @@ export class VAnd<I> extends VCore<I> {
 		}))
 	}
 }
+
+export class VDiscriminator<D extends Record<string, VCore<any>>> extends VCore<ExtractI<D[keyof D]>> {
+	constructor (discriminator: (val: ExtractI<D[keyof D]>) => string, schemas: D, err = 'doesnt match any of the schema') {
+		super()
+		this.addTyping(makeRule<ExtractI<D[keyof D]>>((value) => {
+			const val = value as ExtractI<D[keyof D]>
+			const accessor = discriminator(val)
+			if (!schemas[accessor]) return isInvalid([err], val)
+			return schemas[accessor].parse(val)
+		}))
+	}
+}
