@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.3](https://github.com/kevinand11/valleyed/compare/v4.2.2...v4.2.3) (2023-11-21)
+
+
+### Features
+
+* discriminator ([3d3e535](https://github.com/kevinand11/valleyed/commit/3d3e53590f53d05cc7c6f882d43c93e70949b058))
+
 ### [4.2.2](https://github.com/kevinand11/valleyed/compare/v4.2.1...v4.2.2) (2023-09-09)
 
 
