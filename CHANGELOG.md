@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.4](https://github.com/kevinand11/valleyed/compare/v4.2.3...v4.2.4) (2023-12-19)
+
+
+### Bug Fixes
+
+* api uses ignoreIfRequired as true ([26d6d27](https://github.com/kevinand11/valleyed/commit/26d6d2702bfa29749ec472ed8056e311585a812e))
+
 ### [4.2.3](https://github.com/kevinand11/valleyed/compare/v4.2.2...v4.2.3) (2023-11-21)
 
 
