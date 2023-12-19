@@ -36,14 +36,13 @@ export class VBase<I> {
 		return this
 	}
 
-	parse (input: unknown, ignoreRulesIfNotRequired = false) {
+	parse (input: unknown, ignoreRulesIfNotRequired = true) {
 		let value = input as I
 		if (this.#force) value = this.#force(value)
 
 		let res = { errors: [] as string[], valid: true as true, value }
 
-		for (const indx in this.#groups) {
-			const group = this.#groups[indx]
+		for (const group of this.#groups) {
 			const val = this.#value(res.value, group.options)
 			const typeCheck = check(val, group.typings, { ignoreRulesIfNotRequired, ...group.options })
 			if (!typeCheck.valid) return typeCheck

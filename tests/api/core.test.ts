@@ -12,16 +12,16 @@ describe('core', () => {
 		const rules = v.string().requiredIf(() => false)
 		expect(rules.parse('').valid).toBe(true)
 		expect(rules.parse(undefined).valid).toBe(true)
-		expect(rules.parse(2).valid).toBe(false)
+		expect(rules.parse(2).valid).toBe(true)
 	})
 
 	test('optional', () => {
 		const rules = v.string().optional()
 		expect(rules.parse('').valid).toBe(true)
 		expect(rules.parse(undefined).valid).toBe(true)
-		expect(rules.parse(null).valid).toBe(false)
-		expect(rules.parse(2).valid).toBe(false)
-		expect(rules.parse(2, true).valid).toBe(true)
+		expect(rules.parse(null).valid).toBe(true)
+		expect(rules.parse(2).valid).toBe(true)
+		expect(rules.parse(2, false).valid).toBe(false)
 	})
 
 	test('nullable', () => {
@@ -37,8 +37,8 @@ describe('core', () => {
 		expect(rules.parse('').valid).toBe(true)
 		expect(rules.parse(null).valid).toBe(true)
 		expect(rules.parse(undefined).valid).toBe(true)
-		expect(rules.parse(2).valid).toBe(false)
-		expect(rules.parse(2, true).valid).toBe(true)
+		expect(rules.parse(2).valid).toBe(true)
+		expect(rules.parse(2, false).valid).toBe(false)
 	})
 
 	test('default', () => {
