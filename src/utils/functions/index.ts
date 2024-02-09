@@ -82,7 +82,7 @@ export const getRandomSample = <Type> (population: Array<Type>, n: number) => {
 	const indexes = [] as number[]
 	const indexesObject = {} as Record<number, boolean>
 
-	while (indexes.length < n) {
+	while (indexes.length < n && indexes.length < population.length) {
 		const random = Math.floor(Math.random() * population.length)
 		if (random in indexesObject) continue
 		indexesObject[random] = true
