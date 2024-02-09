@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.5](https://github.com/kevinand11/valleyed/compare/v4.2.4...v4.2.5) (2024-02-09)
+
+
+### Bug Fixes
+
+* eternal in getRandomSample if passed empty array ([5e596a9](https://github.com/kevinand11/valleyed/commit/5e596a963e8886af08bfe60077506aeafe23c144))
+
 ### [4.2.4](https://github.com/kevinand11/valleyed/compare/v4.2.3...v4.2.4) (2023-12-19)
 
 
