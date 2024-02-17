@@ -1,5 +1,6 @@
 export * from './api'
 export * from './rules'
+export * from './utils/classes'
 export * from './utils/differ'
 export * from './utils/functions'
 export * from './utils/geohash'
