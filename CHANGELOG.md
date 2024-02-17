@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.6](https://github.com/kevinand11/valleyed/compare/v4.2.5...v4.2.6) (2024-02-17)
+
+
+### Features
+
+* class wrapper ([7fff739](https://github.com/kevinand11/valleyed/commit/7fff7398d514871636c79c584e6533dfe23636b9))
+
 ### [4.2.5](https://github.com/kevinand11/valleyed/compare/v4.2.4...v4.2.5) (2024-02-09)
 
 
