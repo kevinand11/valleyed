@@ -16,12 +16,11 @@ class __Wrapped<Keys extends Record<string, any>> {
 			keys[key] = value
 		}
 	}) {
-		const cloned = structuredClone(keys)
 		Object.keys(keys).forEach((key) => {
 			Object.defineProperty(this, key, {
-				get: () => access.get(key as keyof Keys, cloned),
+				get: () => access.get(key as keyof Keys, keys),
 				set: (value: any) => {
-					access.set(key as keyof Keys, value, cloned)
+					access.set(key as keyof Keys, value, keys)
 				},
 				enumerable: true,
 				configurable: true,
