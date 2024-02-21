@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.7](https://github.com/kevinand11/valleyed/compare/v4.2.6...v4.2.7) (2024-02-21)
+
+
+### Bug Fixes
+
+* remove structuredClone ([fd08410](https://github.com/kevinand11/valleyed/commit/fd084106118958cd54100642318f6ed4d3a3f570))
+
 ### [4.2.6](https://github.com/kevinand11/valleyed/compare/v4.2.5...v4.2.6) (2024-02-17)
 
 
