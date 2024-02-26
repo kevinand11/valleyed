@@ -6,11 +6,13 @@ util.inspect.defaultOptions.numericSeparator = true
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
+type Accessor<Keys extends Record<string, any>> = {
+	get: <Key extends keyof Keys>(key: Key, keysObj: Keys) => Keys[Key],
+	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void,
+}
+
 class __Wrapped<Keys extends Record<string, any>> {
-	constructor (keys: Keys, access: {
-		get: <Key extends keyof Keys>(key: Key, keysObj: Keys) => Keys[Key],
-		set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void,
-	} = {
+	constructor (keys: Keys, access: Accessor<Keys> = {
 		get: (key, keys) => keys[key],
 		set: (key, value, keys) => {
 			keys[key] = value
@@ -51,7 +53,7 @@ class __Wrapped<Keys extends Record<string, any>> {
 	}
 }
 
-function WrapWithProperties (): { new <Keys extends Record<string, any>>(keys: Keys): (__Wrapped<any> & Keys) } {
+function WrapWithProperties (): { new <Keys extends Record<string, any>>(keys: Keys, access?: Accessor<Keys>): (__Wrapped<any> & Keys) } {
 	return __Wrapped as any
 }
 
