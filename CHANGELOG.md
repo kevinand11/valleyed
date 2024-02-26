@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.8](https://github.com/kevinand11/valleyed/compare/v4.2.7...v4.2.8) (2024-02-26)
+
+
+### Bug Fixes
+
+* constructor args ([ec28290](https://github.com/kevinand11/valleyed/commit/ec282905f9c73ea21c33451465c22354b4fafec1))
+
 ### [4.2.7](https://github.com/kevinand11/valleyed/compare/v4.2.6...v4.2.7) (2024-02-21)
 
 
