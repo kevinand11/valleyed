@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.10](https://github.com/kevinand11/valleyed/compare/v4.2.9...v4.2.10) (2024-04-06)
+
+
+### Bug Fixes
+
+* sanitizing nullable or unrequired rules ([9a34b2c](https://github.com/kevinand11/valleyed/commit/9a34b2cdcfa0bae9bcf8146adcd289d8e3aa7565))
+
 ### [4.2.9](https://github.com/kevinand11/valleyed/compare/v4.2.8...v4.2.9) (2024-02-26)
 
 
