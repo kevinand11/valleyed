@@ -40,14 +40,14 @@ export class VBase<I> {
 		let value = input as I
 		if (this.#force) value = this.#force(value)
 
-		let res = { errors: [] as string[], valid: true as true, value }
+		let res = { errors: [] as string[], valid: true as true, value, ignored: false }
 
 		for (const group of this.#groups) {
 			const val = this.#value(res.value, group.options)
 			const typeCheck = check(val, group.typings, { ignoreRulesIfNotRequired, ...group.options })
 			if (!typeCheck.valid) return typeCheck
 
-			const sanitizedValue = this.#sanitize(typeCheck.value, group.sanitizers)
+			const sanitizedValue = typeCheck.ignored ? typeCheck.value : this.#sanitize(typeCheck.value, group.sanitizers)
 			const v = check(sanitizedValue, group.rules, { ignoreRulesIfNotRequired, ...group.options })
 			if (!v.valid) return v
 
