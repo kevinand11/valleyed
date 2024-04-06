@@ -3,11 +3,12 @@
 	"version": "4.2.10",
 	"description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
 	"main": "lib/index.js",
+	"type": "module",
 	"sideEffects": false,
 	"scripts": {
 		"dev": "tsc -watch",
 		"build": "tsc",
-		"lint": "eslint src/ --ext .ts --fix",
+		"lint": "eslint --fix",
 		"test": "vitest run",
 		"release": "standard-version",
 		"prepare": "husky"
@@ -24,6 +25,7 @@
 	"devDependencies": {
 		"@commitlint/cli": "^18.6.1",
 		"@commitlint/config-conventional": "^18.6.2",
+		"@stylistic/eslint-plugin": "^1.7.0",
 		"@types/node": "^20.11.19",
 		"@typescript-eslint/eslint-plugin": "^7.0.1",
 		"@typescript-eslint/parser": "^7.0.1",
