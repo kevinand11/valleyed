@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.11](https://github.com/kevinand11/valleyed/compare/v4.2.10...v4.2.11) (2024-04-07)
+
 ### [4.2.10](https://github.com/kevinand11/valleyed/compare/v4.2.9...v4.2.10) (2024-04-06)
 
 
