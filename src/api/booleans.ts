@@ -1,5 +1,5 @@
-import { VCore } from './core'
 import { isBoolean } from '../rules'
+import { VCore } from './core'
 
 export class VBoolean extends VCore<boolean> {
 	constructor (err?: string) {

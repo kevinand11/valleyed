@@ -22,16 +22,17 @@ export default [
 			},
 		},
 		files: ['src/**/*.js', 'src/**/*.ts'],
-		plugins: { promise, ts: tsEslintPlugin, '@stylistic': stylistic },
+		plugins: { promise, ts: tsEslintPlugin, style: stylistic },
 		rules: {
 			'no-var': 'error',
-			'@stylistic/no-unused-vars': 'error',
 			'indent': ['error', 'tab'],
 			'no-mixed-spaces-and-tabs': ['error', 'smart-tabs'],
 			'semi': ['error', 'never'],
 			'quotes': ['error', 'single'],
 			'prefer-const': ['error'],
 			'arrow-parens': ['error', 'always'],
+			'no-unused-vars': 'off',
+			'ts/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 		},
 	}
 ]
