@@ -16,8 +16,8 @@ import { VTuple } from './tuples'
 export { VCore }
 
 export const v = {
-	is: <T> (value: T) => new VCore<T>().eq(value),
-	in: <T> (values: Readonly<T[]>, comparer = Differ.equal as (val: any, arrayItem: T) => boolean) => new VCore<T>().in(values, comparer),
+	is: <T> (value: T, comparer = Differ.equal as (val: any, comp: T) => boolean, err?: string) => new VCore<T>().eq(value, comparer, err),
+	in: <T> (values: Readonly<T[]>, comparer = Differ.equal as (val: any, arrayItem: T) => boolean, err?: string) => new VCore<T>().in(values, comparer, err),
 	or: VBase.createType(VOr),
 	and: VBase.createType(VAnd),
 	string: VBase.createType(VString),

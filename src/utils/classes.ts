@@ -61,14 +61,3 @@ function WrapWithProperties (): { new <Keys extends Record<string, any>>(keys: K
 
 // @ts-ignore
 export class ClassPropertiesWrapper<Keys extends Record<string, any>> extends WrapWithProperties()<Keys> { }
-
-export class A extends ClassPropertiesWrapper<{ a: number }> {
-	constructor () {
-		super({ a: 1 }, {
-			get: (key, keys) => keys[key],
-			set: (key, value, keys) => {
-				keys[key] = value
-			}
-		})
-	}
-}
