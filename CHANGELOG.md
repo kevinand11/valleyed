@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.3.0](https://github.com/kevinand11/valleyed/compare/v4.2.11...v4.3.0) (2024-06-09)
+
+
+### Features
+
+* support err message for is and in ([b0209ac](https://github.com/kevinand11/valleyed/commit/b0209acd4b101a573229881dd5a5be6212fafed4))
+
 ### [4.2.11](https://github.com/kevinand11/valleyed/compare/v4.2.10...v4.2.11) (2024-04-07)
 
 ### [4.2.10](https://github.com/kevinand11/valleyed/compare/v4.2.9...v4.2.10) (2024-04-06)
