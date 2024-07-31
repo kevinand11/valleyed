@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.3.1](https://github.com/kevinand11/valleyed/compare/v4.3.0...v4.3.1) (2024-07-31)
+
+
+### Bug Fixes
+
+* wrap discriminator accessor in try/catch ([bc16ae8](https://github.com/kevinand11/valleyed/commit/bc16ae845e3250bd5d01fd9da75592639f520783))
+
 ## [4.3.0](https://github.com/kevinand11/valleyed/compare/v4.2.11...v4.3.0) (2024-06-09)
 
 
