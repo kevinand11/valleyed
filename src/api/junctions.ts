@@ -1,3 +1,4 @@
+import { wrapInTryCatch } from '../utils/functions'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 import { ExtractI } from './base'
 import { VCore } from './core'
@@ -38,7 +39,7 @@ export class VDiscriminator<D extends Record<string, VCore<any>>> extends VCore<
 		super()
 		this.addTyping(makeRule<ExtractI<D[keyof D]>>((value) => {
 			const val = value as ExtractI<D[keyof D]>
-			const accessor = discriminator(val)
+			const accessor = wrapInTryCatch(() => discriminator(val))!
 			if (!schemas[accessor]) return isInvalid([err], val)
 			return schemas[accessor].parse(val)
 		}))

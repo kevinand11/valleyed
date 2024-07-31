@@ -99,3 +99,11 @@ export const chunkArray = <T> (arr: T[], size: number) => {
 	for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size))
 	return chunks
 }
+
+export const wrapInTryCatch = <T> (fn: () => T, defaultValue?: T) => {
+	try {
+		return fn()
+	} catch {
+		return defaultValue
+	}
+}
