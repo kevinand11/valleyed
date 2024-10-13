@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.4.0](https://github.com/kevinand11/valleyed/compare/v4.3.1...v4.4.0) (2024-10-13)
+
+
+### Features
+
+* compareTwoStrings ([13f382b](https://github.com/kevinand11/valleyed/commit/13f382b9141a498830f2948a238670eeb5768880))
+
 ### [4.3.1](https://github.com/kevinand11/valleyed/compare/v4.3.0...v4.3.1) (2024-07-31)
 
 
