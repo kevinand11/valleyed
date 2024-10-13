@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { capitalize, extractUrls, stripHTML, trimToLength } from '../../../src/utils/functions'
+import { capitalize, compareTwoStrings, extractUrls, stripHTML, trimToLength } from '../../../src/utils/functions'
 
 test('CapitalizeText', () => {
 	expect(capitalize('test')).toBe('Test')
@@ -10,7 +10,7 @@ test('CapitalizeText', () => {
 	expect(capitalize(undefined as unknown as string)).toBe(undefined)
 })
 
-test('stripHTML', () => {
+test('StripHTML', () => {
 	expect(stripHTML('test')).toBe('test')
 	expect(stripHTML(2 as unknown as string)).toBe('2')
 
@@ -39,4 +39,13 @@ test('ExtractUrls', () => {
 	expect(extractUrls('abc abc.co 123')[0].original).toBe('abc.co')
 	expect(extractUrls('abc abc.co 123')[0].normalized).toBe('http://abc.co')
 	expect(extractUrls('abc 123')[0]).toBe(undefined)
+})
+
+test('CompareTwoStrings', () => {
+	expect(compareTwoStrings('abc', 'abc')).toBe(1)
+	expect(compareTwoStrings('abc', 'abcd')).toBe(0.8)
+	expect(compareTwoStrings('abc', 'ab')).toBe(2/3)
+	expect(compareTwoStrings('abc', 'a')).toBe(0)
+	expect(compareTwoStrings('abc', '')).toBe(0)
+	expect(compareTwoStrings('', '')).toBe(1)
 })
