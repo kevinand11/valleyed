@@ -1,6 +1,6 @@
 {
 	"name": "valleyed",
-	"version": "4.4.0",
+	"version": "4.4.1",
 	"description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
 	"main": "lib/index.js",
 	"type": "commonjs",
@@ -23,18 +23,19 @@
 	"author": "Kevin Izuchukwu",
 	"license": "ISC",
 	"devDependencies": {
-		"@commitlint/cli": "^19.5.0",
-		"@commitlint/config-conventional": "^19.5.0",
-		"@stylistic/eslint-plugin": "^2.9.0",
-		"@types/node": "^22.7.5",
-		"@typescript-eslint/eslint-plugin": "^8.8.1",
-		"@typescript-eslint/parser": "^8.8.1",
-		"eslint": "^9.12.0",
-		"eslint-plugin-promise": "^7.1.0",
-		"husky": "^9.1.6",
+		"@commitlint/cli": "^19.8.0",
+		"@commitlint/config-conventional": "^19.8.0",
+		"@stylistic/eslint-plugin": "^4.2.0",
+		"@types/node": "^22.14.0",
+		"@typescript-eslint/eslint-plugin": "^8.29.0",
+		"@typescript-eslint/parser": "^8.29.0",
+		"eslint": "^9.24.0",
+		"eslint-plugin-promise": "^7.2.1",
+		"globals": "^16.0.0",
+		"husky": "^9.1.7",
 		"standard-version": "^9.5.0",
-		"typescript": "^5.6.3",
-		"vitest": "^2.1.2"
+		"typescript": "^5.8.3",
+		"vitest": "^3.1.1"
 	},
 	"files": [
 		"LICENSE",

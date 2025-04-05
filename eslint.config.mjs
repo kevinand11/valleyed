@@ -1,11 +1,11 @@
-const eslint = require('@eslint/js')
-const stylistic = require('@stylistic/eslint-plugin')
-const tsEslintPlugin = require('@typescript-eslint/eslint-plugin')
-const tsEslintParser = require('@typescript-eslint/parser')
-const promise = require('eslint-plugin-promise')
-const globals = require('globals')
+import eslint from '@eslint/js'
+import stylistic from '@stylistic/eslint-plugin'
+import tsEslintPlugin from '@typescript-eslint/eslint-plugin'
+import tsEslintParser from '@typescript-eslint/parser'
+import promise from 'eslint-plugin-promise'
+import globals from 'globals'
 
-module.exports = [
+export default [
 	{
 		...eslint.configs.recommended,
 		files: ['**/*.js', '**/*.ts'],

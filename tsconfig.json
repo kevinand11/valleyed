@@ -6,7 +6,7 @@
 		"removeComments": true,
 		"noImplicitAny": false,
 		"resolveJsonModule": true,
-		"target": "ES2023",
+		"target": "ESNext",
 		"module": "commonjs",
 		"baseUrl": "src",
 		"outDir": "lib",
