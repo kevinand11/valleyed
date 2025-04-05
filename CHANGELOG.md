@@ -9,6 +9,13 @@ All notable changes to this project will be documented in this file. See [standa
 
 * add structuredClone polyfill ([80a794f](https://github.com/kevinand11/valleyed/commit/80a794f675171ddb5f32aeed70b825234c344e7a))
 
+### [4.4.1](https://github.com/kevinand11/valleyed/compare/v4.4.0...v4.4.1) (2025-04-05)
+
+
+### Bug Fixes
+
+* add structuredClone polyfill ([80a794f](https://github.com/kevinand11/valleyed/commit/80a794f675171ddb5f32aeed70b825234c344e7a))
+
 ## [4.4.0](https://github.com/kevinand11/valleyed/compare/v4.3.1...v4.4.0) (2024-10-13)
 
 
