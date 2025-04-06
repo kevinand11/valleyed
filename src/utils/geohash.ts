@@ -5,8 +5,10 @@ const Base2Chars = '01'
 
 const base10ToBaseX = (num: number, base: number, chars: string) => {
 	const charsObj = Object.fromEntries(
-		chars.toLowerCase().split('')
-			.map((value, index) => [index, value])
+		chars
+			.toLowerCase()
+			.split('')
+			.map((value, index) => [index, value]),
 	)
 	const bits: string[] = []
 	if (num === 0) return '0'
@@ -19,8 +21,10 @@ const base10ToBaseX = (num: number, base: number, chars: string) => {
 
 const baseXToBase10 = (num: string, base: number, chars: string) => {
 	const charsObj = Object.fromEntries(
-		chars.toLowerCase().split('')
-			.map((value, index) => [value, index])
+		chars
+			.toLowerCase()
+			.split('')
+			.map((value, index) => [value, index]),
 	)
 
 	return num
@@ -36,40 +40,43 @@ const dichotomy = (min: number, max: number, bits: string) => {
 	const res = bits
 		.split('')
 		.concat('')
-		.reduce((acc, cur) => {
-			const mid = (min + max) / 2
-			const error = (max - min) / 2
-			acc.mid = mid
-			acc.error = error
-			if (cur === '1') min = mid
-			else max = mid
-			return acc
-		}, { mid: 0, error: 0 })
+		.reduce(
+			(acc, cur) => {
+				const mid = (min + max) / 2
+				const error = (max - min) / 2
+				acc.mid = mid
+				acc.error = error
+				if (cur === '1') min = mid
+				else max = mid
+				return acc
+			},
+			{ mid: 0, error: 0 },
+		)
 	const value = res.mid - res.error
 	return { value, interval: res.error * 2 }
 }
 
 export class Geohash {
-	static #coords (hash: string) {
+	static #coords(hash: string) {
 		const base10 = baseXToBase10(hash, 32, Base32Chars)
-		const base2 = base10ToBaseX(base10, 2, Base2Chars)
-			.padStart(hash.length * 5, '0')
+		const base2 = base10ToBaseX(base10, 2, Base2Chars).padStart(hash.length * 5, '0')
 
-		const coords = base2
-			.split('')
-			.reduce((acc, cur, index) => {
+		const coords = base2.split('').reduce(
+			(acc, cur, index) => {
 				if (index % 2 === 0) {
 					acc.long += cur
 				} else {
 					acc.lat += cur
 				}
 				return acc
-			}, { lat: '', long: '' })
+			},
+			{ lat: '', long: '' },
+		)
 
 		return coords
 	}
 
-	static decode (hash: string): [number, number] {
+	static decode(hash: string): [number, number] {
 		const valid = v.string().min(1).parse(hash)
 		if (!valid.valid) throw new Error(valid.errors[0])
 
@@ -79,13 +86,16 @@ export class Geohash {
 		return [lat, long]
 	}
 
-	static encode (coords: [number, number]): string {
+	static encode(coords: [number, number]): string {
 		const valid = v.tuple([v.number(), v.number()]).parse(coords)
 		if (!valid.valid) throw new Error(valid.errors[0])
 
-		let idx = 0, bit = 0,
-			evenBit = true, geohash = ''
-		const mins = [-90, -180], maxs = [90, 180]
+		let idx = 0,
+			bit = 0,
+			evenBit = true,
+			geohash = ''
+		const mins = [-90, -180],
+			maxs = [90, 180]
 
 		while (geohash.length < 18) {
 			const key = evenBit ? 1 : 0
@@ -108,7 +118,7 @@ export class Geohash {
 		return geohash.replace(/0+$/, '')
 	}
 
-	static neighbors (hash: string) {
+	static neighbors(hash: string) {
 		const valid = v.string().min(1).parse(hash)
 		if (!valid.valid) throw new Error(valid.errors[0])
 
@@ -126,12 +136,7 @@ export class Geohash {
 			[lat.value + lat.interval, long.value - long.interval],
 			[lat.value + lat.interval, long.value],
 			[lat.value + lat.interval, long.value + long.interval],
-		].map(([lat, long]) => {
-			return Geohash.encode([
-				this.#wrap(lat, 90),
-				this.#wrap(long, 180)
-			])
-		})
+		].map(([lat, long]) => Geohash.encode([this.#wrap(lat, 90), this.#wrap(long, 180)]))
 		return {
 			bl: neighbors[0],
 			bc: neighbors[1],
@@ -144,7 +149,7 @@ export class Geohash {
 		}
 	}
 
-	static #wrap (num: number, base: number) {
+	static #wrap(num: number, base: number) {
 		if (num < -base) num = num + base * 2
 		if (num > +base) num = num - base * 2
 		return num

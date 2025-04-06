@@ -1,7 +1,8 @@
-import { check, makeRule, Options, Rule } from '../utils/rules'
+import type { Options, Rule } from '../utils/rules'
+import { check, makeRule } from '../utils/rules'
 
 export class Validator {
-	public static and<T> (rules: Rule<T>[][], options?: Partial<Options>): Rule<T> {
+	public static and<T>(rules: Rule<T>[][], options?: Partial<Options>): Rule<T> {
 		return makeRule<T>((val) => {
 			const value = val as T
 			let ignored = false
@@ -15,8 +16,7 @@ export class Validator {
 		})
 	}
 
-
-	public static or<T> (rules: Rule<T>[][], options?: Partial<Options>): Rule<T> {
+	public static or<T>(rules: Rule<T>[][], options?: Partial<Options>): Rule<T> {
 		return makeRule<T>((val) => {
 			const value = val as T
 			let ignored = false
@@ -26,7 +26,7 @@ export class Validator {
 				if (valid.valid) return valid
 				else continue
 			}
-			return { valid: false, value: value, errors: ['doesn\'t match any of the schema'], ignored }
+			return { valid: false, value: value, errors: ["doesn't match any of the schema"], ignored }
 		})
 	}
 }

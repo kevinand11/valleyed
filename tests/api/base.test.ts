@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { v } from '../../src/api'
 import { isString } from '../../src/rules'
 

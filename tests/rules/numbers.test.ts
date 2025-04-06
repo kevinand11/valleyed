@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { isInt, isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../../src/rules'
 
 describe('isNumber', () => {
@@ -27,8 +28,7 @@ describe('isNumber', () => {
 		expect(result.valid).toBe(false)
 	})
 	test('function', () => {
-		const result = isNumber()(() => {
-		})
+		const result = isNumber()(() => {})
 		expect(result.valid).toBe(false)
 	})
 	test('set', () => {

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { isEmail, isUrl } from '../../src/rules'
 
 describe('isEmail()', () => {
@@ -15,7 +16,6 @@ describe('isEmail()', () => {
 		expect(result.valid).toBe(false)
 	})
 })
-
 
 describe('isUrl()', () => {
 	test('valid url', () => {

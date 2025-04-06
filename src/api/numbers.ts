@@ -2,32 +2,32 @@ import { isInt, isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo
 import { VCore } from './core'
 
 export class VNumber extends VCore<number> {
-	constructor (err?: string) {
+	constructor(err?: string) {
 		super()
 		this.addTyping(isNumber(err))
 	}
 
-	gt (value: number, err?: string) {
+	gt(value: number, err?: string) {
 		return this.addRule(isMoreThan(value, err))
 	}
 
-	gte (value: number, err?: string) {
+	gte(value: number, err?: string) {
 		return this.addRule(isMoreThanOrEqualTo(value, err))
 	}
 
-	lt (value: number, err?: string) {
+	lt(value: number, err?: string) {
 		return this.addRule(isLessThan(value, err))
 	}
 
-	lte (value: number, err?: string) {
+	lte(value: number, err?: string) {
 		return this.addRule(isLessThanOrEqualTo(value, err))
 	}
 
-	int (err?: string) {
+	int(err?: string) {
 		return this.addRule(isInt(err))
 	}
 
-	round (dp = 0) {
+	round(dp = 0) {
 		return this.addSanitizer((val) => Number(val.toFixed(dp)))
 	}
 }

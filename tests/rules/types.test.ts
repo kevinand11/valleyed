@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { isBoolean, isInstanceOf, isNull, isUndefined } from '../../src/rules'
 
 describe('isUndefined', () => {

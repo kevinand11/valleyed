@@ -28,7 +28,8 @@ const normalizeDataURL = (urlString) => {
 				if (value === DATA_URL_DEFAULT_CHARSET) return ''
 			}
 			return `${key}${value ? `=${value}` : ''}`
-		}).filter(Boolean)
+		})
+		.filter(Boolean)
 
 	const normalizedMediaType = [...attributes]
 	if (isBase64) normalizedMediaType.push('base64')

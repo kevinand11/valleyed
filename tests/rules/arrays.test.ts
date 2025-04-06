@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { hasMaxOf, hasMinOf, isArray, isArrayOf, isBoolean, isNumber, isString } from '../../src/rules'
 
 describe('isArray', () => {
@@ -23,8 +24,7 @@ describe('isArray', () => {
 		expect(result.valid).toBe(false)
 	})
 	test('function', () => {
-		const result = isArray()(() => {
-		})
+		const result = isArray()(() => {})
 		expect(result.valid).toBe(false)
 	})
 	test('set', () => {

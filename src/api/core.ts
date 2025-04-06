@@ -1,80 +1,62 @@
 import { arrayContains, isCustom } from '../rules'
 import { Differ } from '../utils/differ'
-import { Transformer } from '../utils/rules'
+import type { Transformer } from '../utils/rules'
 import { arrayNotContains, isEqualTo, isNotEqualTo } from './../rules/equality'
-import { ExtractI, VBase } from './base'
+import type { ExtractI } from './base'
+import { VBase } from './base'
 
 export class VCore<I> extends VBase<I> {
-	constructor () {
+	constructor() {
 		super()
 	}
 
-	original () {
+	original() {
 		return this._setOption('original', true)
 	}
 
-	requiredIf (required: () => boolean) {
-		return makePartial<this, undefined>(this)
-			._setOption('required', required)
+	requiredIf(required: () => boolean) {
+		return makePartial<this, undefined>(this)._setOption('required', required)
 	}
 
-	optional () {
-		return makePartial<this, undefined>(this)
-			._setOption('required', false)
+	optional() {
+		return makePartial<this, undefined>(this)._setOption('required', false)
 	}
 
-	nullable () {
-		return makePartial<this, null>(this)
-			._setOption('nullable', true)
+	nullable() {
+		return makePartial<this, null>(this)._setOption('nullable', true)
 	}
 
-	nullish () {
+	nullish() {
 		return this.optional().nullable()
 	}
 
-	default (def: I | (() => I)) {
+	default(def: I | (() => I)) {
 		return this._setOption('default', def)
 	}
 
-	custom (fn: (v: I) => boolean, err?: string) {
+	custom(fn: (v: I) => boolean, err?: string) {
 		return this.addRule(isCustom(fn, err))
 	}
 
-	eq (
-		compare: I,
-		comparer = Differ.equal as (val: any, compare: I) => boolean,
-		err?: string) {
+	eq(compare: I, comparer = Differ.equal as (val: any, compare: I) => boolean, err?: string) {
 		return this.addRule(isEqualTo(compare, comparer, err))
 	}
 
-	ne (
-		compare: I,
-		comparer = Differ.equal as (val: any, compare: I) => boolean,
-		err?: string) {
+	ne(compare: I, comparer = Differ.equal as (val: any, compare: I) => boolean, err?: string) {
 		return this.addRule(isNotEqualTo(compare, comparer, err))
 	}
 
-	in (
-		array: Readonly<I[]>,
-		comparer = Differ.equal as (val: any, arrayItem: I) => boolean,
-		err?: string
-	) {
+	in(array: Readonly<I[]>, comparer = Differ.equal as (val: any, arrayItem: I) => boolean, err?: string) {
 		return this.addRule(arrayContains(array, comparer, err))
 	}
 
-	nin (
-		array: Readonly<I[]>,
-		comparer = Differ.equal as (val: any, arrayItem: I) => boolean,
-		err?: string
-	) {
+	nin(array: Readonly<I[]>, comparer = Differ.equal as (val: any, arrayItem: I) => boolean, err?: string) {
 		return this.addRule(arrayNotContains(array, comparer, err))
 	}
 
-	transform<T> (transformer: Transformer<I, T>) {
-		return new VCore<T>()
-			.clone(this as unknown as VCore<T>)
-			._addTransform(transformer as any)
+	transform<T>(transformer: Transformer<I, T>) {
+		return new VCore<T>().clone(this as unknown as VCore<T>)._addTransform(transformer as any)
 	}
 }
 
-const makePartial = <T extends VCore<any>, P> (base: T) => base as VCore<P | ExtractI<T>>
+const makePartial = <T extends VCore<any>, P>(base: T) => base as VCore<P | ExtractI<T>>

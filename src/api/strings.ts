@@ -1,54 +1,54 @@
 import { isEmail, isLengthOf, isMaxOf, isMinOf, isString, isUrl } from '../rules'
-import { capitalize, stripHTML, trimToLength } from '../utils/functions'
 import { VCore } from './core'
+import { capitalize, stripHTML, trimToLength } from '../utils/functions'
 
 export class VString extends VCore<string> {
-	constructor (err?: string) {
+	constructor(err?: string) {
 		super()
 		this.addTyping(isString(err))
 	}
 
-	has (length: number, stripHTML = false, err?: string) {
-		return this.addRule(isLengthOf(length,  stripHTML, err))
+	has(length: number, stripHTML = false, err?: string) {
+		return this.addRule(isLengthOf(length, stripHTML, err))
 	}
 
-	min (length: number, stripHTML = false,err?: string) {
+	min(length: number, stripHTML = false, err?: string) {
 		return this.addRule(isMinOf(length, stripHTML, err))
 	}
 
-	max (length: number, stripHTML = false, err?: string) {
-		return this.addRule(isMaxOf(length,  stripHTML, err))
+	max(length: number, stripHTML = false, err?: string) {
+		return this.addRule(isMaxOf(length, stripHTML, err))
 	}
 
-	email (err?: string) {
+	email(err?: string) {
 		return this.addRule(isEmail(err))
 	}
 
-	url (err?: string) {
+	url(err?: string) {
 		return this.addRule(isUrl(err))
 	}
 
-	trim () {
+	trim() {
 		return this.addSanitizer((val) => val.trim())
 	}
 
-	lower () {
+	lower() {
 		return this.addSanitizer((val) => val.toLowerCase())
 	}
 
-	upper () {
+	upper() {
 		return this.addSanitizer((val) => val.toUpperCase())
 	}
 
-	capitalize () {
+	capitalize() {
 		return this.addSanitizer((val) => capitalize(val))
 	}
 
-	stripHTML () {
+	stripHTML() {
 		return this.addSanitizer((val) => stripHTML(val))
 	}
 
-	slice (length: number) {
+	slice(length: number) {
 		return this.addSanitizer((val) => trimToLength(val, length))
 	}
 }

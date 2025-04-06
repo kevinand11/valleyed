@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { v } from '../../src/api'
 
 describe('core', () => {
@@ -85,7 +86,9 @@ describe('core', () => {
 	})
 
 	test('transform', () => {
-		const rules = v.string().transform((val) => val.split(''))
+		const rules = v
+			.string()
+			.transform((val) => val.split(''))
 			.transform((val) => val.length)
 			.custom((val) => val > 3)
 		expect(rules.parse('1').valid).toBe(false)

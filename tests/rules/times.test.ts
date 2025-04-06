@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { isEarlierThan, isLaterThan, isTime } from '../../src/rules'
 
 describe('isTime', () => {

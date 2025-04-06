@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { arrayContains, arrayNotContains, isEqualTo, isNotEqualTo } from '../../src/rules'
 
 test('IsEqualTo', () => {
@@ -13,7 +14,6 @@ test('IsEqualTo', () => {
 
 	expect(isEqualTo(1, (a, b) => a === b)(1).valid).toBe(true)
 	expect(isEqualTo('1', (a, b) => a === b)('1').valid).toBe(true)
-
 
 	expect(isEqualTo({ id: 1 }, (a, b) => a.id === b.id)({ id: 1 }).valid).toBe(true)
 	expect(isEqualTo({ id: 2 }, (a, b) => a.id === b.id)({ id: 1 }).valid).toBe(false)

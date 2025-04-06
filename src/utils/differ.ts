@@ -1,5 +1,5 @@
 export class Differ {
-	static #type () {
+	static #type() {
 		return {
 			string: (value: any) => value?.constructor?.name === 'String',
 			regex: (value: any) => value?.constructor?.name === 'RegExp',
@@ -15,11 +15,11 @@ export class Differ {
 			date: (value: any) => value?.constructor?.name === 'Date' && !Number.isNaN(value.getTime()),
 			set: (value: any) => value?.constructor?.name === 'Set',
 			object: (value: any) => value?.constructor?.name === 'Object',
-			map: (value: any) => value?.constructor?.name === 'Map'
+			map: (value: any) => value?.constructor?.name === 'Map',
 		}
 	}
 
-	static equal (v1: any, v2: any): boolean {
+	static equal(v1: any, v2: any): boolean {
 		const [val1, val2] = [v1, v2].map((v) => {
 			// @ts-ignore
 			if (Differ.#type().map(v)) return Object.fromEntries(...val1.entries())
@@ -53,7 +53,7 @@ export class Differ {
 		return keys.every((key) => key in val1 && key in val2 && Differ.equal(val1[key], val2[key]))
 	}
 
-	static #getDiff (val1: any, val2: any, parent?: string) {
+	static #getDiff(val1: any, val2: any, parent?: string) {
 		if (!Differ.#type().object(val1) || !Differ.#type().object(val2)) return []
 		const keys = [...new Set(Object.keys(val1).concat(Object.keys(val2)))]
 		const diff: string[] = []
@@ -71,19 +71,26 @@ export class Differ {
 		return diff
 	}
 
-	static diff (val1: any, val2: any) {
+	static diff(val1: any, val2: any) {
 		return Differ.#getDiff(val1, val2)
 	}
 
-	static from (keys: string[]) {
-		const deepMerge = (from, to) => Object.keys(from)
-			.reduce((merged, key) => {
-				const obj = from[key]
-				merged[key] = Differ.#type().object(obj) ? deepMerge(obj, merged[key] ?? {}) : obj
-				return merged
-			}, { ...to })
+	static from(keys: string[]) {
+		const deepMerge = (from, to) =>
+			Object.keys(from).reduce(
+				(merged, key) => {
+					const obj = from[key]
+					merged[key] = Differ.#type().object(obj) ? deepMerge(obj, merged[key] ?? {}) : obj
+					return merged
+				},
+				{ ...to },
+			)
 
-		const formObject = (key: string) => key.split('.').reverse().reduce((acc, k) => ({ [k]: acc ?? true }), null as Record<string, any> | null)
+		const formObject = (key: string) =>
+			key
+				.split('.')
+				.reverse()
+				.reduce((acc, k) => ({ [k]: acc ?? true }), null as Record<string, any> | null)
 
 		return keys.map(formObject).reduce(deepMerge, {})
 	}

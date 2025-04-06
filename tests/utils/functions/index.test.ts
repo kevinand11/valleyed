@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { capitalize, compareTwoStrings, extractUrls, stripHTML, trimToLength } from '../../../src/utils/functions'
 
 test('CapitalizeText', () => {
@@ -29,7 +30,9 @@ test('TrimToLength', () => {
 	expect(trimToLength(null as unknown as string, 1)).toBe(null)
 	expect(trimToLength(undefined as unknown as string, 1)).toBe(undefined)
 
-	const num = 123, arr = [1, 2, 3], obj = { name: 'test' }
+	const num = 123,
+		arr = [1, 2, 3],
+		obj = { name: 'test' }
 	expect(trimToLength(num as unknown as string, 10)).toBe(num.toString())
 	expect(trimToLength(arr as unknown as string, 10)).toBe(arr.toString())
 	expect(trimToLength(obj as unknown as string, 20)).toBe(obj.toString())
@@ -44,7 +47,7 @@ test('ExtractUrls', () => {
 test('CompareTwoStrings', () => {
 	expect(compareTwoStrings('abc', 'abc')).toBe(1)
 	expect(compareTwoStrings('abc', 'abcd')).toBe(0.8)
-	expect(compareTwoStrings('abc', 'ab')).toBe(2/3)
+	expect(compareTwoStrings('abc', 'ab')).toBe(2 / 3)
 	expect(compareTwoStrings('abc', 'a')).toBe(0)
 	expect(compareTwoStrings('abc', '')).toBe(0)
 	expect(compareTwoStrings('', '')).toBe(1)

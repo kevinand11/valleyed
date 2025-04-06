@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { isAudio, isFile, isImage, isVideo } from '../../src/rules'
 
 describe('IsFile', () => {

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { hasMinOf, isMaxOf, isMinOf, isString } from '../../src/rules'
 
 describe('isString', () => {
@@ -23,8 +24,7 @@ describe('isString', () => {
 		expect(result.valid).toBe(false)
 	})
 	test('function', () => {
-		const result = isString()(() => {
-		})
+		const result = isString()(() => {})
 		expect(result.valid).toBe(false)
 	})
 	test('set', () => {

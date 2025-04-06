@@ -8,7 +8,7 @@
 	"scripts": {
 		"dev": "tsc -watch",
 		"build": "tsc",
-		"lint": "eslint --fix",
+		"lint": "eslint --fix src tests",
 		"test": "vitest run",
 		"release": "standard-version",
 		"prepare": "husky"
@@ -25,13 +25,11 @@
 	"devDependencies": {
 		"@commitlint/cli": "^19.8.0",
 		"@commitlint/config-conventional": "^19.8.0",
-		"@stylistic/eslint-plugin": "^4.2.0",
+		"@k11/eslint-config": "^0.1.6",
+		"@k11/prettier-config": "^0.1.0",
+		"@k11/ts-config": "^0.1.1",
 		"@types/node": "^22.14.0",
-		"@typescript-eslint/eslint-plugin": "^8.29.0",
-		"@typescript-eslint/parser": "^8.29.0",
 		"eslint": "^9.24.0",
-		"eslint-plugin-promise": "^7.2.1",
-		"globals": "^16.0.0",
 		"husky": "^9.1.7",
 		"standard-version": "^9.5.0",
 		"typescript": "^5.8.3",

@@ -1,13 +1,11 @@
 import { describe, expect, test } from 'vitest'
+
 import { isMap, isRecord } from '../../src/rules'
 
-const rules = [
-	(c: string) => typeof c === 'string',
-	(c: number) => typeof c === 'number'
-] as const
+const rules = [(c: string) => typeof c === 'string', (c: number) => typeof c === 'number'] as const
 describe('isRecord', () => {
 	test('good record', () => {
-		const result = isRecord(rules[1])({ 'a': 2 })
+		const result = isRecord(rules[1])({ a: 2 })
 		expect(result.valid).toBe(true)
 	})
 	test('bad record', () => {
@@ -22,7 +20,12 @@ describe('isMap', () => {
 		expect(result.valid).toBe(true)
 	})
 	test('bad map', () => {
-		const result = isMap(...rules)(new Map([['a', false], ['b', true]]))
+		const result = isMap(...rules)(
+			new Map([
+				['a', false],
+				['b', true],
+			]),
+		)
 		expect(result.valid).toBe(false)
 	})
 })
