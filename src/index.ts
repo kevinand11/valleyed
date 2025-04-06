@@ -1,5 +1,3 @@
-import 'core-js/web/structured-clone'
-
 export * from './api'
 export * from './rules'
 export * from './utils/classes'

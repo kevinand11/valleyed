@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      core-js:
-        specifier: ^3.41.0
-        version: 3.41.0
       url-regex-safe:
         specifier: ^4.0.0
         version: 4.0.0
@@ -756,9 +753,6 @@ packages:
     resolution: {integrity: sha512-uiApbSiNGM/kkdL9GTOLAqC4hbptObFo4wW2QRyHsKciGAfQuLU1ShZ1BIVI/+K2BE/W1AWYQMCXAsv4dyKPaw==}
     engines: {node: '>=10'}
     hasBin: true
-
-  core-js@3.41.0:
-    resolution: {integrity: sha512-SJ4/EHwS36QMJd6h/Rg+GyR4A5xE0FSI3eZ+iBVpfqf1x0eTSg1smWLHrA+2jQThZSh97fmSgFSU8B61nxosxA==}
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
@@ -2611,8 +2605,6 @@ snapshots:
       git-semver-tags: 4.1.1
       meow: 8.1.2
       q: 1.5.1
-
-  core-js@3.41.0: {}
 
   core-util-is@1.0.3: {}
 
