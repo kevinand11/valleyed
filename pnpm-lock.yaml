@@ -25,8 +25,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@k11/ts-config':
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.1.2
+        version: 0.1.2
       '@types/node':
         specifier: ^22.14.0
         version: 22.14.0
@@ -355,8 +355,8 @@ packages:
   '@k11/prettier-config@0.1.0':
     resolution: {integrity: sha512-AXSN9nTDUy0+SJ9Fcob3FUv9JK/CE1ZhD6VWhPQvQlJPSTM2fPEPH3KHAIKfOMa5vGF8pcJPZeJQCSCuqkbRPg==}
 
-  '@k11/ts-config@0.1.1':
-    resolution: {integrity: sha512-jS8Zb+8HTPolmw+0ZIgvKsCahwYj6u1xkVangZxKxGKUsSozFIl+U1qhZK+PiUooAPYTmZhGbZZgnfUne9FeOw==}
+  '@k11/ts-config@0.1.2':
+    resolution: {integrity: sha512-wCB7c67zb1673MpIeooduqTYmpjBHvdEdVuSwMmlgzjd/f76R+Cct8MU2r8uhLwJnbe9vZ6uaJ6WKmQpyowtsg==}
 
   '@napi-rs/wasm-runtime@0.2.8':
     resolution: {integrity: sha512-OBlgKdX7gin7OIq4fadsjpg+cp2ZphvAIKucHsNfTdJiqdOmOEwQd/bHi0VwNrcw5xpBJyUw6cK/QilCqy1BSg==}
@@ -2828,7 +2828,7 @@ snapshots:
 
   '@k11/prettier-config@0.1.0': {}
 
-  '@k11/ts-config@0.1.1': {}
+  '@k11/ts-config@0.1.2': {}
 
   '@napi-rs/wasm-runtime@0.2.8':
     dependencies:
