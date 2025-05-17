@@ -3,17 +3,17 @@ import { check } from '../utils/rules'
 
 type Options<I> = Opts & { original: boolean; default: (() => I) | I }
 
-export class VBase<I> {
+export class VBase<I, O = I> {
 	#force: ((val: unknown) => I) | undefined = undefined
 	#groups: {
-		transformer: Transformer<I, any>
+		transformer: Transformer<I, O>
 		typings: Rule<I>[]
 		rules: Rule<I>[]
 		sanitizers: Sanitizer<I>[]
 		options: Options<I>
 	}[] = [
 		{
-			transformer: (v) => v,
+			transformer: (v) => v as any,
 			typings: [],
 			rules: [],
 			sanitizers: [],
@@ -33,17 +33,25 @@ export class VBase<I> {
 		return (...args: A) => new c(...args)._setForced(conv)
 	}
 
-	protected clone(base: VBase<I>) {
+	protected clone(base: VBase<I, O>) {
 		this.#force = base.#force
 		this.#groups = base.#groups
 		return this
 	}
 
+	inputShape(value: unknown) {
+		return value as I
+	}
+
+	outputShape(value: unknown) {
+		return value as O
+	}
+
 	parse(input: unknown, ignoreRulesIfNotRequired = true) {
-		let value = input as I
+		let value = this.inputShape(input)
 		if (this.#force) value = this.#force(value)
 
-		let res = { errors: [] as string[], valid: true as true, value, ignored: false }
+		let res = { errors: [] as string[], valid: true as true, value: this.outputShape(value), ignored: false }
 
 		for (const group of this.#groups) {
 			const val = this.#value(res.value, group.options)
@@ -54,7 +62,7 @@ export class VBase<I> {
 			const v = check(sanitizedValue, group.rules, { ignoreRulesIfNotRequired, ...group.options })
 			if (!v.valid) return v
 
-			const retValue = group.options.original ? res.value : group.transformer(v.value)
+			const retValue = this.outputShape(group.options.original ? res.value : group.transformer(v.value))
 
 			res = { ...v, valid: true, value: retValue }
 		}
@@ -77,10 +85,10 @@ export class VBase<I> {
 		return this
 	}
 
-	protected _addTransform<T>(transformer: Transformer<I, T>) {
+	protected _addTransform(transformer: Transformer<I, O>) {
 		this.#groups.at(-1)!.transformer = transformer
 		this.#groups.push({
-			transformer: (v) => v,
+			transformer: (v) => v as any,
 			typings: [],
 			rules: [],
 			sanitizers: [],
@@ -104,7 +112,7 @@ export class VBase<I> {
 		return this
 	}
 
-	#value(value: I, options: Options<I>) {
+	#value(value: any, options: Options<I>) {
 		if (value !== undefined) return value
 		const def = options.default
 		// @ts-ignore
@@ -117,4 +125,5 @@ export class VBase<I> {
 	}
 }
 
-export type ExtractI<T extends VBase<any>> = T extends VBase<infer I> ? I : never
+export type ExtractI<T extends VBase<any, any>> = T extends VBase<infer I, any> ? I : never
+export type ExtractO<T extends VBase<any, any>> = T extends VBase<any, infer O> ? O : never

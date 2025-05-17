@@ -2,10 +2,10 @@ import { arrayContains, isCustom } from '../rules'
 import { Differ } from '../utils/differ'
 import type { Transformer } from '../utils/rules'
 import { arrayNotContains, isEqualTo, isNotEqualTo } from './../rules/equality'
-import type { ExtractI } from './base'
+import type { ExtractI, ExtractO } from './base'
 import { VBase } from './base'
 
-export class VCore<I> extends VBase<I> {
+export class VCore<I, O = I> extends VBase<I, O> {
 	constructor() {
 		super()
 	}
@@ -55,8 +55,8 @@ export class VCore<I> extends VBase<I> {
 	}
 
 	transform<T>(transformer: Transformer<I, T>) {
-		return new VCore<T>().clone(this as unknown as VCore<T>)._addTransform(transformer as any)
+		return new VCore<I, T>().clone(this as any)._addTransform(transformer)
 	}
 }
 
-const makePartial = <T extends VCore<any>, P>(base: T) => base as VCore<P | ExtractI<T>>
+const makePartial = <T extends VCore<any>, P>(base: T) => base as VCore<P | ExtractI<T>, P | ExtractO<T>>

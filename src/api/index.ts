@@ -1,6 +1,6 @@
 import { isInstanceOf, isNull, isUndefined } from '../rules'
 import { VArray } from './arrays'
-import { VBase } from './base'
+import { ExtractI, ExtractO, VBase } from './base'
 import { VBoolean } from './booleans'
 import { VCore } from './core'
 import { VFile } from './files'
@@ -13,7 +13,7 @@ import { VTime } from './times'
 import { VTuple } from './tuples'
 import { Differ } from '../utils/differ'
 
-export { VCore }
+export { VCore, type ExtractI, type ExtractO }
 
 export const v = {
 	is: <T>(value: T, comparer = Differ.equal as (val: any, comp: T) => boolean, err?: string) => new VCore<T>().eq(value, comparer, err),

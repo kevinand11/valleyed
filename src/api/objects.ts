@@ -1,15 +1,16 @@
-import type { ExtractI } from './base'
+import type { ExtractI, ExtractO } from './base'
 import { VCore } from './core'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 
-type G1<T extends Record<string, VCore<any>>> = { [K in keyof T]: ExtractI<T[K]> }
+type GI<T extends Record<string, VCore<any>>> = { [K in keyof T]: ExtractI<T[K]> }
+type GO<T extends Record<string, VCore<any>>> = { [K in keyof T]: ExtractO<T[K]> }
 
-export class VObject<T extends Record<string, VCore<any>>> extends VCore<G1<T>> {
+export class VObject<T extends Record<string, VCore<any>>> extends VCore<GI<T>, GO<T>> {
 	constructor(schema: T, trim = true, err?: string) {
 		super()
 		this.addTyping(
-			makeRule<G1<T>>((value) => {
-				const val = structuredClone(value) as G1<T>
+			makeRule<GI<T>>((value) => {
+				const val = structuredClone(value) as GI<T>
 				const keys = new Set([...Object.keys(val ?? {}), ...Object.keys(schema)])
 				const errors: string[] = []
 				for (const key of keys) {

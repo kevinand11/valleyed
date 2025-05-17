@@ -1,9 +1,9 @@
-import type { ExtractI } from './base'
+import type { ExtractI, ExtractO } from './base'
 import { VCore } from './core'
 import { wrapInTryCatch } from '../utils/functions'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
 
-export class VOr<T extends VCore<any>[]> extends VCore<ExtractI<T[number]>> {
+export class VOr<T extends VCore<any>[]> extends VCore<ExtractI<T[number]>, ExtractO<T[number]>> {
 	constructor(options: T, err = 'doesnt match any of the schema') {
 		super()
 		this.addTyping(
@@ -38,7 +38,7 @@ export class VAnd<I> extends VCore<I> {
 	}
 }
 
-export class VDiscriminator<D extends Record<string, VCore<any>>> extends VCore<ExtractI<D[keyof D]>> {
+export class VDiscriminator<D extends Record<string, VCore<any>>> extends VCore<ExtractI<D[keyof D]>, ExtractO<D[keyof D]>> {
 	constructor(discriminator: (val: ExtractI<D[keyof D]>) => string, schemas: D, err = 'doesnt match any of the schema') {
 		super()
 		this.addTyping(
