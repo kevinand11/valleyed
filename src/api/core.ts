@@ -54,8 +54,8 @@ export class VCore<I, O = I> extends VBase<I, O> {
 		return this.addRule(arrayNotContains(array, comparer, err))
 	}
 
-	transform<T>(transformer: Transformer<I, T>) {
-		return new VCore<I, T>().clone(this as any)._addTransform(transformer)
+	transform<T>(transformer: Transformer<O, T>) {
+		return new VCore<O, T>().clone(this as any)._addTransform(transformer)
 	}
 }
 
