@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.4.4](https://github.com/kevinand11/valleyed/compare/v4.4.3...v4.4.4) (2025-05-17)
+
+
+### Bug Fixes
+
+* transform from class O not I ([6caa508](https://github.com/kevinand11/valleyed/commit/6caa508b494b99710e477e93107aaa3946444ede))
+
 ### [4.4.3](https://github.com/kevinand11/valleyed/compare/v4.4.2...v4.4.3) (2025-05-17)
 
 
