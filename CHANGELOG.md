@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.4.3](https://github.com/kevinand11/valleyed/compare/v4.4.2...v4.4.3) (2025-05-17)
+
+
+### Features
+
+* support tracking Output of VBase and expose ExtractI and ExtractO ([39e11ea](https://github.com/kevinand11/valleyed/commit/39e11ea2449c344f1ac474ca59b66e14ed054c40))
+
 ### [4.4.2](https://github.com/kevinand11/valleyed/compare/v4.4.1...v4.4.2) (2025-04-06)
 
 ### [4.4.1](https://github.com/kevinand11/valleyed/compare/v4.4.0...v4.4.1) (2025-04-05)
