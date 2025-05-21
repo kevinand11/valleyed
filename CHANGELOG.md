@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.4.5](https://github.com/kevinand11/valleyed/compare/v4.4.4...v4.4.5) (2025-05-21)
+
+
+### Features
+
+* move ignore and toJson logic from equipped to here ([df4ef30](https://github.com/kevinand11/valleyed/commit/df4ef3071f9faf45bed2bb3666c3f0af0e465fdf))
+
 ### [4.4.4](https://github.com/kevinand11/valleyed/compare/v4.4.3...v4.4.4) (2025-05-17)
 
 
