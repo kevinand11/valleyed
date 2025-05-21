@@ -1,5 +1,7 @@
 import util from 'util'
 
+import { DeepOmit, JSONValue } from './types'
+
 if (util?.inspect?.defaultOptions) {
 	util.inspect.defaultOptions.depth = Number.MAX_SAFE_INTEGER
 	util.inspect.defaultOptions.getters = true
@@ -13,7 +15,10 @@ type Accessor<Keys extends Record<string, any>> = {
 	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void
 }
 
-class __Wrapped<Keys extends Record<string, any>> {
+class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never> {
+	protected __keys!: Keys
+	public readonly __ignoreInJSON: Ignored[] = []
+
 	constructor(
 		keys: Keys,
 		access: Accessor<Keys> = {
@@ -42,25 +47,44 @@ class __Wrapped<Keys extends Record<string, any>> {
 		return options.stylize(this.constructor.name, options) + ' ' + inspect(this.toJSON(), options)
 	}
 
-	toJSON() {
-		const json: Record<string, any> = Object.assign({}, this)
-		Object.getOwnPropertyNames(Object.getPrototypeOf(this))
-			.filter((k) => k !== 'constructor')
+	toJSON(includeIgnored = false): JSONValue<DeepOmit<Keys, Ignored, '__ignoreInJSON'>> {
+		const json: Record<string, any> = {}
+		Object.keys(this)
+			.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))
 			.forEach((key) => {
 				const value = this[key]
-				json[key] = value?.toJSON?.() ?? value
+				if (typeof value === 'function') return
+				json[key] = value?.toJSON?.(includeIgnored) ?? clone(value)
 			})
-		return json
+		if (includeIgnored !== true)
+			this.__ignoreInJSON.concat('__ignoreInJSON' as any).forEach((k: string) => deleteKeyFromObject(json, k.split('.')))
+		return json as any
 	}
 
-	toString() {
-		return JSON.stringify(this.toJSON())
+	toString(includeIgnored = true) {
+		return JSON.stringify(this.toJSON(includeIgnored))
 	}
 }
 
-function WrapWithProperties(): { new <Keys extends Record<string, any>>(keys: Keys, access?: Accessor<Keys>): __Wrapped<any> & Keys } {
+function WrapWithProperties(): { new <Keys extends Record<string, any>, Ignored extends string = never>(keys: Keys, access?: Accessor<Keys>): __Wrapped<Keys, Ignored> & Keys } {
 	return __Wrapped as any
 }
 
-// @ts-ignore
-export class ClassPropertiesWrapper<Keys extends Record<string, any>> extends WrapWithProperties()<Keys> {}
+// @ts-expect-error invalid extends
+export class ClassPropertiesWrapper<Keys extends Record<string, any>, Ignored extends string = never> extends WrapWithProperties()<Keys, Ignored> {}
+
+function clone<T>(value: T): T {
+	try {
+		return structuredClone(value)
+	} catch {
+		return value
+	}
+}
+
+const deleteKeyFromObject = (obj: Record<string, any>, keys: string[]) => {
+	if (obj === undefined || obj === null) return
+	const isArray = Array.isArray(obj)
+	if (keys.length === 1 && !isArray) return delete obj[keys[0]]
+	if (isArray) return obj.map((v) => deleteKeyFromObject(v, keys))
+	return deleteKeyFromObject(obj[keys[0]], keys.slice(1))
+}
