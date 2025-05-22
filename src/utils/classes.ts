@@ -16,7 +16,6 @@ type Accessor<Keys extends Record<string, any>> = {
 }
 
 class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never> {
-	protected __keys!: Keys
 	public readonly __ignoreInJSON: Ignored[] = []
 
 	constructor(
@@ -47,31 +46,39 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 		return options.stylize(this.constructor.name, options) + ' ' + inspect(this.toJSON(), options)
 	}
 
-	toJSON(includeIgnored = false): JSONValue<DeepOmit<Keys, Ignored, '__ignoreInJSON'>> {
+	toJSON(includeIgnored = false): JSONValue<DeepOmit<this, Ignored, '__ignoreInJSON'>> {
 		const json: Record<string, any> = {}
 		Object.keys(this)
 			.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))
 			.forEach((key) => {
 				const value = this[key]
-				if (typeof value === 'function') return
+				if (typeof value === 'function' || value === undefined) return
 				json[key] = value?.toJSON?.(includeIgnored) ?? clone(value)
 			})
-		if (includeIgnored !== true)
-			this.__ignoreInJSON.concat('__ignoreInJSON' as any).forEach((k: string) => deleteKeyFromObject(json, k.split('.')))
+		const keysToDelete = ['__ignoreInJSON', '__keys'].concat(...(includeIgnored !== true ? this.__ignoreInJSON : []))
+		keysToDelete.forEach((k: string) => deleteKeyFromObject(json, k.split('.')))
 		return json as any
 	}
 
-	toString(includeIgnored = true) {
+	toString(includeIgnored = false) {
 		return JSON.stringify(this.toJSON(includeIgnored))
 	}
 }
 
-function WrapWithProperties(): { new <Keys extends Record<string, any>, Ignored extends string = never>(keys: Keys, access?: Accessor<Keys>): __Wrapped<Keys, Ignored> & Keys } {
+function WrapWithProperties(): {
+	new <Keys extends Record<string, any>, Ignored extends string = never>(
+		keys: Keys,
+		access?: Accessor<Keys>,
+	): __Wrapped<Keys, Ignored> & Keys
+} {
 	return __Wrapped as any
 }
 
 // @ts-expect-error invalid extends
-export class ClassPropertiesWrapper<Keys extends Record<string, any>, Ignored extends string = never> extends WrapWithProperties()<Keys, Ignored> {}
+export class ClassPropertiesWrapper<Keys extends Record<string, any>, Ignored extends string = never> extends WrapWithProperties()<
+	Keys,
+	Ignored
+> {}
 
 function clone<T>(value: T): T {
 	try {
