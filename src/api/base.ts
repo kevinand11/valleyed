@@ -39,19 +39,11 @@ export class VBase<I, O = I> {
 		return this
 	}
 
-	inputShape(value: unknown) {
-		return value as I
-	}
-
-	outputShape(value: unknown) {
-		return value as O
-	}
-
 	parse(input: unknown, ignoreRulesIfNotRequired = true) {
-		let value = this.inputShape(input)
+		let value = <I>input
 		if (this.#force) value = this.#force(value)
 
-		let res = { errors: [] as string[], valid: true as true, value: this.outputShape(value), ignored: false }
+		let res = { errors: [] as string[], valid: true as true, value: value as unknown as O, ignored: false }
 
 		for (const group of this.#groups) {
 			const val = this.#value(res.value, group.options)
@@ -62,7 +54,7 @@ export class VBase<I, O = I> {
 			const v = check(sanitizedValue, group.rules, { ignoreRulesIfNotRequired, ...group.options })
 			if (!v.valid) return v
 
-			const retValue = this.outputShape(group.options.original ? res.value : group.transformer(v.value))
+			const retValue = group.options.original ? <O>res.value : group.transformer(v.value)
 
 			res = { ...v, valid: true, value: retValue }
 		}

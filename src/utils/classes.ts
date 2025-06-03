@@ -55,7 +55,7 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 				if (typeof value === 'function' || value === undefined) return
 				json[key] = value?.toJSON?.(includeIgnored) ?? clone(value)
 			})
-		const keysToDelete = ['__ignoreInJSON', '__keys'].concat(...(includeIgnored !== true ? this.__ignoreInJSON : []))
+		const keysToDelete = ['__ignoreInJSON'].concat(...(includeIgnored !== true ? this.__ignoreInJSON : []))
 		keysToDelete.forEach((k: string) => deleteKeyFromObject(json, k.split('.')))
 		return json as any
 	}
