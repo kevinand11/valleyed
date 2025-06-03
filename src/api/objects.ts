@@ -6,7 +6,11 @@ type GI<T extends Record<string, VCore<any>>> = { [K in keyof T]: ExtractI<T[K]>
 type GO<T extends Record<string, VCore<any>>> = { [K in keyof T]: ExtractO<T[K]> }
 
 export class VObject<T extends Record<string, VCore<any>>> extends VCore<GI<T>, GO<T>> {
-	constructor(schema: T, trim = true, err?: string) {
+	constructor(
+		private readonly schema: T,
+		private readonly trim = true,
+		private readonly err?: string,
+	) {
 		super()
 		this.addTyping(
 			makeRule<GI<T>>((value) => {
@@ -33,5 +37,10 @@ export class VObject<T extends Record<string, VCore<any>>> extends VCore<GI<T>, 
 				return errors.length > 0 ? isInvalid(err ? [err] : errors, val) : isValid(val)
 			}),
 		)
+	}
+
+	extends<S extends Record<string, VCore<any>>>(schema: S) {
+		const a = this.clone(this)
+		return new VObject<Omit<T, keyof S> & S>({ ...a.schema, ...schema }, a.trim, a.err)
 	}
 }
