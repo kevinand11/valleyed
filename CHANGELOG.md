@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.4.7](https://github.com/kevinand11/valleyed/compare/v4.4.6...v4.4.7) (2025-06-03)
+
+
+### Features
+
+* new VObject extend ([252bc50](https://github.com/kevinand11/valleyed/commit/252bc507505e8a65d12be91a8eb8c5d9ff3da5d1))
+
 ### [4.4.6](https://github.com/kevinand11/valleyed/compare/v4.4.5...v4.4.6) (2025-05-22)
 
 
