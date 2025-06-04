@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.4.9](https://github.com/kevinand11/valleyed/compare/v4.4.8...v4.4.9) (2025-06-04)
+
+
+### Bug Fixes
+
+* add Prettify type ([89176ab](https://github.com/kevinand11/valleyed/commit/89176ab72f3fb0feb184a2895e2fa2a5a8ca4ab0))
+
 ### [4.4.8](https://github.com/kevinand11/valleyed/compare/v4.4.7...v4.4.8) (2025-06-03)
 
 ### [4.4.7](https://github.com/kevinand11/valleyed/compare/v4.4.6...v4.4.7) (2025-06-03)
