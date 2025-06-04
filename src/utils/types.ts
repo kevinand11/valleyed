@@ -18,17 +18,19 @@ export type JSONValue<T> = Prettify<
 		? T
 		: T extends Array<infer U>
 			? JSONValue<U>[]
-			: T extends Function
-				? never
-				: T extends object
-					? {
-							[K in keyof T as JSONValue<T[K]> extends never
-								? never
-								: JSONValue<T[K]> extends undefined
+			: T extends { toJSON: (...args: any[]) => any }
+				? ReturnType<T['toJSON']>
+				: T extends Function
+					? never
+					: T extends object
+						? {
+								[K in keyof T as JSONValue<T[K]> extends never
 									? never
-									: K]: JSONValue<T[K]>
-						}
-					: never
+									: JSONValue<T[K]> extends undefined
+										? never
+										: K]: JSONValue<T[K]>
+							}
+						: never
 >
 
 export interface File {
