@@ -1,6 +1,6 @@
 import { isAudio, isFile, isImage, isVideo } from '../rules'
-import type { File } from '../types'
 import { VCore } from './core'
+import type { File } from '../utils/types'
 
 export class VFile extends VCore<File> {
 	constructor(err?: string) {

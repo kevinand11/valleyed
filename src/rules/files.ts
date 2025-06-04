@@ -1,6 +1,6 @@
-import type { File } from '../types'
 import Mimes from './mimes.json'
 import { isInvalid, isValid, makeRule } from '../utils/rules'
+import type { File } from '../utils/types'
 
 export const fileMimeTypes = Object.keys(Mimes)
 export const videoMimeTypes = fileMimeTypes.filter((mime) => mime.startsWith('video/'))

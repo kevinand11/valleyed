@@ -1,5 +1,6 @@
 import type { Options as Opts, Rule, Sanitizer, Transformer } from '../utils/rules'
 import { check } from '../utils/rules'
+import { Prettify } from '../utils/types'
 
 type Options<I> = Opts & { original: boolean; default: (() => I) | I }
 
@@ -117,5 +118,5 @@ export class VBase<I, O = I> {
 	}
 }
 
-export type ExtractI<T extends VBase<any, any>> = T extends VBase<infer I, any> ? I : never
-export type ExtractO<T extends VBase<any, any>> = T extends VBase<any, infer O> ? O : never
+export type ExtractI<T extends VBase<any, any>> = T extends VBase<infer I, any> ? Prettify<I> : never
+export type ExtractO<T extends VBase<any, any>> = T extends VBase<any, infer O> ? Prettify<O> : never

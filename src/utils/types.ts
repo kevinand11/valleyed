@@ -13,11 +13,12 @@ export type DeepOmit<T, K, A = never> = T extends any[]
 				}
 
 export type JSONPrimitives = string | number | boolean | null
-export type JSONValue<T> = T extends JSONPrimitives
-	? T
-	: T extends Array<infer U>
-		? JSONValue<U>[]
-		: T extends Function
+export type JSONValue<T> = Prettify<
+	T extends JSONPrimitives
+		? T
+		: T extends Array<infer U>
+			? JSONValue<U>[]
+			: T extends Function
 				? never
 				: T extends object
 					? {
@@ -28,3 +29,14 @@ export type JSONValue<T> = T extends JSONPrimitives
 									: K]: JSONValue<T[K]>
 						}
 					: never
+>
+
+export interface File {
+	type: string
+}
+
+export type Prettify<T> = T extends object
+	? {
+			[K in keyof T]: T[K]
+		} & {}
+	: T
