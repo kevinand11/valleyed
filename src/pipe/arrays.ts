@@ -28,20 +28,20 @@ export const tuple = <T extends ReadonlyArray<Pipe<unknown, unknown>>>(schemas: 
 
 export const has = <T>(length: number, err = `must contain ${length} items`) =>
 	makePipeFn<T[]>((input) => {
-		if (input.length !== length) throw new PipeError([err], input)
-		return input
+		if (input.length === length) return input
+		throw new PipeError([err], input)
 	})
 
 export const min = <T>(length: number, err = `must contain ${length} or more items`) =>
 	makePipeFn<T[]>((input) => {
-		if (input.length < length) throw new PipeError([err], input)
-		return input
+		if (input.length >= length) return input
+		throw new PipeError([err], input)
 	})
 
 export const max = <T>(length: number, err = `must contain ${length} or less items`) =>
 	makePipeFn<T[]>((input) => {
-		if (input.length > length) throw new PipeError([err], input)
-		return input
+		if (input.length <= length) return input
+		throw new PipeError([err], input)
 	})
 
 export const set = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
