@@ -1,8 +1,9 @@
 import { makePipe, PipeError, PipeOutput, type Pipe } from './base'
+import { Prettify } from '../utils/types'
 
-export const object = <T extends Record<string, Pipe<unknown, unknown>>>(schema: T, trim = true, err?: string) =>
-	makePipe<unknown, { [K in keyof T]: PipeOutput<T[K]> }, { schema: T }>(
-		(input) => {
+export const object = <T extends Record<string, Pipe<unknown, unknown, object>>>(schema: T, trim = true, err?: string) =>
+	makePipe(
+		(input: unknown): { [K in keyof T]: PipeOutput<T[K]> } => {
 			if (typeof input !== 'object' || input === null) throw new PipeError(['is not an object'], input)
 			const obj = structuredClone(input)
 			const keys = new Set([...Object.keys(obj ?? {}), ...Object.keys(schema)])
@@ -19,7 +20,17 @@ export const object = <T extends Record<string, Pipe<unknown, unknown>>>(schema:
 			if (errors.length) throw new PipeError(err ? [err] : errors, input)
 			return obj as any
 		},
-		{ schema },
+		{
+			extends: <S extends Record<string, Pipe<unknown, unknown>>>(s: S) =>
+				object<Prettify<Omit<T, keyof S> & S>>(
+					{
+						...schema,
+						...s,
+					} as any,
+					trim,
+					err,
+				),
+		},
 	)
 
 export const record = <K extends PropertyKey, V>(kSchema: Pipe<unknown, K>, vSchema: Pipe<unknown, V>) =>
