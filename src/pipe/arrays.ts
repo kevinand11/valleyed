@@ -44,7 +44,7 @@ export const max = <T>(length: number, err = `must contain ${length} or less ite
 		throw new PipeError([err], input)
 	})
 
-export const set = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
+export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
 	makePipeFn<T[]>((input) => {
 		const obj: Record<PropertyKey, boolean> = {}
 		return input.reduce<T[]>((acc, cur) => {

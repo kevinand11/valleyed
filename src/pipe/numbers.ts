@@ -30,4 +30,4 @@ export const int = (error = 'is not an integer') =>
 		throw new PipeError([error], input)
 	})
 
-export const round = () => makePipeFn<number>((input) => Number(input.toFixed(0)))
+export const asRound = () => makePipeFn<number>((input) => Number(input.toFixed(0)))

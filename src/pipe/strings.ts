@@ -32,14 +32,14 @@ export const url = (err = 'is not a valid url') =>
 		throw new PipeError([err], input)
 	})
 
-export const trim = () => makePipeFn<string>((input) => input.trim())
+export const asTrim = () => makePipeFn<string>((input) => input.trim())
 
-export const lower = () => makePipeFn<string>((input) => input.toLowerCase())
+export const asLower = () => makePipeFn<string>((input) => input.toLowerCase())
 
-export const upper = () => makePipeFn<string>((input) => input.toUpperCase())
+export const asUpper = () => makePipeFn<string>((input) => input.toUpperCase())
 
-export const capitalize = () => makePipeFn<string>((input) => fns.capitalize(input))
+export const asCapitalize = () => makePipeFn<string>((input) => fns.capitalize(input))
 
-export const stripHTML = () => makePipeFn<string>((input) => fns.stripHTML(input))
+export const asStrippedHTML = () => makePipeFn<string>((input) => fns.stripHTML(input))
 
-export const slice = (length: number) => makePipeFn<string>((input) => fns.trimToLength(input, length))
+export const asSliced = (length: number) => makePipeFn<string>((input) => fns.trimToLength(input, length))
