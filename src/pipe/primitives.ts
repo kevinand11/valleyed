@@ -31,10 +31,12 @@ const isUndefined = (err = 'is not undefined') =>
 	}, {})
 
 export const isInstanceof = <T>(classDef: new () => T, err = `is not an instance of ${classDef.name}`) =>
-	makePipe<T>((input) => {
+	makePipe<unknown, T>((input) => {
 		if (input instanceof classDef) return input as T
 		throw new PipeError([err], input)
 	}, {})
+
+export const isAny = <T>() => makePipe<T>((input) => input, {})
 
 export {
 	isString as string,
@@ -43,4 +45,5 @@ export {
 	isNull as null,
 	isUndefined as undefined,
 	isInstanceof as instanceof,
+	isAny as any,
 }

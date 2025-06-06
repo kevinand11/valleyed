@@ -23,7 +23,7 @@ export type Pipe<I, O = I, C extends object = object> = {
 	readonly flow: PipeFn<I, O>[]
 	pipe<T>(fn: Pipe<O, T, C> | PipeFn<O, T>): Pipe<I, T, C>
 	parse(input: unknown): O
-	safeParse(input: unknown): { value: O } | { error: PipeError }
+	safeParse(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
 }
 
 export function makePipe<I, O = I, C extends object = object>(func: PipeFn<I, O>, context: C): Pipe<I, O, C> {
@@ -42,9 +42,9 @@ export function makePipe<I, O = I, C extends object = object>(func: PipeFn<I, O>
 		safeParse: (input) => {
 			try {
 				const value = piper.parse(input)
-				return { value }
+				return { value, valid: true }
 			} catch (error) {
-				if (error instanceof PipeError) return { error }
+				if (error instanceof PipeError) return { error, valid: false }
 				throw error
 			}
 		},

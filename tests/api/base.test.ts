@@ -1,36 +1,37 @@
 import { describe, expect, test } from 'vitest'
 
-import { v } from '../../src/api'
-import { isString } from '../../src/rules'
+import { makePipe, PipeError } from '../../src/pipe/base'
 
 describe('base', () => {
-	test('forced', () => {
-		expect(v.string().forced).toBe(false)
-		expect(v.force.string().forced).toBe(true)
+	test('flow', () => {
+		const a = (x: number) => x + 1
+		const b = (x: number) => x * 2
+		let pipe = makePipe(a, {})
+		expect(pipe.flow.length).toBe(1)
+		pipe = pipe.pipe(b)
+		expect(pipe.flow.length).toBe(2)
+		expect(pipe.flow[0]).toBe(a)
+		expect(pipe.flow[1]).toBe(b)
 	})
 
-	test('clone', () => {
-		const rules = v.force.string()
-		// @ts-ignore
-		const rules2 = v.any().clone(rules)
-		expect(rules.forced === rules2.forced).toBe(true)
+	test('parse', () => {
+		const pipe = makePipe((x: number) => x + 1, {}).pipe((x) => x * 2)
+		expect(pipe.parse(5)).toEqual(12)
+		const errPipe = pipe.pipe((i) => {
+			if (i < 1000) throw new PipeError(['pipe error'], 0)
+			return i
+		})
+		expect(() => errPipe.parse(5)).toThrow(PipeError)
 	})
 
-	test('addTyping', () => {
-		const rules = v.any().addTyping(isString())
-		expect(rules.parse('').valid).toBe(true)
-		expect(rules.parse(2).valid).toBe(false)
-	})
-
-	test('addRule', () => {
-		const rules = v.any().addRule(isString())
-		expect(rules.parse('').valid).toBe(true)
-		expect(rules.parse(2).valid).toBe(false)
-	})
-
-	test('addSanitizer', () => {
-		const rules = v.any().addSanitizer((val) => val.toString().trim())
-		expect(rules.parse(' 28 ').value).toBe('28')
-		expect(rules.parse(2).valid).toBe(true)
+	test('safeParse', () => {
+		const pipe = makePipe((x: number) => x + 1, {}).pipe((x) => x * 2)
+		expect(pipe.safeParse(5)).toEqual({ value: 12, valid: true })
+		const err = new PipeError(['pipe error'], 0)
+		const errPipe = pipe.pipe((i) => {
+			if (i < 1000) throw err
+			return i
+		})
+		expect(errPipe.safeParse(5)).toEqual({ error: err, valid: false })
 	})
 })

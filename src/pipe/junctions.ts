@@ -4,8 +4,8 @@ import { wrapInTryCatch } from '../utils/functions'
 export const or = <T extends Pipe<any, any>[]>(branches: T, err = 'doesnt match any of the schema') =>
 	makePipe<PipeInput<T[number]>, PipeOutput<T[number]>>((input) => {
 		for (const branch of branches) {
-			const value = branch.safeParse(input)
-			if ('value' in value) return value.value
+			const validity = branch.safeParse(input)
+			if (validity.valid) return validity.value
 		}
 		throw new PipeError([err], input)
 	}, {})
@@ -13,9 +13,9 @@ export const or = <T extends Pipe<any, any>[]>(branches: T, err = 'doesnt match 
 export const and = <T>(branches: Pipe<T>[], err?: string) =>
 	makePipe<T>((input) => {
 		for (const branch of branches) {
-			const value = branch.safeParse(input)
-			if ('error' in value) throw err ? value.error.withMessages([err]) : value.error
-			input = value.value
+			const validity = branch.safeParse(input)
+			if (!validity.valid) throw err ? validity.error.withMessages([err]) : validity.error
+			input = validity.value
 		}
 		return input as T
 	}, {})

@@ -1,10 +1,10 @@
 import { makePipe, PipeError, PipeOutput, type Pipe } from './base'
 import { Prettify } from '../utils/types'
 
-export const object = <T extends Record<string, Pipe<unknown, unknown, object>>>(schema: T, trim = true, err?: string) =>
+export const object = <T extends Record<string, Pipe<any, any, object>>>(schema: T, trim = true, err?: string) =>
 	makePipe(
 		(input: unknown): { [K in keyof T]: PipeOutput<T[K]> } => {
-			if (typeof input !== 'object' || input === null) throw new PipeError(['is not an object'], input)
+			if (typeof input !== 'object' || input === null || Array.isArray(input)) throw new PipeError(['is not an object'], input)
 			const obj = structuredClone(input)
 			const keys = new Set([...Object.keys(obj ?? {}), ...Object.keys(schema)])
 			const errors: string[] = []
@@ -13,9 +13,9 @@ export const object = <T extends Record<string, Pipe<unknown, unknown, object>>>
 					if (trim) delete obj[key]
 					continue
 				}
-				const value = schema[key].safeParse(obj[key])
-				if ('error' in value) errors.push(...value.error.messages.map((e) => (e.includes(': ') ? `${key}.` : `${key}: ` + e)))
-				else obj[key] = value.value
+				const validity = schema[key].safeParse(obj[key])
+				if (!validity.valid) errors.push(...validity.error.messages.map((e) => (e.includes(': ') ? `${key}.` : `${key}: ` + e)))
+				else obj[key] = validity.value
 			}
 			if (errors.length) throw new PipeError(err ? [err] : errors, input)
 			return obj as any
@@ -35,17 +35,17 @@ export const object = <T extends Record<string, Pipe<unknown, unknown, object>>>
 
 export const record = <K extends PropertyKey, V>(kSchema: Pipe<unknown, K>, vSchema: Pipe<unknown, V>) =>
 	makePipe<unknown, Record<K, V>>((input) => {
-		if (typeof input !== 'object' || input === null) throw new PipeError(['is not an object'], input)
+		if (typeof input !== 'object' || input === null || Array.isArray(input)) throw new PipeError(['is not an object'], input)
 		const obj = structuredClone(input) as Record<K, V>
 		const errors: string[] = []
 		for (const [k, v] of Object.entries(obj)) {
-			const kValid = kSchema.safeParse(k)
-			const vValid = vSchema.safeParse(v)
-			if ('error' in kValid) errors.push(`contains an invalid key ${k}`)
-			if ('error' in vValid) errors.push(`contains an invalid value for key ${k}`)
-			if ('value' in kValid && 'value' in vValid) {
-				if (k !== kValid.value) delete obj[k]
-				obj[kValid.value] = vValid.value
+			const kValidity = kSchema.safeParse(k)
+			const vValidity = vSchema.safeParse(v)
+			if (!kValidity.valid) errors.push(`contains an invalid key ${k}`)
+			if (!vValidity.valid) errors.push(`contains an invalid value for key ${k}`)
+			if (kValidity.valid && vValidity.valid) {
+				if (k !== kValidity.value) delete obj[k]
+				obj[kValidity.value] = vValidity.value
 			}
 		}
 		if (errors.length) throw new PipeError(errors, input)

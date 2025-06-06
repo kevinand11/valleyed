@@ -4,24 +4,27 @@ export type Timeable = Date | string | number
 
 export const time = (err = 'is not a valid datetime') =>
 	makePipe<unknown, Date>((input) => {
-		const date = new Date(input as any)
-		if (typeof input === 'number' && !isNaN(input)) return date
+		if (input instanceof Date) return input
+		if (input === undefined || typeof input === 'number' || typeof input === 'string') {
+			const date = new Date(input as any)
+			if (!isNaN(date.getTime())) return date
+		}
 		throw new PipeError([err], input)
 	}, {})
 
-export const min = (compare: Timeable, err = 'is not later than compared value') =>
+export const after = (compare: Timeable, err = 'is not later than compared value') =>
 	makePipe<Date>((input) => {
 		const compareDate = new Date(compare)
-		if (input >= compareDate) return input
+		if (input > compareDate) return input
 		throw new PipeError([err], input)
 	}, {})
 
-export const max = (compare: Timeable, err = 'is not earlier than compared value') =>
+export const before = (compare: Timeable, err = 'is not earlier than compared value') =>
 	makePipe<Date>((input) => {
 		const compareDate = new Date(compare)
-		if (input <= compareDate) return input
+		if (input < compareDate) return input
 		throw new PipeError([err], input)
 	}, {})
 
 export const asStamp = () => makePipe<Date, number>((input) => input.valueOf(), {})
-export const asString = () => makePipe<Date, string>((input) => input.toISOString(), {})
+export const asISOString = () => makePipe<Date, string>((input) => input.toISOString(), {})

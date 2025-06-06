@@ -5,9 +5,10 @@ export const array = <T>(schema: Pipe<unknown, T>) =>
 		if (!Array.isArray(input)) throw new PipeError(['is not an array'], input)
 		if (input.length === 0) return input
 		return input.map((i, idx) => {
-			const value = schema.safeParse(i)
-			if ('error' in value) throw value.error.withMessages([`contains an invalid value at index ${idx}`, ...value.error.messages])
-			return value.value
+			const validity = schema.safeParse(i)
+			if (!validity.valid)
+				throw validity.error.withMessages([`contains an invalid value at index ${idx}`, ...validity.error.messages])
+			return validity.value
 		})
 	}, {})
 
@@ -26,19 +27,19 @@ export const tuple = <T extends ReadonlyArray<Pipe<unknown, unknown>>>(schemas: 
 		}) as any
 	}, {})
 
-export const has = <T>(length: number, err = `must contain ${length} items`) =>
+export const contains = <T>(length: number, err = `must contain ${length} items`) =>
 	makePipe<T[]>((input) => {
 		if (input.length === length) return input
 		throw new PipeError([err], input)
 	}, {})
 
-export const min = <T>(length: number, err = `must contain ${length} or more items`) =>
+export const containsMin = <T>(length: number, err = `must contain ${length} or more items`) =>
 	makePipe<T[]>((input) => {
 		if (input.length >= length) return input
 		throw new PipeError([err], input)
 	}, {})
 
-export const max = <T>(length: number, err = `must contain ${length} or less items`) =>
+export const containsMax = <T>(length: number, err = `must contain ${length} or less items`) =>
 	makePipe<T[]>((input) => {
 		if (input.length <= length) return input
 		throw new PipeError([err], input)
