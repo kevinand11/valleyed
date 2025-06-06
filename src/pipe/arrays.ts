@@ -9,7 +9,7 @@ export const array = <T>(schema: Pipe<unknown, T>) =>
 			if ('error' in value) throw value.error.withMessages([`contains an invalid value at index ${idx}`, ...value.error.messages])
 			return value.value
 		})
-	})
+	}, {})
 
 export const tuple = <T extends ReadonlyArray<Pipe<unknown, unknown>>>(schemas: readonly [...T], err?: string) =>
 	makePipe<unknown, { [K in keyof T]: PipeOutput<T[K]> }>((input) => {
@@ -24,25 +24,25 @@ export const tuple = <T extends ReadonlyArray<Pipe<unknown, unknown>>>(schemas: 
 					: value.error
 			return value.value
 		}) as any
-	})
+	}, {})
 
 export const has = <T>(length: number, err = `must contain ${length} items`) =>
 	makePipe<T[]>((input) => {
 		if (input.length === length) return input
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const min = <T>(length: number, err = `must contain ${length} or more items`) =>
 	makePipe<T[]>((input) => {
 		if (input.length >= length) return input
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const max = <T>(length: number, err = `must contain ${length} or less items`) =>
 	makePipe<T[]>((input) => {
 		if (input.length <= length) return input
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
 	makePipe<T[]>((input) => {
@@ -55,4 +55,4 @@ export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
 			}
 			return acc
 		}, [])
-	})
+	}, {})

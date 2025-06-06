@@ -5,13 +5,13 @@ export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass 
 	makePipe<T>((input) => {
 		if (condition(input as any)) return input as T
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const eq = <T>(compare: T, comparer = Differ.equal as (val: any, compare: T) => boolean, err = `is not equal ${compare}`) =>
 	makePipe<T>((input) => {
 		if (input === compare || comparer(input, compare)) return input as T
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const is = eq
 
@@ -19,7 +19,7 @@ export const ne = <T>(compare: T, comparer = Differ.equal as (val: any, compare:
 	makePipe<T>((input) => {
 		if (!comparer(input, compare) && input !== compare) return input as T
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 const inArray = <T>(
 	array: Readonly<T[]>,
@@ -29,7 +29,7 @@ const inArray = <T>(
 	makePipe<T>((input) => {
 		if (array.find((x) => comparer(input, x))) return input as T
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const nin = <T>(
 	array: Readonly<T[]>,
@@ -39,6 +39,6 @@ export const nin = <T>(
 	makePipe<T>((input) => {
 		if (!array.find((x) => comparer(input, x))) return input as T
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export { inArray as in }

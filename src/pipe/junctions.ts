@@ -8,7 +8,7 @@ export const or = <T extends Pipe<any, any>[]>(branches: T, err = 'doesnt match 
 			if ('value' in value) return value.value
 		}
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const and = <T>(branches: Pipe<T>[], err?: string) =>
 	makePipe<T>((input) => {
@@ -18,7 +18,7 @@ export const and = <T>(branches: Pipe<T>[], err?: string) =>
 			input = value.value
 		}
 		return input as T
-	})
+	}, {})
 
 export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 	discriminator: (val: PipeInput<T[keyof T]>) => PropertyKey,
@@ -29,4 +29,4 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 		const accessor = wrapInTryCatch(() => discriminator(input as any))!
 		if (!schemas[accessor]) throw new PipeError([err], input)
 		return schemas[accessor].parse(input)
-	})
+	}, {})

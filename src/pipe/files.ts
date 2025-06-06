@@ -14,22 +14,22 @@ export const file = (err = 'is not a recognized file') =>
 		const validInput = isFile(input)
 		if (validInput && fileMimeTypes.includes(input.type)) return input
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const image = (err = 'is not a recognized image file') =>
 	makePipe<unknown, File>((input) => {
 		if (isFile(input) && imageMimeTypes.includes(input.type)) return input
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const audio = (err = 'is not a recognized audio file') =>
 	makePipe<unknown, File>((input) => {
 		if (isFile(input) && audioMimeTypes.includes(input.type)) return input
 		throw new PipeError([err], input)
-	})
+	}, {})
 
 export const video = (err = 'is not a recognized video file') =>
 	makePipe<unknown, File>((input) => {
 		if (isFile(input) && videoMimeTypes.includes(input.type)) return input
 		throw new PipeError([err], input)
-	})
+	}, {})
