@@ -1,7 +1,7 @@
-import { makePipeFn, PipeError, type Pipe, type PipeOutput } from './base'
+import { makePipe, PipeError, type Pipe, type PipeOutput } from './base'
 
 export const array = <T>(schema: Pipe<unknown, T>) =>
-	makePipeFn<unknown, T[]>((input) => {
+	makePipe<unknown, T[]>((input) => {
 		if (!Array.isArray(input)) throw new PipeError(['is not an array'], input)
 		if (input.length === 0) return input
 		return input.map((i, idx) => {
@@ -12,7 +12,7 @@ export const array = <T>(schema: Pipe<unknown, T>) =>
 	})
 
 export const tuple = <T extends ReadonlyArray<Pipe<unknown, unknown>>>(schemas: readonly [...T], err?: string) =>
-	makePipeFn<unknown, { [K in keyof T]: PipeOutput<T[K]> }>((input) => {
+	makePipe<unknown, { [K in keyof T]: PipeOutput<T[K]> }>((input) => {
 		if (!Array.isArray(input)) throw new PipeError(['is not an array'], input)
 		if (schemas.length !== input.length) throw new PipeError([`expected ${schemas.length} but got ${input.length} items`], input)
 		if (input.length === 0) return input as any
@@ -27,25 +27,25 @@ export const tuple = <T extends ReadonlyArray<Pipe<unknown, unknown>>>(schemas: 
 	})
 
 export const has = <T>(length: number, err = `must contain ${length} items`) =>
-	makePipeFn<T[]>((input) => {
+	makePipe<T[]>((input) => {
 		if (input.length === length) return input
 		throw new PipeError([err], input)
 	})
 
 export const min = <T>(length: number, err = `must contain ${length} or more items`) =>
-	makePipeFn<T[]>((input) => {
+	makePipe<T[]>((input) => {
 		if (input.length >= length) return input
 		throw new PipeError([err], input)
 	})
 
 export const max = <T>(length: number, err = `must contain ${length} or less items`) =>
-	makePipeFn<T[]>((input) => {
+	makePipe<T[]>((input) => {
 		if (input.length <= length) return input
 		throw new PipeError([err], input)
 	})
 
 export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
-	makePipeFn<T[]>((input) => {
+	makePipe<T[]>((input) => {
 		const obj: Record<PropertyKey, boolean> = {}
 		return input.reduce<T[]>((acc, cur) => {
 			const key = keyFn(cur)

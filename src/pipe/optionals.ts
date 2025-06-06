@@ -1,7 +1,7 @@
-import { makePipeFn, Pipe, PipeInput, PipeOutput } from './base'
+import { makePipe, Pipe, PipeInput, PipeOutput } from './base'
 
 const partial = <T extends Pipe<unknown, unknown>, P>(branch: T, partialCondition: (i: unknown) => boolean, force: boolean) =>
-	makePipeFn<PipeInput<T>, PipeOutput<T> | P>((input) => {
+	makePipe<PipeInput<T>, PipeOutput<T> | P>((input) => {
 		const isPartial = partialCondition(input)
 		if (isPartial) return input as P
 		const value = branch.safeParse(input)
@@ -18,7 +18,7 @@ export const requiredIf = <T extends Pipe<unknown, unknown>>(branch: T, conditio
 type FunctionOrValue<T> = T | (() => T)
 
 export const withDefault = <T extends Pipe<unknown, unknown>>(branch: T, def: FunctionOrValue<PipeInput<T>>) =>
-	makePipeFn<PipeInput<T>, Exclude<PipeOutput<T>, undefined>>((input) => {
+	makePipe<PipeInput<T>, Exclude<PipeOutput<T>, undefined>>((input) => {
 		const value = input !== undefined ? input : typeof def === 'function' ? (def as Function)() : def
 		return branch.parse(value) as any
 	})

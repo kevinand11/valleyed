@@ -1,7 +1,7 @@
-import { makePipeFn, PipeError, PipeOutput, type Pipe } from './base'
+import { makePipe, PipeError, PipeOutput, type Pipe } from './base'
 
 export const object = <T extends Record<string, Pipe<unknown, unknown>>>(schema: T, trim = true, err?: string) =>
-	makePipeFn<unknown, { [K in keyof T]: PipeOutput<T[K]> }>((input) => {
+	makePipe<unknown, { [K in keyof T]: PipeOutput<T[K]> }>((input) => {
 		if (typeof input !== 'object' || input === null) throw new PipeError(['is not an object'], input)
 		const obj = structuredClone(input)
 		const keys = new Set([...Object.keys(obj ?? {}), ...Object.keys(schema)])
@@ -20,7 +20,7 @@ export const object = <T extends Record<string, Pipe<unknown, unknown>>>(schema:
 	})
 
 export const record = <K extends PropertyKey, V>(kSchema: Pipe<unknown, K>, vSchema: Pipe<unknown, V>) =>
-	makePipeFn<unknown, Record<K, V>>((input) => {
+	makePipe<unknown, Record<K, V>>((input) => {
 		if (typeof input !== 'object' || input === null) throw new PipeError(['is not an object'], input)
 		const obj = structuredClone(input) as Record<K, V>
 		const errors: string[] = []
@@ -39,4 +39,4 @@ export const record = <K extends PropertyKey, V>(kSchema: Pipe<unknown, K>, vSch
 	})
 
 export const asMap = <K extends PropertyKey, V>() =>
-	makePipeFn<Record<K, V>, Map<K, V>>((input) => new Map<K, V>(Object.entries(input) as any))
+	makePipe<Record<K, V>, Map<K, V>>((input) => new Map<K, V>(Object.entries(input) as any))

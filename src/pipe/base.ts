@@ -17,20 +17,24 @@ export class PipeError extends Error {
 }
 
 export type Pipe<I, O = I> = {
-	pipe<T>(fn: PipeFn<O, T>): Pipe<I, T>
+	readonly flow: PipeFn<I, O>[]
+	pipe<T>(fn: Pipe<O, T> | PipeFn<O, T>): Pipe<I, T>
 	parse(input: unknown): O
 	safeParse(input: unknown): { value: O } | { error: PipeError }
 }
 
-export function pipe<I, O = I>(fn: PipeFn<I, O>) {
-	const fns: PipeFn<any, any>[] = [fn]
+export function makePipe<I, O = I>(func: PipeFn<I, O>): Pipe<I, O> {
+	const flow: PipeFn<any, any>[] = [func]
 
 	const piper: Pipe<I, O> = {
+		get flow() {
+			return flow
+		},
 		pipe: (fn) => {
-			fns.push(fn)
+			flow.push(...('flow' in fn ? fn.flow : [fn]))
 			return piper as any
 		},
-		parse: (input) => fns.reduce((acc, fn) => fn(acc), input as any),
+		parse: (input) => flow.reduce((acc, fn) => fn(acc), input as any),
 		safeParse: (input) => {
 			try {
 				const value = piper.parse(input)
@@ -42,8 +46,4 @@ export function pipe<I, O = I>(fn: PipeFn<I, O>) {
 		},
 	}
 	return piper
-}
-
-export function makePipeFn<I, O = I>(func: PipeFn<I, O>): PipeFn<I, O> {
-	return (val: I) => func(val)
 }
