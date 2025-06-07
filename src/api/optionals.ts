@@ -9,7 +9,7 @@ const partial = <T extends Pipe<any, any>, P, C extends object = object>(
 	schemaBuilder: JsonSchemaBuilder,
 	context: C,
 ) =>
-	makePipe<PipeInput<T>, PipeOutput<T> | P, C>(
+	makePipe<PipeInput<T> | P, PipeOutput<T> | P, C>(
 		(input) => {
 			const isPartial = partialCondition(input)
 			if (isPartial) return input as P
