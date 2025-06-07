@@ -1,7 +1,7 @@
 const DATA_URL_DEFAULT_MIME_TYPE = 'text/plain'
 const DATA_URL_DEFAULT_CHARSET = 'us-ascii'
 
-const normalizeDataURL = (urlString) => {
+const normalizeDataURL = (urlString: string) => {
 	const match = /^data:(?<type>[^,]*?),(?<data>[^#]*?)(?:#(?<hash>.*))?$/.exec(urlString)
 
 	if (!match) throw new Error(`Invalid URL: ${urlString}`)

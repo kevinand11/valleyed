@@ -1,62 +1,44 @@
-import { arrayContains, isCustom } from '../rules'
-import { Differ } from '../utils/differ'
-import type { Transformer } from '../utils/rules'
-import { arrayNotContains, isEqualTo, isNotEqualTo } from './../rules/equality'
-import type { ExtractI, ExtractO } from './base'
-import { VBase } from './base'
+import { makePipe, PipeError } from './base'
+import { equal } from '../utils/differ'
 
-export class VCore<I, O = I> extends VBase<I, O> {
-	constructor() {
-		super()
-	}
+export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass custom rule`) =>
+	makePipe<T>((input) => {
+		if (condition(input as any)) return input as T
+		throw new PipeError([err], input)
+	}, {})
 
-	original() {
-		return this._setOption('original', true)
-	}
+export const eq = <T>(compare: T, comparer = equal as (val: any, compare: T) => boolean, err = `is not equal ${compare}`) =>
+	makePipe<T>((input) => {
+		if (input === compare || comparer(input, compare)) return input as T
+		throw new PipeError([err], input)
+	}, {})
 
-	requiredIf(required: () => boolean) {
-		return makePartial<this, undefined>(this)._setOption('required', required)
-	}
+export const is = eq
 
-	optional() {
-		return makePartial<this, undefined>(this)._setOption('required', false)
-	}
+export const ne = <T>(compare: T, comparer = equal as (val: any, compare: T) => boolean, err = `is equal to ${compare}`) =>
+	makePipe<T>((input) => {
+		if (!comparer(input, compare) && input !== compare) return input as T
+		throw new PipeError([err], input)
+	}, {})
 
-	nullable() {
-		return makePartial<this, null>(this)._setOption('nullable', true)
-	}
+const inArray = <T>(
+	array: Readonly<T[]>,
+	comparer = equal as (val: any, arrayItem: T) => boolean,
+	err = `is not in the list: [${array.join(',')}]`,
+) =>
+	makePipe<T>((input) => {
+		if (array.find((x) => comparer(input, x))) return input as T
+		throw new PipeError([err], input)
+	}, {})
 
-	nullish() {
-		return this.optional().nullable()
-	}
+export const nin = <T>(
+	array: Readonly<T[]>,
+	comparer = equal as (val: any, arrayItem: T) => boolean,
+	err = `is in the list: [${array.join(',')}]`,
+) =>
+	makePipe<T>((input) => {
+		if (!array.find((x) => comparer(input, x))) return input as T
+		throw new PipeError([err], input)
+	}, {})
 
-	default(def: I | (() => I)) {
-		return this._setOption('default', def)
-	}
-
-	custom(fn: (v: I) => boolean, err?: string) {
-		return this.addRule(isCustom(fn, err))
-	}
-
-	eq(compare: I, comparer = Differ.equal as (val: any, compare: I) => boolean, err?: string) {
-		return this.addRule(isEqualTo(compare, comparer, err))
-	}
-
-	ne(compare: I, comparer = Differ.equal as (val: any, compare: I) => boolean, err?: string) {
-		return this.addRule(isNotEqualTo(compare, comparer, err))
-	}
-
-	in(array: Readonly<I[]>, comparer = Differ.equal as (val: any, arrayItem: I) => boolean, err?: string) {
-		return this.addRule(arrayContains(array, comparer, err))
-	}
-
-	nin(array: Readonly<I[]>, comparer = Differ.equal as (val: any, arrayItem: I) => boolean, err?: string) {
-		return this.addRule(arrayNotContains(array, comparer, err))
-	}
-
-	transform<T>(transformer: Transformer<O, T>) {
-		return new VCore<O, T>().clone(this as any)._addTransform(transformer)
-	}
-}
-
-const makePartial = <T extends VCore<any>, P>(base: T) => base as VCore<P | ExtractI<T>, P | ExtractO<T>>
+export { inArray as in }

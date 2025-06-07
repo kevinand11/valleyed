@@ -1,4 +1,4 @@
-import { isNumber } from '../../rules'
+import { v } from '../../api'
 import { urlRegex } from '../regexes'
 import { normalizeUrl } from './urls/normalize'
 
@@ -44,7 +44,9 @@ export const extractUrls = (text: string) => {
 }
 
 export const formatNumber = (num: number, dp?: number) =>
-	Intl.NumberFormat('en', { notation: 'compact', ...(dp ? { maximumFractionDigits: dp } : {}) }).format(isNumber()(num).valid ? num : 0)
+	Intl.NumberFormat('en', { notation: 'compact', ...(dp ? { maximumFractionDigits: dp } : {}) }).format(
+		v.number().safeParse(num).valid ? num : 0,
+	)
 
 export const pluralize = (count: number, singular: string, plural: string) => (Math.round(count) === 1 ? singular : plural)
 

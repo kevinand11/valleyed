@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { makePipe, PipeError } from '../../src/pipe/base'
+import { makePipe, PipeError } from '../../src/api/base'
 
 describe('base', () => {
 	test('flow', () => {

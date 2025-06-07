@@ -1,54 +1,45 @@
-import { isEmail, isLengthOf, isMaxOf, isMinOf, isString, isUrl } from '../rules'
-import { VCore } from './core'
-import { capitalize, stripHTML, trimToLength } from '../utils/functions'
+import { makePipe, PipeError } from './base'
+import * as fns from '../utils/functions'
+import { emailRegex, urlRegex } from '../utils/regexes'
 
-export class VString extends VCore<string> {
-	constructor(err?: string) {
-		super()
-		this.addTyping(isString(err))
-	}
+export const has = (length: number, stripHTMLTags = false, err = `must contain ${length} characters`) =>
+	makePipe<string>((input) => {
+		if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length === length) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	has(length: number, stripHTML = false, err?: string) {
-		return this.addRule(isLengthOf(length, stripHTML, err))
-	}
+export const min = (length: number, stripHTMLTags = false, err = `must contain ${length} or more characters`) =>
+	makePipe<string>((input) => {
+		if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length >= length) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	min(length: number, stripHTML = false, err?: string) {
-		return this.addRule(isMinOf(length, stripHTML, err))
-	}
+export const max = (length: number, stripHTMLTags = false, err = `must contain ${length} or less characters`) =>
+	makePipe<string>((input) => {
+		if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length <= length) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	max(length: number, stripHTML = false, err?: string) {
-		return this.addRule(isMaxOf(length, stripHTML, err))
-	}
+export const email = (err = 'is not a valid email') =>
+	makePipe<string>((input) => {
+		if (emailRegex.test(input)) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	email(err?: string) {
-		return this.addRule(isEmail(err))
-	}
+export const url = (err = 'is not a valid url') =>
+	makePipe<string>((input) => {
+		if (urlRegex().test(input)) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	url(err?: string) {
-		return this.addRule(isUrl(err))
-	}
+export const asTrim = () => makePipe<string>((input) => input.trim(), {})
 
-	trim() {
-		return this.addSanitizer((val) => val.trim())
-	}
+export const asLower = () => makePipe<string>((input) => input.toLowerCase(), {})
 
-	lower() {
-		return this.addSanitizer((val) => val.toLowerCase())
-	}
+export const asUpper = () => makePipe<string>((input) => input.toUpperCase(), {})
 
-	upper() {
-		return this.addSanitizer((val) => val.toUpperCase())
-	}
+export const asCapitalize = () => makePipe<string>((input) => fns.capitalize(input), {})
 
-	capitalize() {
-		return this.addSanitizer((val) => capitalize(val))
-	}
+export const asStrippedHTML = () => makePipe<string>((input) => fns.stripHTML(input), {})
 
-	stripHTML() {
-		return this.addSanitizer((val) => stripHTML(val))
-	}
-
-	slice(length: number) {
-		return this.addSanitizer((val) => trimToLength(val, length))
-	}
-}
+export const asSliced = (length: number) => makePipe<string>((input) => fns.trimToLength(input, length), {})

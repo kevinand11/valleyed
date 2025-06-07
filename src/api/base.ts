@@ -1,122 +1,53 @@
-import type { Options as Opts, Rule, Sanitizer, Transformer } from '../utils/rules'
-import { check } from '../utils/rules'
 import { Prettify } from '../utils/types'
 
-type Options<I> = Opts & { original: boolean; default: (() => I) | I }
+export type PipeFn<I, O = I> = (input: I) => O
+export type PipeInput<T extends Pipe<any, any, any>> = T extends Pipe<infer I, any, any> ? Prettify<I> : never
+export type PipeOutput<T extends Pipe<any, any, any>> = T extends Pipe<any, infer O, any> ? Prettify<O> : never
 
-export class VBase<I, O = I> {
-	#force: ((val: unknown) => I) | undefined = undefined
-	#groups: {
-		transformer: Transformer<I, O>
-		typings: Rule<I>[]
-		rules: Rule<I>[]
-		sanitizers: Sanitizer<I>[]
-		options: Options<I>
-	}[] = [
-		{
-			transformer: (v) => v as any,
-			typings: [],
-			rules: [],
-			sanitizers: [],
-			options: { original: false, required: true, nullable: false, default: undefined as unknown as I },
-		},
-	]
-
-	get forced() {
-		return !!this.#force
+export class PipeError extends Error {
+	constructor(
+		public messages: string[],
+		readonly value: unknown,
+	) {
+		super('Pipe validation error')
 	}
 
-	static createType<C extends VBase<any>, A extends Array<any>>(c: new (...args: A) => C) {
-		return (...args: A) => new c(...args)
-	}
-
-	static createForcedType<C extends VBase<any>, A extends any[] = any[]>(c: new (...args: A) => C, conv: (arg: unknown) => ExtractI<C>) {
-		return (...args: A) => new c(...args)._setForced(conv)
-	}
-
-	protected clone(base: VBase<I, O>) {
-		this.#force = base.#force
-		this.#groups = base.#groups
+	withMessages(messages: string[]) {
+		this.messages = messages
 		return this
-	}
-
-	parse(input: unknown, ignoreRulesIfNotRequired = true) {
-		let value = <I>input
-		if (this.#force) value = this.#force(value)
-
-		let res = { errors: [] as string[], valid: true as true, value: value as unknown as O, ignored: false }
-
-		for (const group of this.#groups) {
-			const val = this.#value(res.value, group.options)
-			const typeCheck = check(val, group.typings, { ignoreRulesIfNotRequired, ...group.options })
-			if (!typeCheck.valid) return typeCheck
-
-			const sanitizedValue = typeCheck.ignored ? typeCheck.value : this.#sanitize(typeCheck.value, group.sanitizers)
-			const v = check(sanitizedValue, group.rules, { ignoreRulesIfNotRequired, ...group.options })
-			if (!v.valid) return v
-
-			const retValue = group.options.original ? <O>res.value : group.transformer(v.value)
-
-			res = { ...v, valid: true, value: retValue }
-		}
-
-		return res
-	}
-
-	addTyping(rule: Rule<I>) {
-		this.#groups.at(-1)!.typings.push(rule)
-		return this
-	}
-
-	addRule(rule: Rule<I>) {
-		this.#groups.at(-1)!.rules.push(rule)
-		return this
-	}
-
-	addSanitizer(sanitizer: Sanitizer<I>) {
-		this.#groups.at(-1)!.sanitizers.push(sanitizer)
-		return this
-	}
-
-	protected _addTransform(transformer: Transformer<I, O>) {
-		this.#groups.at(-1)!.transformer = transformer
-		this.#groups.push({
-			transformer: (v) => v as any,
-			typings: [],
-			rules: [],
-			sanitizers: [],
-			options: {
-				original: false,
-				required: true,
-				nullable: false,
-				default: undefined as unknown as I,
-			},
-		})
-		return this
-	}
-
-	protected _setOption<K extends keyof Options<I>>(key: K, value: Options<I>[K]) {
-		if (this.#groups.at(-1)?.options) this.#groups.at(-1)!.options[key] = value
-		return this
-	}
-
-	protected _setForced(conv: (val: unknown) => I) {
-		this.#force = conv
-		return this
-	}
-
-	#value(value: any, options: Options<I>) {
-		if (value !== undefined) return value
-		const def = options.default
-		// @ts-ignore
-		if (def !== undefined) return typeof def === 'function' ? def() : (def as I)
-		return undefined as unknown
-	}
-
-	#sanitize(value: I, sanitizers: Sanitizer<I>[]) {
-		return sanitizers.reduce((v, sanitizer) => sanitizer(v), value)
 	}
 }
 
-export type ExtractI<T extends VBase<any, any>> = T extends VBase<infer I, any> ? Prettify<I> : never
-export type ExtractO<T extends VBase<any, any>> = T extends VBase<any, infer O> ? Prettify<O> : never
+export type Pipe<I, O = I, C extends object = object> = {
+	context: C
+	readonly flow: PipeFn<I, O>[]
+	pipe<T>(fn: Pipe<O, T, C> | PipeFn<O, T>): Pipe<I, T, C>
+	parse(input: unknown): O
+	safeParse(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
+}
+
+export function makePipe<I, O = I, C extends object = object>(func: PipeFn<I, O>, context: C): Pipe<I, O, C> {
+	const flow: PipeFn<any, any>[] = [func]
+
+	const piper: Pipe<I, O, C> = {
+		context,
+		get flow() {
+			return flow
+		},
+		pipe: (fn) => {
+			flow.push(...('flow' in fn ? fn.flow : [fn]))
+			return piper as any
+		},
+		parse: (input) => flow.reduce((acc, fn) => fn(acc), input as any),
+		safeParse: (input) => {
+			try {
+				const value = piper.parse(input)
+				return { value, valid: true }
+			} catch (error) {
+				if (error instanceof PipeError) return { error, valid: false }
+				throw error
+			}
+		},
+	}
+	return piper
+}

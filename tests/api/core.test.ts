@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { v } from '../../src/pipe'
+import { v } from '../../src'
 
 describe('core', () => {
 	test('custom', () => {

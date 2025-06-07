@@ -1,5 +1,6 @@
 import util from 'util'
 
+import { wrapInTryCatch } from './functions'
 import { DeepOmit, JSONValue } from './types'
 
 if (util?.inspect?.defaultOptions) {
@@ -53,7 +54,7 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 			.forEach((key) => {
 				const value = this[key]
 				if (typeof value === 'function' || value === undefined) return
-				json[key] = value?.toJSON?.(includeIgnored) ?? clone(value)
+				json[key] = value?.toJSON?.(includeIgnored) ?? wrapInTryCatch(() => structuredClone(value), value)
 			})
 		const keysToDelete = ['__ignoreInJSON'].concat(...(includeIgnored !== true ? this.__ignoreInJSON : []))
 		keysToDelete.forEach((k: string) => deleteKeyFromObject(json, k.split('.')))
@@ -80,15 +81,7 @@ export class ClassPropertiesWrapper<Keys extends Record<string, any>, Ignored ex
 	Ignored
 > {}
 
-function clone<T>(value: T): T {
-	try {
-		return structuredClone(value)
-	} catch {
-		return value
-	}
-}
-
-const deleteKeyFromObject = (obj: Record<string, any>, keys: string[]) => {
+function deleteKeyFromObject(obj: Record<string, any>, keys: string[]) {
 	if (obj === undefined || obj === null) return
 	const isArray = Array.isArray(obj)
 	if (keys.length === 1 && !isArray) return delete obj[keys[0]]

@@ -1,47 +1,56 @@
-import { isInstanceOf } from '../rules'
-import { VCore } from './core'
-import { isInvalid, isValid, makeRule } from '../utils/rules'
+import { makePipe, PipeError, PipeOutput, type Pipe } from './base'
+import { Prettify } from '../utils/types'
 
-export class VMap<KI, VI> extends VCore<Map<KI, VI>> {
-	constructor(kCom: VCore<KI>, vCom: VCore<VI>, err?: string) {
-		super()
-		this.addTyping(isInstanceOf<Map<KI, VI>>(Map, err))
-		this.addTyping(
-			makeRule<Map<KI, VI>>((value) => {
-				const val = structuredClone(value) as Map<KI, VI>
-				for (const k of val?.keys() ?? []) {
-					const v = val?.get(k)!
-					const kValid = kCom.parse(k as any)
-					const vValid = vCom.parse(v as any)
-					if (!kValid.valid) return isInvalid(err ? [err] : [`contains an invalid key ${String(k)}`], val)
-					if (!vValid.valid) return isInvalid(err ? [err] : [`contains an invalid value for key ${String(k)}`], val)
-					// @ts-ignore
-					if (k !== kValid.value) val?.delete(k)
-					// @ts-ignore
-					val?.set(kValid.value, vValid.value)
+export const object = <T extends Record<string, Pipe<any, any, object>>>(schema: T, trim = true, err?: string) =>
+	makePipe(
+		(input: unknown): { [K in keyof T]: PipeOutput<T[K]> } => {
+			if (typeof input !== 'object' || input === null || Array.isArray(input)) throw new PipeError(['is not an object'], input)
+			const obj = structuredClone(input)
+			const keys = new Set([...Object.keys(obj ?? {}), ...Object.keys(schema)])
+			const errors: string[] = []
+			for (const key of keys) {
+				if (!(key in schema)) {
+					if (trim) delete obj[key]
+					continue
 				}
-				return isValid(val)
-			}),
-		)
-	}
-}
+				const validity = schema[key].safeParse(obj[key])
+				if (!validity.valid) errors.push(...validity.error.messages.map((e) => (e.includes(': ') ? `${key}.` : `${key}: ` + e)))
+				else obj[key] = validity.value
+			}
+			if (errors.length) throw new PipeError(err ? [err] : errors, input)
+			return obj as any
+		},
+		{
+			extends: <S extends Record<string, Pipe<unknown, unknown>>>(s: S) =>
+				object<Prettify<Omit<T, keyof S> & S>>(
+					{
+						...schema,
+						...s,
+					} as any,
+					trim,
+					err,
+				),
+		},
+	)
 
-export class VRecord<VI> extends VCore<Record<string, VI>> {
-	constructor(vCom: VCore<VI>, err?: string) {
-		super()
-		this.addTyping(
-			makeRule<Record<string, VI>>((value) => {
-				if (Array.isArray(value)) return isInvalid(err ? [err] : ['is not an object'], value)
-				const val = structuredClone(value) as Record<string, VI>
-				for (const [k, v] of Object.entries(val ?? {})) {
-					const validity = vCom.parse(v as any)
-					err = err ?? `contains an invalid value for key ${k}`
-					if (!validity.valid) return isInvalid([err], val)
-					// @ts-ignore
-					if (value) value[k] = validity.value
-				}
-				return isValid(val)
-			}),
-		)
-	}
-}
+export const record = <K extends PropertyKey, V>(kSchema: Pipe<unknown, K>, vSchema: Pipe<unknown, V>) =>
+	makePipe<unknown, Record<K, V>>((input) => {
+		if (typeof input !== 'object' || input === null || Array.isArray(input)) throw new PipeError(['is not an object'], input)
+		const obj = structuredClone(input) as Record<K, V>
+		const errors: string[] = []
+		for (const [k, v] of Object.entries(obj)) {
+			const kValidity = kSchema.safeParse(k)
+			const vValidity = vSchema.safeParse(v)
+			if (!kValidity.valid) errors.push(`contains an invalid key ${k}`)
+			if (!vValidity.valid) errors.push(`contains an invalid value for key ${k}`)
+			if (kValidity.valid && vValidity.valid) {
+				if (k !== kValidity.value) delete obj[k]
+				obj[kValidity.value] = vValidity.value
+			}
+		}
+		if (errors.length) throw new PipeError(errors, input)
+		return obj
+	}, {})
+
+export const asMap = <K extends PropertyKey, V>() =>
+	makePipe<Record<K, V>, Map<K, V>>((input) => new Map<K, V>(Object.entries(input) as any), {})

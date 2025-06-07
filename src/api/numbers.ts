@@ -1,33 +1,33 @@
-import { isInt, isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../rules'
-import { VCore } from './core'
+import { makePipe, PipeError } from './base'
 
-export class VNumber extends VCore<number> {
-	constructor(err?: string) {
-		super()
-		this.addTyping(isNumber(err))
-	}
+export const gt = (value: number, err = `must be greater than ${value}`) =>
+	makePipe<number>((input) => {
+		if (input > value) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	gt(value: number, err?: string) {
-		return this.addRule(isMoreThan(value, err))
-	}
+export const gte = (value: number, err = `must be greater than or equal to ${value}`) =>
+	makePipe<number>((input) => {
+		if (input >= value) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	gte(value: number, err?: string) {
-		return this.addRule(isMoreThanOrEqualTo(value, err))
-	}
+export const lt = (value: number, err = `must be less than ${value}`) =>
+	makePipe<number>((input) => {
+		if (input < value) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	lt(value: number, err?: string) {
-		return this.addRule(isLessThan(value, err))
-	}
+export const lte = (value: number, err = `must be less than or equal to ${value}`) =>
+	makePipe<number>((input) => {
+		if (input <= value) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	lte(value: number, err?: string) {
-		return this.addRule(isLessThanOrEqualTo(value, err))
-	}
+export const int = (error = 'is not an integer') =>
+	makePipe<number>((input) => {
+		if (input === parseInt(input as any)) return input
+		throw new PipeError([error], input)
+	}, {})
 
-	int(err?: string) {
-		return this.addRule(isInt(err))
-	}
-
-	round(dp = 0) {
-		return this.addSanitizer((val) => Number(val.toFixed(dp)))
-	}
-}
+export const asRound = (dp = 0) => makePipe<number>((input) => Number(input.toFixed(dp)), {})

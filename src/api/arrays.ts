@@ -1,50 +1,59 @@
-import { hasLengthOf, hasMaxOf, hasMinOf, isArray, isArrayOf } from '../rules'
-import { VCore } from './core'
-import { makeRule } from '../utils/rules'
+import { makePipe, PipeError, type Pipe, type PipeOutput } from './base'
 
-export class VArray<I> extends VCore<I[]> {
-	constructor(comparer: VCore<I>, err?: string) {
-		super()
-		this.addTyping(isArray(err))
-		this.addTyping(
-			makeRule<I[]>((value) => {
-				const mapped = ((value as I[]) ?? []).reduce(
-					(acc, cur) => {
-						const comp = comparer.parse(cur)
-						acc[0].push(comp.value)
-						acc[1].push(comp.valid)
-						return acc
-					},
-					[[] as any[], [] as boolean[]] as const,
-				)
-				return isArrayOf<I>((_, i) => mapped[1][i], err)(mapped[0])
-			}),
-		)
-	}
-
-	has(length: number, err?: string) {
-		return this.addRule(hasLengthOf(length, err))
-	}
-
-	min(length: number, err?: string) {
-		return this.addRule(hasMinOf(length, err))
-	}
-
-	max(length: number, err?: string) {
-		return this.addRule(hasMaxOf(length, err))
-	}
-
-	set(keyFn: (v: I) => any = (v) => v) {
-		return this.addSanitizer((val) => {
-			const finalArr: I[] = []
-			const obj: Record<any, boolean> = {}
-			val.forEach((v) => {
-				const key = keyFn(v)
-				if (obj[key]) return
-				obj[key] = true
-				finalArr.push(v)
-			})
-			return finalArr
+export const array = <T>(schema: Pipe<unknown, T>) =>
+	makePipe<unknown, T[]>((input) => {
+		if (!Array.isArray(input)) throw new PipeError(['is not an array'], input)
+		if (input.length === 0) return input
+		return input.map((i, idx) => {
+			const validity = schema.safeParse(i)
+			if (!validity.valid)
+				throw validity.error.withMessages([`contains an invalid value at index ${idx}`, ...validity.error.messages])
+			return validity.value
 		})
-	}
-}
+	}, {})
+
+export const tuple = <T extends ReadonlyArray<Pipe<unknown, unknown>>>(schemas: readonly [...T], err?: string) =>
+	makePipe<unknown, { [K in keyof T]: PipeOutput<T[K]> }>((input) => {
+		if (!Array.isArray(input)) throw new PipeError(['is not an array'], input)
+		if (schemas.length !== input.length) throw new PipeError([`expected ${schemas.length} but got ${input.length} items`], input)
+		if (input.length === 0) return input as any
+		return input.map((i, idx) => {
+			const value = schemas[idx].safeParse(i)
+			if ('error' in value)
+				throw err
+					? value.error.withMessages([err ?? `contains an invalid value at index ${idx}`, ...value.error.messages])
+					: value.error
+			return value.value
+		}) as any
+	}, {})
+
+export const contains = <T>(length: number, err = `must contain ${length} items`) =>
+	makePipe<T[]>((input) => {
+		if (input.length === length) return input
+		throw new PipeError([err], input)
+	}, {})
+
+export const containsMin = <T>(length: number, err = `must contain ${length} or more items`) =>
+	makePipe<T[]>((input) => {
+		if (input.length >= length) return input
+		throw new PipeError([err], input)
+	}, {})
+
+export const containsMax = <T>(length: number, err = `must contain ${length} or less items`) =>
+	makePipe<T[]>((input) => {
+		if (input.length <= length) return input
+		throw new PipeError([err], input)
+	}, {})
+
+export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
+	makePipe<T[]>((input) => {
+		const obj: Record<PropertyKey, boolean> = {}
+		return input.reduce<T[]>((acc, cur) => {
+			const key = keyFn(cur)
+			if (!obj[key]) {
+				obj[key] = true
+				acc.push(cur)
+			}
+			return acc
+		}, [])
+	}, {})

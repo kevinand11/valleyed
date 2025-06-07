@@ -1,32 +1,30 @@
-import type { Timeable } from '../rules'
-import { isEarlierThan, isLaterThan, isTime } from '../rules'
-import { VCore } from './core'
+import { makePipe, PipeError } from './base'
 
-export type { Timeable }
+export type Timeable = Date | string | number
 
-export class VTime<T extends Timeable = Timeable> extends VCore<T> {
-	constructor(err?: string) {
-		super()
-		this.addTyping(isTime(err))
-	}
+export const time = (err = 'is not a valid datetime') =>
+	makePipe<unknown, Date>((input) => {
+		if (input instanceof Date) return input
+		if (typeof input === 'number' || typeof input === 'string') {
+			const date = new Date(input as any)
+			if (!isNaN(date.getTime())) return date
+		}
+		throw new PipeError([err], input)
+	}, {})
 
-	min(compare: Timeable, err?: string) {
-		return this.addRule(isLaterThan(compare, err))
-	}
+export const after = (compare: Timeable, err = 'is not later than compared value') =>
+	makePipe<Date>((input) => {
+		const compareDate = new Date(compare)
+		if (input > compareDate) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	max(compare: Timeable, err?: string) {
-		return this.addRule(isEarlierThan(compare, err))
-	}
+export const before = (compare: Timeable, err = 'is not earlier than compared value') =>
+	makePipe<Date>((input) => {
+		const compareDate = new Date(compare)
+		if (input < compareDate) return input
+		throw new PipeError([err], input)
+	}, {})
 
-	asStamp() {
-		return this.transform((v) => new Date(v).valueOf())
-	}
-
-	asString() {
-		return this.transform((v) => new Date(v).toString())
-	}
-
-	asDate() {
-		return this.transform((v) => new Date(v))
-	}
-}
+export const asStamp = () => makePipe<Date, number>((input) => input.valueOf(), {})
+export const asISOString = () => makePipe<Date, string>((input) => input.toISOString(), {})
