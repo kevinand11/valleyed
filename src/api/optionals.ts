@@ -76,3 +76,10 @@ export const defaults = <T extends Pipe<any, any, object>>(branch: T, def: Funct
 			}
 		},
 	)
+
+export const defaultOnFail = <T extends Pipe<any, any, object>>(branch: T, def: FunctionOrValue<PipeInput<T>>) =>
+	makePipe<PipeInput<T>, Exclude<PipeOutput<T>, undefined>>((input) => {
+		const validity = branch.safeParse(input)
+		if (validity.valid) return validity.value
+		return typeof def === 'function' ? (def as Function)() : def
+	}, {})
