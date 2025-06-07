@@ -1,37 +1,37 @@
 import { makePipe, PipeError } from './base'
 
 const isString = (err = 'is not a string') =>
-	makePipe<unknown, string>((input) => {
+	makePipe<string>((input: unknown) => {
 		if (typeof input === 'string' || input?.constructor?.name === 'String') return input as string
 		throw new PipeError([err], input)
 	}, {})
 
 const isNumber = (err = 'is not a number') =>
-	makePipe<unknown, number>((input) => {
+	makePipe<number>((input: unknown) => {
 		if (typeof input === 'number' && !isNaN(input)) return input
 		throw new PipeError([err], input)
 	}, {})
 
 const isBoolean = (err = 'is not a boolean') =>
-	makePipe<unknown, boolean>((input) => {
+	makePipe<boolean>((input: unknown) => {
 		if (input === true || input === false) return input
 		throw new PipeError([err], input)
 	}, {})
 
 const isNull = (err = 'is not null') =>
-	makePipe<unknown, null>((input) => {
+	makePipe<null>((input: unknown) => {
 		if (input === null) return input
 		throw new PipeError([err], input)
 	}, {})
 
 const isUndefined = (err = 'is not undefined') =>
-	makePipe<unknown, undefined>((input) => {
+	makePipe<undefined>((input: unknown) => {
 		if (input === undefined) return input
 		throw new PipeError([err], input)
 	}, {})
 
 export const isInstanceof = <T>(classDef: new () => T, err = `is not an instance of ${classDef.name}`) =>
-	makePipe<unknown, T>((input) => {
+	makePipe<T>((input: unknown) => {
 		if (input instanceof classDef) return input as T
 		throw new PipeError([err], input)
 	}, {})

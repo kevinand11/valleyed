@@ -3,7 +3,7 @@ import { makePipe, PipeError } from './base'
 export type Timeable = Date | string | number
 
 export const time = (err = 'is not a valid datetime') =>
-	makePipe<unknown, Date>((input) => {
+	makePipe<Date>((input: unknown) => {
 		if (input instanceof Date) return input
 		if (typeof input === 'number' || typeof input === 'string') {
 			const date = new Date(input as any)

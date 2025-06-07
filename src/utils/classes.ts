@@ -17,7 +17,7 @@ type Accessor<Keys extends Record<string, any>> = {
 }
 
 class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never> {
-	public readonly __ignoreInJSON: Ignored[] = []
+	public readonly __ignoreInJSON: ReadonlyArray<Ignored> = []
 
 	constructor(
 		keys: Keys,

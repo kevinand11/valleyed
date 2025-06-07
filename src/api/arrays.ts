@@ -1,7 +1,7 @@
-import { makePipe, PipeError, type Pipe, type PipeOutput } from './base'
+import { makePipe, PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
 
-export const array = <T>(schema: Pipe<unknown, T>) =>
-	makePipe<unknown, T[]>((input) => {
+export const array = <T extends Pipe<any, any, object>>(schema: T) =>
+	makePipe<PipeInput<T>[], PipeOutput<T>[]>((input: unknown) => {
 		if (!Array.isArray(input)) throw new PipeError(['is not an array'], input)
 		if (input.length === 0) return input
 		return input.map((i, idx) => {
@@ -12,8 +12,8 @@ export const array = <T>(schema: Pipe<unknown, T>) =>
 		})
 	}, {})
 
-export const tuple = <T extends ReadonlyArray<Pipe<unknown, unknown>>>(schemas: readonly [...T], err?: string) =>
-	makePipe<unknown, { [K in keyof T]: PipeOutput<T[K]> }>((input) => {
+export const tuple = <T extends ReadonlyArray<Pipe<any, any, object>>>(schemas: readonly [...T], err?: string) =>
+	makePipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>((input: unknown) => {
 		if (!Array.isArray(input)) throw new PipeError(['is not an array'], input)
 		if (schemas.length !== input.length) throw new PipeError([`expected ${schemas.length} but got ${input.length} items`], input)
 		if (input.length === 0) return input as any

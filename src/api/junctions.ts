@@ -10,14 +10,14 @@ export const or = <T extends Pipe<any, any>[]>(branches: T, err = 'doesnt match 
 		throw new PipeError([err], input)
 	}, {})
 
-export const and = <T>(branches: Pipe<T>[], err?: string) =>
-	makePipe<T>((input) => {
+export const and = <T extends Pipe<any, any>>(branches: T[], err?: string) =>
+	makePipe<PipeInput<T>, PipeOutput<T>>((input) => {
 		for (const branch of branches) {
 			const validity = branch.safeParse(input)
 			if (!validity.valid) throw err ? validity.error.withMessages([err]) : validity.error
 			input = validity.value
 		}
-		return input as T
+		return input as any
 	}, {})
 
 export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(

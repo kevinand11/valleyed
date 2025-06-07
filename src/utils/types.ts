@@ -33,6 +33,8 @@ export type JSONValue<T> = Prettify<
 						: never
 >
 
+export type Primitive = JSONPrimitives | bigint | undefined | object
+
 export type Prettify<T> = T extends object
 	? {
 			[K in keyof T]: T[K]

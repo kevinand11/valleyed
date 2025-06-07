@@ -1,11 +1,11 @@
-import { makePipe, PipeError, PipeOutput, type Pipe } from './base'
+import { makePipe, PipeError, PipeInput, PipeOutput, type Pipe } from './base'
 import { Prettify } from '../utils/types'
 
 export const object = <T extends Record<string, Pipe<any, any, object>>>(schema: T, trim = true, err?: string) =>
 	makePipe(
-		(input: unknown): { [K in keyof T]: PipeOutput<T[K]> } => {
+		(input: { [K in keyof T]: PipeInput<T[K]> }): { [K in keyof T]: PipeOutput<T[K]> } => {
 			if (typeof input !== 'object' || input === null || Array.isArray(input)) throw new PipeError(['is not an object'], input)
-			const obj = structuredClone(input)
+			const obj = structuredClone(input) as any
 			const keys = new Set([...Object.keys(obj ?? {}), ...Object.keys(schema)])
 			const errors: string[] = []
 			for (const key of keys) {
@@ -18,7 +18,7 @@ export const object = <T extends Record<string, Pipe<any, any, object>>>(schema:
 				else obj[key] = validity.value
 			}
 			if (errors.length) throw new PipeError(err ? [err] : errors, input)
-			return obj as any
+			return obj
 		},
 		{
 			extends: <S extends Record<string, Pipe<unknown, unknown>>>(s: S) =>
@@ -33,10 +33,10 @@ export const object = <T extends Record<string, Pipe<any, any, object>>>(schema:
 		},
 	)
 
-export const record = <K extends PropertyKey, V>(kSchema: Pipe<unknown, K>, vSchema: Pipe<unknown, V>) =>
-	makePipe<unknown, Record<K, V>>((input) => {
+export const record = <K extends Pipe<any, PropertyKey, any>, V extends Pipe<any, any, any>>(kSchema: K, vSchema: V) =>
+	makePipe<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>>((input: unknown) => {
 		if (typeof input !== 'object' || input === null || Array.isArray(input)) throw new PipeError(['is not an object'], input)
-		const obj = structuredClone(input) as Record<K, V>
+		const obj = structuredClone(input)
 		const errors: string[] = []
 		for (const [k, v] of Object.entries(obj)) {
 			const kValidity = kSchema.safeParse(k)
@@ -49,7 +49,7 @@ export const record = <K extends PropertyKey, V>(kSchema: Pipe<unknown, K>, vSch
 			}
 		}
 		if (errors.length) throw new PipeError(errors, input)
-		return obj
+		return obj as any
 	}, {})
 
 export const asMap = <K extends PropertyKey, V>() =>
