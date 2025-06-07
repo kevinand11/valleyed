@@ -16,7 +16,7 @@ export const eq = <T extends Primitive>(
 	makePipe<T>((input) => {
 		if (input === compare || comparer(input, compare)) return input as T
 		throw new PipeError([err], input)
-	}, {})
+	}, {}, (schema) => ({ ...schema, const: compare }))
 
 export const is = eq
 
@@ -24,7 +24,7 @@ export const ne = <T>(compare: T, comparer = equal as (val: any, compare: T) => 
 	makePipe<T>((input) => {
 		if (!comparer(input, compare) && input !== compare) return input as T
 		throw new PipeError([err], input)
-	}, {})
+	}, {}, (schema) => ({ ...schema, not: { const: compare } }))
 
 const inArray = <T extends Primitive>(
 	array: Readonly<T[]>,
@@ -34,7 +34,7 @@ const inArray = <T extends Primitive>(
 	makePipe<T>((input) => {
 		if (array.find((x) => comparer(input, x))) return input as T
 		throw new PipeError([err], input)
-	}, {})
+	}, {}, (schema) => ({ ...schema, enum: [...array] }))
 
 export const nin = <T>(
 	array: Readonly<T[]>,
@@ -44,6 +44,6 @@ export const nin = <T>(
 	makePipe<T>((input) => {
 		if (!array.find((x) => comparer(input, x))) return input as T
 		throw new PipeError([err], input)
-	}, {})
+	}, {}, (schema) => ({ ...schema, not: { enum: [...array] } }))
 
 export { inArray as in }

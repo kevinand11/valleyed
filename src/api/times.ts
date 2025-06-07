@@ -3,14 +3,18 @@ import { makePipe, PipeError } from './base'
 export type Timeable = Date | string | number
 
 export const time = (err = 'is not a valid datetime') =>
-	makePipe<Date>((input: unknown) => {
-		if (input instanceof Date) return input
-		if (typeof input === 'number' || typeof input === 'string') {
-			const date = new Date(input as any)
-			if (!isNaN(date.getTime())) return date
-		}
-		throw new PipeError([err], input)
-	}, {})
+	makePipe<Date>(
+		(input: unknown) => {
+			if (input instanceof Date) return input
+			if (typeof input === 'number' || typeof input === 'string') {
+				const date = new Date(input as any)
+				if (!isNaN(date.getTime())) return date
+			}
+			throw new PipeError([err], input)
+		},
+		{},
+		(schema) => ({ ...schema, oneOf: [{ type: 'string', format: 'date-time' }, { type: 'int' }] }),
+	)
 
 export const after = (compare: Timeable, err = 'is not later than compared value') =>
 	makePipe<Date>((input) => {

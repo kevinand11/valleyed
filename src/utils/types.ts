@@ -68,3 +68,32 @@ export type Paths<T, D = never> = T extends StopTypes
 		: T extends readonly any[]
 			? Paths<T[number]>
 			: D
+
+export interface JsonSchema {
+	type?: string | string[]
+	format?: string
+	pattern?: string
+	minimum?: number
+	maximum?: number
+	exclusiveMinimum?: number
+	exclusiveMaximum?: number
+	minLength?: number
+	maxLength?: number
+	minItems?: number
+	maxItems?: number
+	items?: JsonSchema | JsonSchema[]
+	properties?: Record<string, JsonSchema>
+	required?: string[]
+	additionalProperties?: boolean | JsonSchema
+	propertyNames?: JsonSchema
+	enum?: any[]
+	anyOf?: JsonSchema[]
+	allOf?: JsonSchema[]
+	oneOf?: JsonSchema[]
+	const?: any
+	not?: JsonSchema
+	title?: string
+	description?: string
+	default?: any
+	examples?: any[]
+}

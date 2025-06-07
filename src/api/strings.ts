@@ -3,34 +3,54 @@ import * as fns from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
 export const has = (length: number, stripHTMLTags = false, err = `must contain ${length} characters`) =>
-	makePipe<string>((input) => {
-		if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length === length) return input
-		throw new PipeError([err], input)
-	}, {})
+	makePipe<string>(
+		(input) => {
+			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length === length) return input
+			throw new PipeError([err], input)
+		},
+		{},
+		(schema) => ({ ...schema, minLength: length, maxLength: length }),
+	)
 
 export const min = (length: number, stripHTMLTags = false, err = `must contain ${length} or more characters`) =>
-	makePipe<string>((input) => {
-		if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length >= length) return input
-		throw new PipeError([err], input)
-	}, {})
+	makePipe<string>(
+		(input) => {
+			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length >= length) return input
+			throw new PipeError([err], input)
+		},
+		{},
+		(schema) => ({ ...schema, minLength: length }),
+	)
 
 export const max = (length: number, stripHTMLTags = false, err = `must contain ${length} or less characters`) =>
-	makePipe<string>((input) => {
-		if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length <= length) return input
-		throw new PipeError([err], input)
-	}, {})
+	makePipe<string>(
+		(input) => {
+			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length <= length) return input
+			throw new PipeError([err], input)
+		},
+		{},
+		(schema) => ({ ...schema, maxLength: length }),
+	)
 
 export const email = (err = 'is not a valid email') =>
-	makePipe<string>((input) => {
-		if (emailRegex.test(input)) return input
-		throw new PipeError([err], input)
-	}, {})
+	makePipe<string>(
+		(input) => {
+			if (emailRegex.test(input)) return input
+			throw new PipeError([err], input)
+		},
+		{},
+		(schema) => ({ ...schema, format: 'email' }),
+	)
 
 export const url = (err = 'is not a valid url') =>
-	makePipe<string>((input) => {
-		if (urlRegex().test(input)) return input
-		throw new PipeError([err], input)
-	}, {})
+	makePipe<string>(
+		(input) => {
+			if (urlRegex().test(input)) return input
+			throw new PipeError([err], input)
+		},
+		{},
+		(schema) => ({ ...schema, format: 'uri' }),
+	)
 
 export const asTrim = () => makePipe<string>((input) => input.trim(), {})
 

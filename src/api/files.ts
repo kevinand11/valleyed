@@ -13,11 +13,15 @@ export const imageMimeTypes = fileMimeTypes.filter((mime) => mime.startsWith('im
 const isFile = (v: unknown): v is File => typeof v === 'object' && !!v && 'type' in v
 
 export const file = (err = 'is not a recognized file') =>
-	makePipe<File>((input) => {
-		const validInput = isFile(input)
-		if (validInput && fileMimeTypes.includes(input.type)) return input
-		throw new PipeError([err], input)
-	}, {})
+	makePipe<File>(
+		(input) => {
+			const validInput = isFile(input)
+			if (validInput && fileMimeTypes.includes(input.type)) return input
+			throw new PipeError([err], input)
+		},
+		{},
+		(schema) => ({ ...schema, type: 'string', format: 'binary' }),
+	)
 
 export const image = (err = 'is not a recognized image file') =>
 	makePipe<File>((input) => {

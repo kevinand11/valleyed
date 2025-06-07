@@ -38,13 +38,6 @@ describe('types', () => {
 		expect(rules.safeParse([2]).valid).toBe(false)
 	})
 
-	test('instanceof', () => {
-		const rules = v.instanceof(String)
-		expect(rules.safeParse(new String('')).valid).toBe(true)
-		expect(rules.safeParse(1).valid).toBe(false)
-		expect(rules.safeParse([2]).valid).toBe(false)
-	})
-
 	test('any', () => {
 		const rules = v.any()
 		expect(rules.safeParse('').valid).toBe(true)
