@@ -1,6 +1,5 @@
 import { makePipe, PipeError, PipeInput, PipeOutput, type Pipe } from './base'
 import { optionalTag } from './optionals'
-import { Prettify } from '../utils/types'
 
 export const object = <T extends Record<string, Pipe<any, any, object>>>(pipes: T, trim = true, err?: string) =>
 	makePipe(
@@ -23,7 +22,7 @@ export const object = <T extends Record<string, Pipe<any, any, object>>>(pipes: 
 		},
 		{
 			extends: <S extends Record<string, Pipe<unknown, unknown>>>(s: S) =>
-				object<Prettify<Omit<T, keyof S> & S>>(
+				object<Omit<T, keyof S> & S>(
 					{
 						...pipes,
 						...s,
@@ -32,8 +31,8 @@ export const object = <T extends Record<string, Pipe<any, any, object>>>(pipes: 
 					err,
 				),
 		},
-		(baseSchema) => ({
-			...baseSchema,
+		(schema) => ({
+			...schema,
 			type: 'object',
 			properties: Object.fromEntries(Object.entries(pipes).map(([key, pipe]) => [key, pipe.toJsonSchema()])),
 			required: Object.entries(pipes)
