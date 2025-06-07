@@ -1,9 +1,9 @@
 import { JsonSchema, Prettify } from '../utils/types'
 
 export type PipeFn<I, O = I> = (input: I) => O
-export type PipeInput<T extends Pipe<any, any, any>> = T extends Pipe<infer I, any, any> ? Prettify<I> : never
-export type PipeOutput<T extends Pipe<any, any, any>> = T extends Pipe<any, infer O, any> ? Prettify<O> : never
-export type PipeContext<T extends Pipe<any, any, any>> = T extends Pipe<any, any, infer C> ? Prettify<C> : never
+export type PipeInput<T> = T extends Pipe<infer I, any, any> ? Prettify<I> : never
+export type PipeOutput<T> = T extends Pipe<any, infer O, any> ? Prettify<O> : never
+export type PipeContext<T> = T extends Pipe<any, any, infer C> ? Prettify<C> : never
 export type PipeMeta = Pick<JsonSchema, 'title' | 'description' | 'examples' | 'default'>
 export type JsonSchemaBuilder = (schema: JsonSchema) => JsonSchema
 
