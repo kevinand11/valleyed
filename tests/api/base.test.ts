@@ -7,7 +7,7 @@ describe('base', () => {
 		const pipe = makePipe((x: number) => x + 1, {}).pipe((x) => x * 2)
 		expect(pipe.parse(5)).toEqual(12)
 		const errPipe = pipe.pipe((i) => {
-			if (i < 1000) throw new PipeError(['pipe error'], 0)
+			if (i < 1000) throw PipeError.root('pipe error', 0)
 			return i
 		})
 		expect(() => errPipe.parse(5)).toThrow(PipeError)
@@ -16,7 +16,7 @@ describe('base', () => {
 	test('safeParse', () => {
 		const pipe = makePipe((x: number) => x + 1, {}).pipe((x) => x * 2)
 		expect(pipe.safeParse(5)).toEqual({ value: 12, valid: true })
-		const err = new PipeError(['pipe error'], 0)
+		const err = PipeError.root('pipe error', 0)
 		const errPipe = pipe.pipe((i) => {
 			if (i < 1000) throw err
 			return i

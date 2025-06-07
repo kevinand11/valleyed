@@ -6,7 +6,7 @@ export const has = (length: number, stripHTMLTags = false, err = `must contain $
 	makePipe<string>(
 		(input) => {
 			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length === length) return input
-			throw new PipeError([err], input)
+			throw PipeError.root(err, input)
 		},
 		{},
 		(schema) => ({ ...schema, minLength: length, maxLength: length }),
@@ -16,7 +16,7 @@ export const min = (length: number, stripHTMLTags = false, err = `must contain $
 	makePipe<string>(
 		(input) => {
 			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length >= length) return input
-			throw new PipeError([err], input)
+			throw PipeError.root(err, input)
 		},
 		{},
 		(schema) => ({ ...schema, minLength: length }),
@@ -26,7 +26,7 @@ export const max = (length: number, stripHTMLTags = false, err = `must contain $
 	makePipe<string>(
 		(input) => {
 			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length <= length) return input
-			throw new PipeError([err], input)
+			throw PipeError.root(err, input)
 		},
 		{},
 		(schema) => ({ ...schema, maxLength: length }),
@@ -36,7 +36,7 @@ export const email = (err = 'is not a valid email') =>
 	makePipe<string>(
 		(input) => {
 			if (emailRegex.test(input)) return input
-			throw new PipeError([err], input)
+			throw PipeError.root(err, input)
 		},
 		{},
 		(schema) => ({ ...schema, format: 'email' }),
@@ -46,7 +46,7 @@ export const url = (err = 'is not a valid url') =>
 	makePipe<string>(
 		(input) => {
 			if (urlRegex().test(input)) return input
-			throw new PipeError([err], input)
+			throw PipeError.root(err, input)
 		},
 		{},
 		(schema) => ({ ...schema, format: 'uri' }),

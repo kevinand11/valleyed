@@ -3,33 +3,41 @@ import { makePipe, PipeError, PipeInput, type Pipe, type PipeOutput } from './ba
 export const array = <T extends Pipe<any, any, object>>(pipe: T) =>
 	makePipe<PipeInput<T>[], PipeOutput<T>[]>(
 		(input: unknown) => {
-			if (!Array.isArray(input)) throw new PipeError(['is not an array'], input)
+			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
 			if (input.length === 0) return input
-			return input.map((i, idx) => {
+			const res = input.map((i, idx) => {
 				const validity = pipe.safeParse(i)
-				if (!validity.valid)
-					throw validity.error.withMessages([`contains an invalid value at index ${idx}`, ...validity.error.messages])
+				if (!validity.valid) return PipeError.path(idx, validity.error, i)
 				return validity.value
 			})
+			if (res.some((r) => r instanceof PipeError))
+				throw PipeError.rootFrom(
+					res.filter((r) => r instanceof PipeError),
+					input,
+				)
+			return res
 		},
 		{},
 		(schema) => ({ ...schema, type: 'array', items: pipe.toJsonSchema() }),
 	)
 
-export const tuple = <T extends ReadonlyArray<Pipe<any, any, object>>>(pipes: readonly [...T], err?: string) =>
+export const tuple = <T extends ReadonlyArray<Pipe<any, any, object>>>(pipes: readonly [...T]) =>
 	makePipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>(
 		(input: unknown) => {
-			if (!Array.isArray(input)) throw new PipeError(['is not an array'], input)
-			if (pipes.length !== input.length) throw new PipeError([`expected ${pipes.length} but got ${input.length} items`], input)
+			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
+			if (pipes.length !== input.length) throw PipeError.root(`expected ${pipes.length} but got ${input.length} items`, input)
 			if (input.length === 0) return input as any
-			return input.map((i, idx) => {
-				const value = pipes[idx].safeParse(i)
-				if ('error' in value)
-					throw err
-						? value.error.withMessages([err ?? `contains an invalid value at index ${idx}`, ...value.error.messages])
-						: value.error
-				return value.value
-			}) as any
+			const res = input.map((i, idx) => {
+				const validitity = pipes[idx].safeParse(i)
+				if ('error' in validitity) return PipeError.path(idx, validitity.error, i)
+				return validitity.value
+			})
+			if (res.some((r) => r instanceof PipeError))
+				throw PipeError.rootFrom(
+					res.filter((r) => r instanceof PipeError),
+					input,
+				)
+			return res
 		},
 		{},
 		(schema) => ({
@@ -45,7 +53,7 @@ export const contains = <T>(length: number, err = `must contain ${length} items`
 	makePipe<T[]>(
 		(input) => {
 			if (input.length === length) return input
-			throw new PipeError([err], input)
+			throw PipeError.root(err, input)
 		},
 		{},
 		(schema) => ({ ...schema, minItems: length, maxItems: length }),
@@ -55,7 +63,7 @@ export const containsMin = <T>(length: number, err = `must contain ${length} or 
 	makePipe<T[]>(
 		(input) => {
 			if (input.length >= length) return input
-			throw new PipeError([err], input)
+			throw PipeError.root(err, input)
 		},
 		{},
 		(schema) => ({ ...schema, minItems: length }),
@@ -65,7 +73,7 @@ export const containsMax = <T>(length: number, err = `must contain ${length} or 
 	makePipe<T[]>(
 		(input) => {
 			if (input.length <= length) return input
-			throw new PipeError([err], input)
+			throw PipeError.root(err, input)
 		},
 		{},
 		(schema) => ({ ...schema, maxItems: length }),

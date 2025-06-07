@@ -1,25 +1,28 @@
 import { makePipe, Pipe, PipeError, PipeInput, PipeOutput } from './base'
 import { wrapInTryCatch } from '../utils/functions'
 
-export const or = <T extends Pipe<any, any>[]>(pipes: T, err = 'doesnt match any of the schema') =>
+export const or = <T extends Pipe<any, any>[]>(pipes: T) =>
 	makePipe<PipeInput<T[number]>, PipeOutput<T[number]>>(
 		(input) => {
-			for (const pipe of pipes) {
+			if (pipes.length === 0) return input as any
+			const errors: PipeError[] = []
+			for (const [idx, pipe] of Object.entries(pipes)) {
 				const validity = pipe.safeParse(input)
 				if (validity.valid) return validity.value
+				errors.push(PipeError.path(idx, validity.error, input))
 			}
-			throw new PipeError([err], input)
+			throw errors[0]
 		},
 		{},
 		(schema) => ({ ...schema, oneOf: pipes.map((branch) => branch.toJsonSchema()) }),
 	)
 
-export const and = <T extends Pipe<any, any>>(pipes: T[], err?: string) =>
+export const and = <T extends Pipe<any, any>>(pipes: T[]) =>
 	makePipe<PipeInput<T>, PipeOutput<T>>(
 		(input) => {
-			for (const pipe of pipes) {
+			for (const [idx, pipe] of Object.entries(pipes)) {
 				const validity = pipe.safeParse(input)
-				if (!validity.valid) throw err ? validity.error.withMessages([err]) : validity.error
+				if (!validity.valid) throw PipeError.path(idx, validity.error, input)
 				input = validity.value
 			}
 			return input as any
@@ -36,7 +39,7 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 	makePipe<PipeInput<T[keyof T]>, PipeOutput<T[keyof T]>>(
 		(input) => {
 			const accessor = wrapInTryCatch(() => discriminator(input as any))!
-			if (!schemas[accessor]) throw new PipeError([err], input)
+			if (!schemas[accessor]) throw PipeError.root(err, input)
 			return schemas[accessor].parse(input)
 		},
 		{},
