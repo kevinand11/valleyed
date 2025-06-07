@@ -1,9 +1,10 @@
 import { JsonSchema, Prettify } from '../utils/types'
 
-export type JsonSchemaBuilder = (schema: JsonSchema) => JsonSchema
 export type PipeFn<I, O = I> = (input: I) => O
 export type PipeInput<T extends Pipe<any, any, any>> = T extends Pipe<infer I, any, any> ? Prettify<I> : never
 export type PipeOutput<T extends Pipe<any, any, any>> = T extends Pipe<any, infer O, any> ? Prettify<O> : never
+export type PipeMeta = Pick<JsonSchema, 'title' | 'description' | 'examples' | 'default'>
+export type JsonSchemaBuilder = (schema: JsonSchema) => JsonSchema
 
 export class PipeError extends Error {
 	constructor(
@@ -21,36 +22,28 @@ export class PipeError extends Error {
 
 export type Pipe<I, O = I, C extends object = object> = {
 	context: C
-	readonly flow: PipeFn<I, O>[]
-	readonly schemaBuilders: JsonSchemaBuilder[]
 	pipe<T>(fn: Pipe<O, T, C> | PipeFn<O, T>): Pipe<I, T, C>
 	parse(input: unknown): O
 	safeParse(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
-	toJsonSchema(): JsonSchema
+	meta(schema: PipeMeta): Pipe<I, O, C>
+	toJsonSchema(schema?: JsonSchema): JsonSchema
 }
 
 export function makePipe<I, O = I, C extends object = object>(
 	func: PipeFn<I, O>,
 	context: C,
-	schemaBuilder?: JsonSchemaBuilder,
+	schemaBuilder: JsonSchemaBuilder = () => ({}),
 ): Pipe<I, O, C> {
-	const flow: PipeFn<any, any>[] = [func]
-	const schemaBuilders: JsonSchemaBuilder[] = schemaBuilder ? [schemaBuilder] : []
+	const chain: Pipe<any, any>[] = []
+	let meta: PipeMeta = {}
 
 	const piper: Pipe<I, O, C> = {
 		context,
-		get flow() {
-			return flow
-		},
-		get schemaBuilders() {
-			return schemaBuilders
-		},
-		pipe: (fn) => {
-			flow.push(...('flow' in fn ? fn.flow : [fn]))
-			if ('schemaBuilders' in fn) schemaBuilders.push(...fn.schemaBuilders)
+		pipe: (p) => {
+			chain.push(typeof p === 'function' ? makePipe(p, context) : p)
 			return piper as any
 		},
-		parse: (input) => flow.reduce((acc, fn) => fn(acc), input as any),
+		parse: (input) => chain.reduce((acc, p) => p.parse(acc), func(input as any)),
 		safeParse: (input) => {
 			try {
 				const value = piper.parse(input)
@@ -60,7 +53,11 @@ export function makePipe<I, O = I, C extends object = object>(
 				throw error
 			}
 		},
-		toJsonSchema: () => schemaBuilders.reduce<JsonSchema>((schema, builder) => builder(schema), {}),
+		meta: (schema) => {
+			meta = { ...meta, ...schema }
+			return piper
+		},
+		toJsonSchema: (schema = {}) => chain.reduce((acc, p) => p.toJsonSchema(acc), schemaBuilder({ ...meta, ...schema })),
 	}
 	return piper
 }
