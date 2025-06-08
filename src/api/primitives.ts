@@ -50,6 +50,6 @@ const isUndefined = (err = 'is not undefined') =>
 		(schema) => ({ ...schema, type: 'undefined' }),
 	)
 
-export const isAny = <T>() => makePipe<T>((input) => input, {})
+const isAny = <T>() => makePipe<T>((input) => input, {})
 
 export { isString as string, isNumber as number, isBoolean as boolean, isNull as null, isUndefined as undefined, isAny as any }

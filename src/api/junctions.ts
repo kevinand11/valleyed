@@ -45,3 +45,14 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 		{},
 		(schema) => ({ ...schema, oneOf: Object.values(schemas).map((schema) => schema.toJsonSchema()) }),
 	)
+
+export const tryJSON = <T extends Pipe<any, any>>(pipe: T) =>
+	makePipe<PipeInput<T>, PipeOutput<T>>((input) => {
+		const validity = pipe.safeParse(input)
+		if (validity.valid) return validity.value
+		if (input?.constructor?.name !== 'String') throw validity.error
+
+		const parsed = wrapInTryCatch(() => JSON.parse(input as any), validity.error)
+		if (parsed === validity.error) throw validity.error
+		return pipe.parse(parsed)
+	}, {})
