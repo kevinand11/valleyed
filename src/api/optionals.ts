@@ -54,29 +54,24 @@ export const requiredIf = <T extends Pipe<any, any, object>>(branch: T, conditio
 
 type FunctionOrValue<T> = T | (() => T)
 
+function runDefault<T>(def: FunctionOrValue<T>): T {
+	return typeof def === 'function' ? (def as Function)() : def
+}
+
 export const defaults = <T extends Pipe<any, any, object>>(branch: T, def: FunctionOrValue<PipeInput<T>>) =>
 	makePipe<PipeInput<T>, Exclude<PipeOutput<T>, undefined>>(
-		(input) => {
-			const value = input !== undefined ? input : typeof def === 'function' ? (def as Function)() : def
-			return branch.parse(value) as any
-		},
+		(input) => branch.parse(input !== undefined ? input : runDefault(def)) as any,
 		{ [optionalTag]: true },
-		() => {
-			const defaultValue = typeof def === 'function' ? undefined : def
-			return { ...branch.toJsonSchema(), ...(defaultValue !== undefined && { default: defaultValue }) }
-		},
+		() => ({ ...branch.toJsonSchema(), default: runDefault(def) }),
 	)
 
-export const defaultOnFail = <T extends Pipe<any, any, object>>(branch: T, def: FunctionOrValue<PipeInput<T>>) =>
-	makePipe<PipeInput<T>, Exclude<PipeOutput<T>, undefined>>(
+export const defaultsOnFail = <T extends Pipe<any, any, object>>(branch: T, def: FunctionOrValue<PipeInput<T>>) =>
+	makePipe<PipeInput<T>, PipeOutput<T>>(
 		(input) => {
 			const validity = branch.safeParse(input)
 			if (validity.valid) return validity.value
-			return typeof def === 'function' ? (def as Function)() : def
+			return runDefault(def)
 		},
 		{ [optionalTag]: true },
-		() => {
-			const defaultValue = typeof def === 'function' ? undefined : def
-			return { ...branch.toJsonSchema(), ...(defaultValue !== undefined && { default: defaultValue }) }
-		},
+		() => ({ ...branch.toJsonSchema(), default: runDefault(def) }),
 	)

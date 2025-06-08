@@ -21,35 +21,39 @@ export class PipeError extends Error {
 	constructor(
 		public messages: { message: string; path?: string }[],
 		readonly value: unknown,
+		cause?: unknown,
 	) {
 		const message = messages[0]
-		super(message ? formatError(message) : 'Pipe validation error')
+		super(message ? formatError(message) : 'Pipe validation error', { cause })
 	}
 
 	toString() {
 		return this.messages.map(formatError).join('\n')
 	}
 
-	static root(messages: Arrayable<string>, value: unknown) {
+	static root(messages: Arrayable<string>, value: unknown, cause?: unknown) {
 		return new PipeError(
 			flatArray(messages).map((message) => ({ message })),
 			value,
+			cause,
 		)
 	}
 
-	static rootFrom(errors: Arrayable<PipeError>, value: unknown) {
+	static rootFrom(errors: Arrayable<PipeError>, value: unknown, cause?: unknown) {
 		return new PipeError(
 			flatArray(errors).flatMap((error) => error.messages),
 			value,
+			cause,
 		)
 	}
 
-	static path(path: PropertyKey, errors: Arrayable<PipeError>, value: unknown) {
+	static path(path: PropertyKey, errors: Arrayable<PipeError>, value: unknown, cause?: unknown) {
 		return new PipeError(
 			flatArray(errors).flatMap((error) =>
 				error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
 			),
 			value,
+			cause,
 		)
 	}
 }
@@ -77,7 +81,18 @@ export function makePipe<I, O = I, C extends object = object>(
 			chain.push(typeof p === 'function' ? makePipe(p, context) : p)
 			return piper as any
 		},
-		parse: (input) => chain.reduce((acc, p) => p.parse(acc), func(input as any)),
+		parse: (input) =>
+			chain.reduce(
+				(acc, p) => {
+					try {
+						return p.parse(acc)
+					} catch (error) {
+						if (error instanceof PipeError) throw error
+						throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
+					}
+				},
+				func(input as any),
+			),
 		safeParse: (input) => {
 			try {
 				const value = piper.parse(input)
