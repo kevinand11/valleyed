@@ -1,6 +1,5 @@
 import { makePipe, PipeError } from './base'
 import { equal } from '../utils/differ'
-import { Primitive } from '../utils/types'
 
 export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass custom rule`) =>
 	makePipe<T>((input) => {
@@ -8,11 +7,7 @@ export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass 
 		throw PipeError.root(err, input)
 	}, {})
 
-export const eq = <T extends Primitive>(
-	compare: T,
-	comparer = equal as (val: any, compare: T) => boolean,
-	err = `is not equal ${compare}`,
-) =>
+export const eq = <T>(compare: T, comparer = equal as (val: any, compare: T) => boolean, err = `is not equal ${compare}`) =>
 	makePipe<T>(
 		(input) => {
 			if (input === compare || comparer(input, compare)) return input as T
@@ -34,7 +29,7 @@ export const ne = <T>(compare: T, comparer = equal as (val: any, compare: T) => 
 		(schema) => ({ ...schema, not: { const: compare } }),
 	)
 
-const inArray = <T extends Primitive>(
+const inArray = <T>(
 	array: Readonly<T[]>,
 	comparer = equal as (val: any, arrayItem: T) => boolean,
 	err = `is not in the list: [${array.join(',')}]`,

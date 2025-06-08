@@ -13,28 +13,28 @@ export type DeepOmit<T, K, A = never> = T extends any[]
 				}
 
 export type JSONPrimitives = string | number | boolean | null
-export type IsAny<T> = T extends never ? (never extends T ? true : never) : never
-export type JSONValue<T> = Prettify<
-	T extends JSONPrimitives
-		? T
-		: T extends Array<infer U>
-			? JSONValue<U>[]
-			: T extends { toJSON: (...args: any[]) => any }
-				? ReturnType<T['toJSON']>
-				: T extends Function
-					? never
-					: T extends object
-						? {
-								[K in keyof T as JSONValue<T[K]> extends never
-									? never
-									: JSONValue<T[K]> extends undefined
-										? never
-										: K]: JSONValue<T[K]>
-							}
-						: never
+export type JSONValue = JSONPrimitives | JSONValue[] | { [k: string]: JSONValue }
+export type JSONValueOf<T> = Prettify<
+	IsAny<T> extends true
+		? {}
+		: T extends JSONPrimitives
+			? T
+			: IsInUnion<T, undefined> extends true
+				? JSONValueOf<Exclude<T, undefined>> | undefined
+				: T extends Array<infer U>
+					? JSONValueOf<U>[]
+					: T extends { toJSON: (...args: any[]) => any }
+						? ReturnType<T['toJSON']>
+						: T extends Function
+							? never
+							: T extends object
+								? {
+										[K in keyof T as IsInTypeList<JSONValueOf<T[K]>, [never, undefined]> extends true
+											? never
+											: K]: JSONValueOf<T[K]>
+									}
+								: never
 >
-
-export type Primitive = JSONPrimitives | bigint | undefined | object
 
 type ConstructorType<T> = abstract new (...args: any[]) => T
 export type Prettify<T> =
@@ -52,8 +52,8 @@ export type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> }
 
 export type DistributiveOmit<T, K extends PropertyKey> = T extends any ? Omit<T, K> : never
 
-export type Defined<T> = Exclude<T, undefined>
-
+type IsInUnion<T, U> = U extends T ? true : false
+export type IsAny<T> = 0 extends 1 & T ? true : false
 export type IsType<A, B> = Exclude<A, B> | Exclude<B, A> extends never ? true : false
 export type IsInTypeList<T, L extends any[]> = L extends [infer First, ...infer Remaining]
 	? IsType<First, T> extends true

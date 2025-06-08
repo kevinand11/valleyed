@@ -1,7 +1,7 @@
 import util from 'util'
 
 import { wrapInTryCatch } from './functions'
-import { DeepOmit, IsAny, JSONValue } from './types'
+import { DeepOmit, IsAny, JSONValueOf } from './types'
 import { Pipe } from '../api/base'
 
 if (util?.inspect?.defaultOptions) {
@@ -17,7 +17,7 @@ type Accessor<Keys extends Record<string, any>> = {
 	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void
 }
 
-export type StripK<T, K, A = never> = IsAny<K> extends true ? DeepOmit<T, never, A> : DeepOmit<T, K, A>
+type StripK<T, K, A = never> = IsAny<K> extends true ? DeepOmit<T, never, A> : DeepOmit<T, K, A>
 
 class __Wrapped<Keys extends Record<string, unknown>, Ignored extends string = never> {
 	public readonly __ignoreInJSON: ReadonlyArray<Ignored> = []
@@ -52,7 +52,7 @@ class __Wrapped<Keys extends Record<string, unknown>, Ignored extends string = n
 		return options.stylize(this.constructor.name, options) + ' ' + inspect(this.toJSON(), options)
 	}
 
-	toJSON(includeIgnored = false): JSONValue<StripK<this, Ignored, '__ignoreInJSON'>> {
+	toJSON(includeIgnored = false): JSONValueOf<StripK<this, Ignored, '__ignoreInJSON'>> {
 		const json: Record<string, any> = {}
 		Object.keys(this)
 			.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))
