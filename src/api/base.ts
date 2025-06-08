@@ -5,7 +5,7 @@ export type PipeInput<T> = T extends Pipe<infer I, any, any> ? Prettify<I> : nev
 export type PipeOutput<T> = T extends Pipe<any, infer O, any> ? Prettify<O> : never
 export type PipeContext<T> = T extends Pipe<any, any, infer C> ? Prettify<C> : never
 export type PipeMeta = Pick<JsonSchema, 'title' | 'description' | 'examples' | 'default'>
-export type JsonSchemaBuilder = (schema: JsonSchema) => JsonSchema
+export type JsonSchemaBuilder = JsonSchema | (() => JsonSchema)
 
 type Arrayable<T> = T | T[]
 
@@ -66,7 +66,7 @@ export type Pipe<I, O = I, C extends object = object> = {
 export function makePipe<I, O = I, C extends object = object>(
 	func: PipeFn<I, O>,
 	context: C,
-	schemaBuilder: JsonSchemaBuilder = () => ({}),
+	pipeSchema: JsonSchemaBuilder = {},
 ): Pipe<I, O, C> {
 	const chain: Pipe<any, any>[] = []
 	let meta: PipeMeta = {}
@@ -91,7 +91,12 @@ export function makePipe<I, O = I, C extends object = object>(
 			meta = { ...meta, ...schema }
 			return piper
 		},
-		toJsonSchema: (schema = {}) => chain.reduce((acc, p) => p.toJsonSchema(acc), schemaBuilder({ ...meta, ...schema })),
+		toJsonSchema: (schema = {}) =>
+			chain.reduce((acc, p) => p.toJsonSchema(acc), {
+				...schema,
+				...(typeof pipeSchema === 'function' ? pipeSchema() : pipeSchema),
+				...meta,
+			}),
 	}
 	return piper
 }

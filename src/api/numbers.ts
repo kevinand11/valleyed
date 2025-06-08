@@ -7,7 +7,7 @@ export const gt = (value: number, err = `must be greater than ${value}`) =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, exclusiveMinimum: value }),
+		{ exclusiveMinimum: value },
 	)
 
 export const gte = (value: number, err = `must be greater than or equal to ${value}`) =>
@@ -17,7 +17,7 @@ export const gte = (value: number, err = `must be greater than or equal to ${val
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, minimum: value }),
+		{ minimum: value },
 	)
 
 export const lt = (value: number, err = `must be less than ${value}`) =>
@@ -27,7 +27,7 @@ export const lt = (value: number, err = `must be less than ${value}`) =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, exclusiveMaximum: value }),
+		{ exclusiveMaximum: value },
 	)
 
 export const lte = (value: number, err = `must be less than or equal to ${value}`) =>
@@ -37,7 +37,7 @@ export const lte = (value: number, err = `must be less than or equal to ${value}
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, maximum: value }),
+		{ maximum: value },
 	)
 
 export const int = (err = 'is not an integer') =>
@@ -47,7 +47,7 @@ export const int = (err = 'is not an integer') =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, type: 'integer' }),
+		{ type: 'integer' },
 	)
 
 export const asRound = (dp = 0) => makePipe<number>((input) => Number(input.toFixed(dp)), {})

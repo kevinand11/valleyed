@@ -20,23 +20,35 @@ export const file = <T extends File>(err = 'is not a recognized file') =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, type: 'string', format: 'binary' }),
+		{ type: 'string', format: 'binary', contentMediaType: fileMimeTypes },
 	)
 
 export const image = <T extends File>(err = 'is not a recognized image file') =>
-	makePipe<T>((input) => {
-		if (isFile(input) && imageMimeTypes.includes(input.type)) return input
-		throw PipeError.root(err, input)
-	}, {})
+	makePipe<T>(
+		(input) => {
+			if (isFile(input) && imageMimeTypes.includes(input.type)) return input
+			throw PipeError.root(err, input)
+		},
+		{},
+		{ contentMediaType: imageMimeTypes },
+	)
 
 export const audio = <T extends File>(err = 'is not a recognized audio file') =>
-	makePipe<T>((input) => {
-		if (isFile(input) && audioMimeTypes.includes(input.type)) return input
-		throw PipeError.root(err, input)
-	}, {})
+	makePipe<T>(
+		(input) => {
+			if (isFile(input) && audioMimeTypes.includes(input.type)) return input
+			throw PipeError.root(err, input)
+		},
+		{},
+		{ contentMediaType: audioMimeTypes },
+	)
 
 export const video = <T extends File>(err = 'is not a recognized video file') =>
-	makePipe<T>((input) => {
-		if (isFile(input) && videoMimeTypes.includes(input.type)) return input
-		throw PipeError.root(err, input)
-	}, {})
+	makePipe<T>(
+		(input) => {
+			if (isFile(input) && videoMimeTypes.includes(input.type)) return input
+			throw PipeError.root(err, input)
+		},
+		{},
+		{ contentMediaType: videoMimeTypes },
+	)

@@ -7,7 +7,7 @@ const isString = (err = 'is not a string') =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, type: 'string' }),
+		{ type: 'string' },
 	)
 
 const isNumber = (err = 'is not a number') =>
@@ -17,7 +17,7 @@ const isNumber = (err = 'is not a number') =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, type: 'number' }),
+		{ type: 'number' },
 	)
 
 const isBoolean = (err = 'is not a boolean') =>
@@ -27,7 +27,7 @@ const isBoolean = (err = 'is not a boolean') =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, type: 'boolean' }),
+		{ type: 'boolean' },
 	)
 
 const isNull = (err = 'is not null') =>
@@ -37,7 +37,7 @@ const isNull = (err = 'is not null') =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, type: 'null' }),
+		{ type: 'null' },
 	)
 
 const isUndefined = (err = 'is not undefined') =>
@@ -47,7 +47,7 @@ const isUndefined = (err = 'is not undefined') =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, type: 'undefined' }),
+		{ type: 'undefined' },
 	)
 
 const isAny = <T>() => makePipe<T>((input) => input, {})

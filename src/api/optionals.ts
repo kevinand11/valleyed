@@ -1,4 +1,4 @@
-import { makePipe, Pipe, PipeInput, PipeOutput, JsonSchemaBuilder } from './base'
+import { JsonSchemaBuilder, makePipe, Pipe, PipeInput, PipeOutput } from './base'
 
 export const optionalTag = '__optional__'
 
@@ -23,20 +23,14 @@ const partial = <T extends Pipe<any, any>, P, C extends object = object>(
 	)
 
 export const nullable = <T extends Pipe<any, any, any>>(branch: T) =>
-	partial<T, null>(
-		branch,
-		(i) => i === null,
-		true,
-		(schema) => ({ ...schema, anyOf: [branch.toJsonSchema(), { type: 'null' }] }),
-		{},
-	)
+	partial<T, null>(branch, (i) => i === null, true, { anyOf: [branch.toJsonSchema(), { type: 'null' }] }, {})
 
 export const optional = <T extends Pipe<any, any, object>>(branch: T) =>
 	partial<T, undefined, Record<typeof optionalTag, boolean>>(
 		branch,
 		(i) => i === undefined,
 		true,
-		(schema) => ({ ...schema, anyOf: [branch.toJsonSchema(), { type: 'undefined' }] }),
+		() => ({ anyOf: [branch.toJsonSchema(), { type: 'undefined' }] }),
 		{ [optionalTag]: true },
 	)
 
@@ -45,7 +39,7 @@ export const nullish = <T extends Pipe<any, any, object>>(branch: T) =>
 		branch,
 		(i) => i === null || i === undefined,
 		true,
-		(schema) => ({ ...schema, anyOf: [branch.toJsonSchema(), { type: 'null' }, { type: 'undefined' }] }),
+		() => ({ anyOf: [branch.toJsonSchema(), { type: 'null' }, { type: 'undefined' }] }),
 		{ [optionalTag]: true },
 	)
 
@@ -54,7 +48,7 @@ export const requiredIf = <T extends Pipe<any, any, object>>(branch: T, conditio
 		branch,
 		() => !condition(),
 		condition(),
-		(schema) => ({ ...schema, anyOf: [branch.toJsonSchema(), { type: 'undefined' }].slice(0, condition() ? 1 : 2) }),
+		() => ({ anyOf: [branch.toJsonSchema(), { type: 'undefined' }].slice(0, condition() ? 1 : 2) }),
 		{ [optionalTag]: true },
 	)
 
@@ -66,20 +60,23 @@ export const defaults = <T extends Pipe<any, any, object>>(branch: T, def: Funct
 			const value = input !== undefined ? input : typeof def === 'function' ? (def as Function)() : def
 			return branch.parse(value) as any
 		},
-		{},
-		(schema) => {
+		{ [optionalTag]: true },
+		() => {
 			const defaultValue = typeof def === 'function' ? undefined : def
-			return {
-				...schema,
-				...branch.toJsonSchema(),
-				...(defaultValue !== undefined && { default: defaultValue }),
-			}
+			return { ...branch.toJsonSchema(), ...(defaultValue !== undefined && { default: defaultValue }) }
 		},
 	)
 
 export const defaultOnFail = <T extends Pipe<any, any, object>>(branch: T, def: FunctionOrValue<PipeInput<T>>) =>
-	makePipe<PipeInput<T>, Exclude<PipeOutput<T>, undefined>>((input) => {
-		const validity = branch.safeParse(input)
-		if (validity.valid) return validity.value
-		return typeof def === 'function' ? (def as Function)() : def
-	}, {})
+	makePipe<PipeInput<T>, Exclude<PipeOutput<T>, undefined>>(
+		(input) => {
+			const validity = branch.safeParse(input)
+			if (validity.valid) return validity.value
+			return typeof def === 'function' ? (def as Function)() : def
+		},
+		{ [optionalTag]: true },
+		() => {
+			const defaultValue = typeof def === 'function' ? undefined : def
+			return { ...branch.toJsonSchema(), ...(defaultValue !== undefined && { default: defaultValue }) }
+		},
+	)

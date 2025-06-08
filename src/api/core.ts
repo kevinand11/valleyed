@@ -14,7 +14,7 @@ export const eq = <T>(compare: T, comparer = equal as (val: any, compare: T) => 
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, const: compare }),
+		{ const: compare },
 	)
 
 export const is = eq
@@ -26,7 +26,7 @@ export const ne = <T>(compare: T, comparer = equal as (val: any, compare: T) => 
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, not: { const: compare } }),
+		{ not: { const: compare } },
 	)
 
 const inArray = <T>(
@@ -40,7 +40,7 @@ const inArray = <T>(
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, enum: [...array] }),
+		{ enum: [...array] },
 	)
 
 export const nin = <T>(
@@ -54,7 +54,7 @@ export const nin = <T>(
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, not: { enum: [...array] } }),
+		{ not: { enum: [...array] } },
 	)
 
 export { inArray as in }

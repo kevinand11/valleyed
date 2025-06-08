@@ -101,4 +101,5 @@ export interface JsonSchema {
 	description?: string
 	default?: any
 	examples?: any[]
+	contentMediaType?: string | string[]
 }

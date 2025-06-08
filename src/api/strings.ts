@@ -9,7 +9,7 @@ export const has = (length: number, stripHTMLTags = false, err = `must contain $
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, minLength: length, maxLength: length }),
+		{ minLength: length, maxLength: length },
 	)
 
 export const min = (length: number, stripHTMLTags = false, err = `must contain ${length} or more characters`) =>
@@ -19,7 +19,7 @@ export const min = (length: number, stripHTMLTags = false, err = `must contain $
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, minLength: length }),
+		{ minLength: length },
 	)
 
 export const max = (length: number, stripHTMLTags = false, err = `must contain ${length} or less characters`) =>
@@ -29,7 +29,7 @@ export const max = (length: number, stripHTMLTags = false, err = `must contain $
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, maxLength: length }),
+		{ maxLength: length },
 	)
 
 export const email = (err = 'is not a valid email') =>
@@ -39,7 +39,7 @@ export const email = (err = 'is not a valid email') =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, format: 'email' }),
+		{ format: 'email' },
 	)
 
 export const url = (err = 'is not a valid url') =>
@@ -49,7 +49,7 @@ export const url = (err = 'is not a valid url') =>
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, format: 'uri' }),
+		{ format: 'uri' },
 	)
 
 export const asTrim = () => makePipe<string>((input) => input.trim(), {})

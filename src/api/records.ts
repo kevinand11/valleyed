@@ -27,8 +27,7 @@ export const object = <T extends Record<string, Pipe<any, any, object>>>(pipes: 
 			return obj
 		},
 		{ pipes, trim },
-		(schema) => ({
-			...schema,
+		() => ({
 			type: 'object',
 			properties: Object.fromEntries(Object.entries(pipes).map(([key, pipe]) => [key, pipe.toJsonSchema()])),
 			required: Object.entries(pipes)
@@ -75,8 +74,7 @@ export const record = <K extends Pipe<any, PropertyKey, any>, V extends Pipe<any
 			return obj as any
 		},
 		{},
-		(schema) => ({
-			...schema,
+		() => ({
 			type: 'object',
 			propertyNames: kPipe.toJsonSchema(),
 			additionalProperties: vPipe.toJsonSchema(),

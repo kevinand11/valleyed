@@ -18,7 +18,7 @@ export const array = <T extends Pipe<any, any, object>>(pipe: T) =>
 			return res
 		},
 		{},
-		(schema) => ({ ...schema, type: 'array', items: pipe.toJsonSchema() }),
+		() => ({ type: 'array', items: pipe.toJsonSchema() }),
 	)
 
 export const tuple = <T extends ReadonlyArray<Pipe<any, any, object>>>(pipes: readonly [...T]) =>
@@ -40,8 +40,7 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any, object>>>(pipes: re
 			return res
 		},
 		{},
-		(schema) => ({
-			...schema,
+		() => ({
 			type: 'array',
 			items: pipes.map((pipe) => pipe.toJsonSchema()),
 			minItems: pipes.length,
@@ -56,7 +55,7 @@ export const contains = <T>(length: number, err = `must contain ${length} items`
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, minItems: length, maxItems: length }),
+		{ minItems: length, maxItems: length },
 	)
 
 export const containsMin = <T>(length: number, err = `must contain ${length} or more items`) =>
@@ -66,7 +65,7 @@ export const containsMin = <T>(length: number, err = `must contain ${length} or 
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, minItems: length }),
+		{ minItems: length },
 	)
 
 export const containsMax = <T>(length: number, err = `must contain ${length} or less items`) =>
@@ -76,7 +75,7 @@ export const containsMax = <T>(length: number, err = `must contain ${length} or 
 			throw PipeError.root(err, input)
 		},
 		{},
-		(schema) => ({ ...schema, maxItems: length }),
+		{ maxItems: length },
 	)
 
 export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
