@@ -1,7 +1,6 @@
 {
 	"extends": "@k11/ts-config/lib",
 	"compilerOptions": {
-		"baseUrl": "src",
 		"outDir": "lib",
 		"types": ["@types/node"]
 	},

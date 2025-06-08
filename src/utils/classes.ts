@@ -2,6 +2,7 @@ import util from 'util'
 
 import { wrapInTryCatch } from './functions'
 import { DeepOmit, JSONValue } from './types'
+import { Pipe } from '../api/base'
 
 if (util?.inspect?.defaultOptions) {
 	util.inspect.defaultOptions.depth = Number.MAX_SAFE_INTEGER
@@ -21,6 +22,7 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 
 	constructor(
 		keys: Keys,
+		pipe?: Pipe<Keys>,
 		access: Accessor<Keys> = {
 			get: (key, keys) => keys[key],
 			set: (key, value, keys) => {
@@ -28,6 +30,7 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 			},
 		},
 	) {
+		if (pipe) keys = pipe.parse(keys)
 		Object.keys(keys).forEach((key) => {
 			Object.defineProperty(this, key, {
 				get: () => access.get(key as keyof Keys, keys),
@@ -69,6 +72,7 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 function WrapWithProperties(): {
 	new <Keys extends Record<string, any>, Ignored extends string = never>(
 		keys: Keys,
+		pipe?: Pipe<Keys>,
 		access?: Accessor<Keys>,
 	): __Wrapped<Keys, Ignored> & Keys
 } {
@@ -76,10 +80,7 @@ function WrapWithProperties(): {
 }
 
 // @ts-expect-error invalid extends
-export class ClassPropertiesWrapper<Keys extends Record<string, any>, Ignored extends string = never> extends WrapWithProperties()<
-	Keys,
-	Ignored
-> {}
+export class DataClass<Keys extends Record<string, any>, Ignored extends string = never> extends WrapWithProperties()<Keys, Ignored> {}
 
 function deleteKeyFromObject(obj: Record<string, any>, keys: string[]) {
 	if (obj === undefined || obj === null) return
