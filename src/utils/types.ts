@@ -13,6 +13,7 @@ export type DeepOmit<T, K, A = never> = T extends any[]
 				}
 
 export type JSONPrimitives = string | number | boolean | null
+export type IsAny<T> = T extends never ? (never extends T ? true : never) : never
 export type JSONValue<T> = Prettify<
 	T extends JSONPrimitives
 		? T

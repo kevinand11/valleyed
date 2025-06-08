@@ -1,7 +1,7 @@
 import util from 'util'
 
 import { wrapInTryCatch } from './functions'
-import { DeepOmit, JSONValue } from './types'
+import { DeepOmit, IsAny, JSONValue } from './types'
 import { Pipe } from '../api/base'
 
 if (util?.inspect?.defaultOptions) {
@@ -17,7 +17,9 @@ type Accessor<Keys extends Record<string, any>> = {
 	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void
 }
 
-class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never> {
+export type StripK<T, K, A = never> = IsAny<K> extends true ? DeepOmit<T, never, A> : DeepOmit<T, K, A>
+
+class __Wrapped<Keys extends Record<string, unknown>, Ignored extends string = never> {
 	public readonly __ignoreInJSON: ReadonlyArray<Ignored> = []
 
 	constructor(
@@ -50,7 +52,7 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 		return options.stylize(this.constructor.name, options) + ' ' + inspect(this.toJSON(), options)
 	}
 
-	toJSON(includeIgnored = false): JSONValue<DeepOmit<this, Ignored, '__ignoreInJSON'>> {
+	toJSON(includeIgnored = false): JSONValue<StripK<this, Ignored, '__ignoreInJSON'>> {
 		const json: Record<string, any> = {}
 		Object.keys(this)
 			.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))
@@ -70,7 +72,7 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 }
 
 function WrapWithProperties(): {
-	new <Keys extends Record<string, any>, Ignored extends string = never>(
+	new <Keys extends Record<string, unknown>, Ignored extends string = never>(
 		keys: Keys,
 		pipe?: Pipe<Keys>,
 		access?: Accessor<Keys>,
@@ -80,7 +82,7 @@ function WrapWithProperties(): {
 }
 
 // @ts-expect-error invalid extends
-export class DataClass<Keys extends Record<string, any>, Ignored extends string = never> extends WrapWithProperties()<Keys, Ignored> {}
+export class DataClass<Keys extends Record<string, unknown>, Ignored extends string = never> extends WrapWithProperties()<Keys, Ignored> {}
 
 function deleteKeyFromObject(obj: Record<string, any>, keys: string[]) {
 	if (obj === undefined || obj === null) return
