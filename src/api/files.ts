@@ -12,8 +12,8 @@ export const imageMimeTypes = fileMimeTypes.filter((mime) => mime.startsWith('im
 
 const isFile = (v: unknown): v is File => typeof v === 'object' && !!v && 'type' in v
 
-export const file = (err = 'is not a recognized file') =>
-	makePipe<File>(
+export const file = <T extends File>(err = 'is not a recognized file') =>
+	makePipe<T>(
 		(input) => {
 			const validInput = isFile(input)
 			if (validInput && fileMimeTypes.includes(input.type)) return input
@@ -23,20 +23,20 @@ export const file = (err = 'is not a recognized file') =>
 		(schema) => ({ ...schema, type: 'string', format: 'binary' }),
 	)
 
-export const image = (err = 'is not a recognized image file') =>
-	makePipe<File>((input) => {
+export const image = <T extends File>(err = 'is not a recognized image file') =>
+	makePipe<T>((input) => {
 		if (isFile(input) && imageMimeTypes.includes(input.type)) return input
 		throw PipeError.root(err, input)
 	}, {})
 
-export const audio = (err = 'is not a recognized audio file') =>
-	makePipe<File>((input) => {
+export const audio = <T extends File>(err = 'is not a recognized audio file') =>
+	makePipe<T>((input) => {
 		if (isFile(input) && audioMimeTypes.includes(input.type)) return input
 		throw PipeError.root(err, input)
 	}, {})
 
-export const video = (err = 'is not a recognized video file') =>
-	makePipe<File>((input) => {
+export const video = <T extends File>(err = 'is not a recognized video file') =>
+	makePipe<T>((input) => {
 		if (isFile(input) && videoMimeTypes.includes(input.type)) return input
 		throw PipeError.root(err, input)
 	}, {})
