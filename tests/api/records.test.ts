@@ -12,19 +12,17 @@ describe('records', () => {
 		expect(rules.safeParse({}).valid).toBe(false)
 		expect(rules.safeParse({ name: 1 }).valid).toBe(false)
 		expect(rules.safeParse({ name: '' }).valid).toBe(true)
+	})
 
-		let res = rules.safeParse({ name: '', age: 23 })
+	test('object trim', () => {
+		const rules = v.object({
+			name: v.string(),
+		})
+		let res = v.objectTrim().pipe(rules).safeParse({ name: '', age: 23 })
 		expect(rules.safeParse({ name: '', age: 23 }).valid).toBe(true)
 		expect((res as any).value).toEqual({ name: '' })
 
-		res = v
-			.object(
-				{
-					name: v.string(),
-				},
-				false,
-			)
-			.safeParse({ name: '', age: 23 })
+		res = v.object({ name: v.string() }).safeParse({ name: '', age: 23 })
 		expect(res.valid).toBe(true)
 		expect((res as any).value).toEqual({ name: '', age: 23 })
 	})

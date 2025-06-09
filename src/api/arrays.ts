@@ -1,12 +1,12 @@
-import { makePipe, PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
+import { pipe, PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
 
-export const array = <T extends Pipe<any, any, object>>(pipe: T) =>
-	makePipe<PipeInput<T>[], PipeOutput<T>[]>(
+export const array = <T extends Pipe<any, any>>(pipeSchema: T) =>
+	pipe<PipeInput<T>[], PipeOutput<T>[]>(
 		(input: unknown) => {
 			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
 			if (input.length === 0) return input
 			const res = input.map((i, idx) => {
-				const validity = pipe.safeParse(i)
+				const validity = pipeSchema.safeParse(i)
 				if (!validity.valid) return PipeError.path(idx, validity.error, i)
 				return validity.value
 			})
@@ -17,12 +17,11 @@ export const array = <T extends Pipe<any, any, object>>(pipe: T) =>
 				)
 			return res
 		},
-		{},
-		() => ({ type: 'array', items: pipe.toJsonSchema() }),
+		{ schema: () => ({ type: 'array', items: pipeSchema.toJsonSchema() }) },
 	)
 
-export const tuple = <T extends ReadonlyArray<Pipe<any, any, object>>>(pipes: readonly [...T]) =>
-	makePipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>(
+export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(pipes: readonly [...T]) =>
+	pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>(
 		(input: unknown) => {
 			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
 			if (pipes.length !== input.length) throw PipeError.root(`expected ${pipes.length} but got ${input.length} items`, input)
@@ -39,47 +38,45 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any, object>>>(pipes: re
 				)
 			return res
 		},
-		{},
-		() => ({
-			type: 'array',
-			items: pipes.map((pipe) => pipe.toJsonSchema()),
-			minItems: pipes.length,
-			maxItems: pipes.length,
-		}),
+		{
+			schema: () => ({
+				type: 'array',
+				items: pipes.map((pipe) => pipe.toJsonSchema()),
+				minItems: pipes.length,
+				maxItems: pipes.length,
+			}),
+		},
 	)
 
 export const contains = <T>(length: number, err = `must contain ${length} items`) =>
-	makePipe<T[]>(
+	pipe<T[]>(
 		(input) => {
 			if (input.length === length) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ minItems: length, maxItems: length },
+		{ schema: { minItems: length, maxItems: length } },
 	)
 
 export const containsMin = <T>(length: number, err = `must contain ${length} or more items`) =>
-	makePipe<T[]>(
+	pipe<T[]>(
 		(input) => {
 			if (input.length >= length) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ minItems: length },
+		{ schema: { minItems: length } },
 	)
 
 export const containsMax = <T>(length: number, err = `must contain ${length} or less items`) =>
-	makePipe<T[]>(
+	pipe<T[]>(
 		(input) => {
 			if (input.length <= length) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ maxItems: length },
+		{ schema: { maxItems: length } },
 	)
 
 export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
-	makePipe<T[]>((input) => {
+	pipe<T[]>((input) => {
 		const obj: Record<PropertyKey, boolean> = {}
 		return input.reduce<T[]>((acc, cur) => {
 			const key = keyFn(cur)
@@ -89,4 +86,4 @@ export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
 			}
 			return acc
 		}, [])
-	}, {})
+	})

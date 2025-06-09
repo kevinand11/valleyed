@@ -1,4 +1,5 @@
 export * from './arrays'
+export { pipe } from './base'
 export * from './core'
 export * from './files'
 export * from './junctions'

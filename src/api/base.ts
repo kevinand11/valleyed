@@ -1,11 +1,14 @@
 import { JsonSchema, Prettify } from '../utils/types'
 
-export type PipeFn<I, O = I> = (input: I) => O
-export type PipeInput<T> = T extends Pipe<infer I, any, any> ? Prettify<I> : never
-export type PipeOutput<T> = T extends Pipe<any, infer O, any> ? Prettify<O> : never
-export type PipeContext<T> = T extends Pipe<any, any, infer C> ? C : never
+export type PipeFn<I, O = I> = (input: I, context: PipeContext) => O
+export type PipeInput<T> = T extends Pipe<infer I, any> ? Prettify<I> : never
+export type PipeOutput<T> = T extends Pipe<any, infer O> ? Prettify<O> : never
+export type PipeContext = Partial<{
+	optional: boolean
+	objectPipes: Record<string, Pipe<any, any>>
+}>
 export type PipeMeta = Pick<JsonSchema, 'title' | 'description' | 'examples' | 'default'>
-export type JsonSchemaBuilder = JsonSchema | (() => JsonSchema)
+export type JsonSchemaBuilder = JsonSchema | ((context: PipeContext) => JsonSchema)
 
 type Arrayable<T> = T | T[]
 
@@ -58,27 +61,33 @@ export class PipeError extends Error {
 	}
 }
 
-export type Pipe<I, O = I, C extends object = object> = {
-	context: C
-	pipe<T>(fn: Pipe<O, T, C> | PipeFn<O, T>): Pipe<I, T, C>
+export type Pipe<I, O = I> = {
+	readonly context: PipeContext
+	pipe<T>(fn: Pipe<O, T> | PipeFn<O, T>): Pipe<I, T>
 	parse(input: unknown): O
 	safeParse(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
-	meta(schema: PipeMeta): Pipe<I, O, C>
+	meta(schema: PipeMeta): Pipe<I, O>
 	toJsonSchema(schema?: JsonSchema): JsonSchema
 }
 
-export function makePipe<I, O = I, C extends object = object>(
+export function pipe<I, O = I>(
 	func: PipeFn<I, O>,
-	context: C,
-	pipeSchema: JsonSchemaBuilder = {},
-): Pipe<I, O, C> {
+	config: {
+		context?: PipeContext | ((context: PipeContext) => PipeContext)
+		schema?: JsonSchemaBuilder
+	} = {},
+): Pipe<I, O> {
 	const chain: Pipe<any, any>[] = []
+	const pipeSchema = config?.schema ?? {}
 	let meta: PipeMeta = {}
+	let context = typeof config?.context === 'function' ? config.context({}) : (config?.context ?? {})
 
-	const piper: Pipe<I, O, C> = {
+	const piper: Pipe<I, O> = {
 		context,
 		pipe: (p) => {
-			chain.push(typeof p === 'function' ? makePipe(p, context) : p)
+			const pp = typeof p === 'function' ? pipe(p, config) : p
+			context = { ...context, ...pp.context }
+			chain.push(pp)
 			return piper as any
 		},
 		parse: (input) =>
@@ -91,7 +100,7 @@ export function makePipe<I, O = I, C extends object = object>(
 						throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
 					}
 				},
-				func(input as any),
+				func(input as any, context),
 			),
 		safeParse: (input) => {
 			try {
@@ -109,7 +118,7 @@ export function makePipe<I, O = I, C extends object = object>(
 		toJsonSchema: (schema = {}) =>
 			chain.reduce((acc, p) => p.toJsonSchema(acc), {
 				...schema,
-				...(typeof pipeSchema === 'function' ? pipeSchema() : pipeSchema),
+				...(typeof pipeSchema === 'function' ? pipeSchema(context) : pipeSchema),
 				...meta,
 			}),
 	}

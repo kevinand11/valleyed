@@ -1,65 +1,60 @@
-import { makePipe, PipeError } from './base'
+import { pipe, PipeError } from './base'
 import * as fns from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
 export const has = (length: number, stripHTMLTags = false, err = `must contain ${length} characters`) =>
-	makePipe<string>(
+	pipe<string>(
 		(input) => {
 			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length === length) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ minLength: length, maxLength: length },
+		{ schema: { minLength: length, maxLength: length } },
 	)
 
 export const min = (length: number, stripHTMLTags = false, err = `must contain ${length} or more characters`) =>
-	makePipe<string>(
+	pipe<string>(
 		(input) => {
 			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length >= length) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ minLength: length },
+		{ schema: { minLength: length } },
 	)
 
 export const max = (length: number, stripHTMLTags = false, err = `must contain ${length} or less characters`) =>
-	makePipe<string>(
+	pipe<string>(
 		(input) => {
 			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length <= length) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ maxLength: length },
+		{ schema: { maxLength: length } },
 	)
 
 export const email = (err = 'is not a valid email') =>
-	makePipe<string>(
+	pipe<string>(
 		(input) => {
 			if (emailRegex.test(input)) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ format: 'email' },
+		{ schema: { format: 'email' } },
 	)
 
 export const url = (err = 'is not a valid url') =>
-	makePipe<string>(
+	pipe<string>(
 		(input) => {
 			if (urlRegex().test(input)) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ format: 'uri' },
+		{ schema: { format: 'uri' } },
 	)
 
-export const asTrim = () => makePipe<string>((input) => input.trim(), {})
+export const asTrim = () => pipe<string>((input) => input.trim(), {})
 
-export const asLower = () => makePipe<string>((input) => input.toLowerCase(), {})
+export const asLower = () => pipe<string>((input) => input.toLowerCase(), {})
 
-export const asUpper = () => makePipe<string>((input) => input.toUpperCase(), {})
+export const asUpper = () => pipe<string>((input) => input.toUpperCase(), {})
 
-export const asCapitalize = () => makePipe<string>((input) => fns.capitalize(input), {})
+export const asCapitalize = () => pipe<string>((input) => fns.capitalize(input), {})
 
-export const asStrippedHTML = () => makePipe<string>((input) => fns.stripHTML(input), {})
+export const asStrippedHTML = () => pipe<string>((input) => fns.stripHTML(input), {})
 
-export const asSliced = (length: number) => makePipe<string>((input) => fns.trimToLength(input, length), {})
+export const asSliced = (length: number) => pipe<string>((input) => fns.trimToLength(input, length), {})

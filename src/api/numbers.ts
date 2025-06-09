@@ -1,53 +1,48 @@
-import { makePipe, PipeError } from './base'
+import { pipe, PipeError } from './base'
 
 export const gt = (value: number, err = `must be greater than ${value}`) =>
-	makePipe<number>(
+	pipe<number>(
 		(input) => {
 			if (input > value) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ exclusiveMinimum: value },
+		{ schema: { exclusiveMinimum: value } },
 	)
 
 export const gte = (value: number, err = `must be greater than or equal to ${value}`) =>
-	makePipe<number>(
+	pipe<number>(
 		(input) => {
 			if (input >= value) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ minimum: value },
+		{ schema: { minimum: value } },
 	)
 
 export const lt = (value: number, err = `must be less than ${value}`) =>
-	makePipe<number>(
+	pipe<number>(
 		(input) => {
 			if (input < value) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ exclusiveMaximum: value },
+		{ schema: { exclusiveMaximum: value } },
 	)
 
 export const lte = (value: number, err = `must be less than or equal to ${value}`) =>
-	makePipe<number>(
+	pipe<number>(
 		(input) => {
 			if (input <= value) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ maximum: value },
+		{ schema: { maximum: value } },
 	)
 
 export const int = (err = 'is not an integer') =>
-	makePipe<number>(
+	pipe<number>(
 		(input) => {
 			if (input === parseInt(input as any)) return input
 			throw PipeError.root(err, input)
 		},
-		{},
-		{ type: 'integer' },
+		{ schema: { type: 'integer' } },
 	)
 
-export const asRound = (dp = 0) => makePipe<number>((input) => Number(input.toFixed(dp)), {})
+export const asRound = (dp = 0) => pipe<number>((input) => Number(input.toFixed(dp)), {})
