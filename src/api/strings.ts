@@ -2,33 +2,6 @@ import { pipe, PipeError } from './base'
 import * as fns from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
-export const has = (length: number, stripHTMLTags = false, err = `must contain ${length} characters`) =>
-	pipe<string>(
-		(input) => {
-			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length === length) return input
-			throw PipeError.root(err, input)
-		},
-		{ schema: { minLength: length, maxLength: length } },
-	)
-
-export const min = (length: number, stripHTMLTags = false, err = `must contain ${length} or more characters`) =>
-	pipe<string>(
-		(input) => {
-			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length >= length) return input
-			throw PipeError.root(err, input)
-		},
-		{ schema: { minLength: length } },
-	)
-
-export const max = (length: number, stripHTMLTags = false, err = `must contain ${length} or less characters`) =>
-	pipe<string>(
-		(input) => {
-			if ((stripHTMLTags ? fns.stripHTML(input) : input).trim().length <= length) return input
-			throw PipeError.root(err, input)
-		},
-		{ schema: { maxLength: length } },
-	)
-
 export const email = (err = 'is not a valid email') =>
 	pipe<string>(
 		(input) => {

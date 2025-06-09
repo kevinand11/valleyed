@@ -19,22 +19,22 @@ describe('array', () => {
 		expect(rules.safeParse([2, '']).valid).toBe(false)
 	})
 
-	test('contains', () => {
-		const rules = v.array(v.any()).pipe(v.contains(2))
+	test('has', () => {
+		const rules = v.array(v.any()).pipe(v.has(2))
 		expect(rules.safeParse([1]).valid).toBe(false)
 		expect(rules.safeParse([1, 2]).valid).toBe(true)
 		expect(rules.safeParse([1, 2, 3]).valid).toBe(false)
 	})
 
-	test('containsMin', () => {
-		const rules = v.array(v.any()).pipe(v.containsMin(2))
+	test('min', () => {
+		const rules = v.array(v.any()).pipe(v.min(2))
 		expect(rules.safeParse([1]).valid).toBe(false)
 		expect(rules.safeParse([1, 2]).valid).toBe(true)
 		expect(rules.safeParse([1, 2, 3]).valid).toBe(true)
 	})
 
-	test('containsMax', () => {
-		const rules = v.array(v.any()).pipe(v.containsMax(2))
+	test('max', () => {
+		const rules = v.array(v.any()).pipe(v.max(2))
 		expect(rules.safeParse([1]).valid).toBe(true)
 		expect(rules.safeParse([1, 2]).valid).toBe(true)
 		expect(rules.safeParse([1, 2, 3]).valid).toBe(false)

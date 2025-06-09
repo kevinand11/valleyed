@@ -48,33 +48,6 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(pipes: readonly [
 		},
 	)
 
-export const contains = <T>(length: number, err = `must contain ${length} items`) =>
-	pipe<T[]>(
-		(input) => {
-			if (input.length === length) return input
-			throw PipeError.root(err, input)
-		},
-		{ schema: { minItems: length, maxItems: length } },
-	)
-
-export const containsMin = <T>(length: number, err = `must contain ${length} or more items`) =>
-	pipe<T[]>(
-		(input) => {
-			if (input.length >= length) return input
-			throw PipeError.root(err, input)
-		},
-		{ schema: { minItems: length } },
-	)
-
-export const containsMax = <T>(length: number, err = `must contain ${length} or less items`) =>
-	pipe<T[]>(
-		(input) => {
-			if (input.length <= length) return input
-			throw PipeError.root(err, input)
-		},
-		{ schema: { maxItems: length } },
-	)
-
 export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
 	pipe<T[]>((input) => {
 		const obj: Record<PropertyKey, boolean> = {}
