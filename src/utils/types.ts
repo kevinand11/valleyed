@@ -36,13 +36,12 @@ export type JSONValueOf<T> = Prettify<
 								: never
 >
 
-type ConstructorType<T> = abstract new (...args: any[]) => T
 export type Prettify<T> =
-	T extends InstanceType<ConstructorType<infer C>>
-		? C
+	IsClassInstance<T> extends true
+		? T
 		: T extends object
 			? {
-					[K in keyof T]: T[K]
+					[K in keyof T]: Prettify<T[K]>
 				} & {}
 			: T
 
@@ -60,6 +59,18 @@ export type IsInTypeList<T, L extends any[]> = L extends [infer First, ...infer 
 		? true
 		: IsInTypeList<T, Remaining>
 	: false
+
+export type IsPlainObject<T> = T extends object
+	? T extends (...args: any[]) => any
+		? false
+		: T extends any[]
+			? false
+			: T extends Date | RegExp | Error
+				? false
+				: true
+	: false
+
+export type IsClassInstance<T> = T extends object ? (IsPlainObject<T> extends true ? false : true) : false
 
 type StopTypes = number | string | boolean | symbol | bigint | Date
 type ExcludedTypes = (...args: any[]) => any
