@@ -47,4 +47,19 @@ const isUndefined = (err = 'is not undefined') =>
 
 const isAny = <T>() => pipe<T>((input) => input)
 
-export { isString as string, isNumber as number, isBoolean as boolean, isNull as null, isUndefined as undefined, isAny as any }
+const isInstanceOf = <T>(classDef: abstract new (...args: any[]) => T, err = `is not an instance of ${classDef.name}`) =>
+	pipe<T>((input) => {
+		if ((input as any)?.constructor === classDef) return input
+		if (input instanceof classDef) return input
+		throw PipeError.root(err, input)
+	})
+
+export {
+	isString as string,
+	isNumber as number,
+	isBoolean as boolean,
+	isNull as null,
+	isUndefined as undefined,
+	isAny as any,
+	isInstanceOf as instanceOf,
+}

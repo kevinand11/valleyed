@@ -88,7 +88,7 @@ export type Paths<T, D = never> = T extends StopTypes
 			: D
 
 export interface JsonSchema {
-	type?: string | string[]
+	type?: string
 	format?: string
 	pattern?: string
 	minimum?: number

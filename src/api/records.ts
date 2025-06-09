@@ -33,32 +33,26 @@ export const object = <T extends Record<string, Pipe<any, any>>>(objectPipes: T)
 	)
 
 export const objectPick = <T extends Record<string, Pipe<any, any>>, S extends keyof T>(s: S[]) =>
-	pipe<PipeInput<T>, PipeOutput<Pick<T, S>>>((input) => input as any, {
-		context: (context) => {
-			const objectPipes = context.objectPipes ?? {}
-			return {
-				objectPipes: Object.fromEntries(Object.entries(objectPipes).filter(([key]) => s.includes(key as S))),
-			}
-		},
+	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<Pick<T, S>>>>((input) => input as any, {
+		context: (context) => ({
+			objectPipes: Object.fromEntries(Object.entries(context.objectPipes ?? {}).filter(([key]) => s.includes(key as S))),
+		}),
 	})
 
 export const objectOmit = <T extends Record<string, Pipe<any, any>>, S extends keyof T>(s: S[]) =>
-	pipe<PipeInput<T>, PipeOutput<Omit<T, S>>>((input) => input as any, {
-		context: (context) => {
-			const objectPipes = context.objectPipes ?? {}
-			return {
-				objectPipes: Object.fromEntries(Object.entries(objectPipes).filter(([key]) => !s.includes(key as S))),
-			}
-		},
+	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<Omit<T, S>>>>((input) => input as any, {
+		context: (context) => ({
+			objectPipes: Object.fromEntries(Object.entries(context.objectPipes ?? {}).filter(([key]) => !s.includes(key as S))),
+		}),
 	})
 
 export const objectExtends = <T extends Record<string, Pipe<any, any>>, S extends Record<string, Pipe<any, any>>>(s: S) =>
-	pipe<PipeInput<T>, PipeOutput<Omit<T, keyof S> & S>>((input) => input as any, {
+	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<Omit<T, keyof S> & S>>>((input) => input as any, {
 		context: (context) => ({ objectPipes: { ...context.objectPipes, ...s } }),
 	})
 
 export const objectTrim = <T extends Record<string, Pipe<any, any>>>() =>
-	pipe<PipeInput<T>, PipeOutput<T>>(
+	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<T>>>(
 		(input, context) => {
 			const schema = context.objectPipes ?? {}
 			return Object.fromEntries(Object.entries(input as any).filter(([key]) => !!schema[key])) as any
