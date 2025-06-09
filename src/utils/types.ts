@@ -1,7 +1,7 @@
 export type DeepOmit<T, K, A = never> = T extends any[]
 	? DeepOmit<T[number], K, A>[]
 	: T extends (...args: any[]) => any
-		? never
+		? T
 		: T extends Array<infer U>
 			? DeepOmit<U, K, A>[]
 			: {
@@ -16,7 +16,7 @@ export type JSONPrimitives = string | number | boolean | null
 export type JSONValue = JSONPrimitives | JSONValue[] | { [k: string]: JSONValue }
 export type JSONValueOf<T> = Prettify<
 	IsAny<T> extends true
-		? {}
+		? any
 		: T extends JSONPrimitives
 			? T
 			: IsInUnion<T, undefined> extends true

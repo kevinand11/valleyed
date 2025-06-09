@@ -12,15 +12,22 @@ if (util?.inspect?.defaultOptions) {
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
-type Accessor<Keys extends Record<string, any>> = {
+type Accessor<Keys extends Record<string, unknown>> = {
 	get: <Key extends keyof Keys>(key: Key, keysObj: Keys) => Keys[Key]
 	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void
 }
 
-type StripK<T, K, A = never> = IsType<K, any> extends true ? DeepOmit<T, never, A> : DeepOmit<T, K, A>
+type JSONOf<T, K, I, A> = JSONValueOf<IsType<K, any> extends true ? Record<string, any> : DeepOmit<T, I, A>>
 
 function WrapWithProperties(): { new <Keys extends Record<string, unknown>>(): Keys } {
-	return class {} as any
+	return class {
+		[customInspectSymbol](_, options, inspect) {
+			options.getters = true
+			options.numericSeparator = true
+			options.depth = Number.MAX_SAFE_INTEGER
+			return options.stylize(this.constructor.name, options) + ' ' + inspect((this as any).toJSON?.() ?? this, options)
+		}
+	} as any
 }
 
 // @ts-expect-error invalid extends
@@ -53,14 +60,7 @@ export class DataClass<Keys extends Record<string, unknown>, Ignored extends str
 		})
 	}
 
-	[customInspectSymbol](_, options, inspect) {
-		options.getters = true
-		options.numericSeparator = true
-		options.depth = Number.MAX_SAFE_INTEGER
-		return options.stylize(this.constructor.name, options) + ' ' + inspect(this.toJSON(), options)
-	}
-
-	toJSON(includeIgnored = false): JSONValueOf<StripK<this, Ignored, '__ignoreInJSON'>> {
+	toJSON(includeIgnored = false): JSONOf<this, Keys, Ignored, '__ignoreInJSON' | 'toJSON'> {
 		const json: Record<string, any> = {}
 		Object.keys(this)
 			.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))
