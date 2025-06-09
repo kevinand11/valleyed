@@ -1,7 +1,7 @@
 import util from 'util'
 
 import { wrapInTryCatch } from './functions'
-import { DeepOmit, IsAny, JSONValueOf } from './types'
+import { DeepOmit, IsType, JSONValueOf } from './types'
 import { Pipe } from '../api/base'
 
 if (util?.inspect?.defaultOptions) {
@@ -17,9 +17,16 @@ type Accessor<Keys extends Record<string, any>> = {
 	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void
 }
 
-type StripK<T, K, A = never> = IsAny<K> extends true ? DeepOmit<T, never, A> : DeepOmit<T, K, A>
+type StripK<T, K, A = never> = IsType<K, any> extends true ? DeepOmit<T, never, A> : DeepOmit<T, K, A>
 
-class __Wrapped<Keys extends Record<string, unknown>, Ignored extends string = never> {
+function WrapWithProperties(): { new <Keys extends Record<string, unknown>>(): Keys } {
+	return class {} as any
+}
+
+// @ts-expect-error invalid extends
+class __Root<Keys extends Record<string, unknown>> extends WrapWithProperties()<Keys> {}
+
+export class DataClass<Keys extends Record<string, unknown>, Ignored extends string = never> extends __Root<Keys> {
 	public readonly __ignoreInJSON: ReadonlyArray<Ignored> = []
 
 	constructor(
@@ -32,6 +39,7 @@ class __Wrapped<Keys extends Record<string, unknown>, Ignored extends string = n
 			},
 		},
 	) {
+		super()
 		if (pipe) keys = pipe.parse(keys)
 		Object.keys(keys).forEach((key) => {
 			Object.defineProperty(this, key, {
@@ -59,7 +67,7 @@ class __Wrapped<Keys extends Record<string, unknown>, Ignored extends string = n
 			.forEach((key) => {
 				const value = this[key]
 				if (typeof value === 'function' || value === undefined) return
-				json[key] = value?.toJSON?.(includeIgnored) ?? wrapInTryCatch(() => structuredClone(value), value)
+				json[key] = (value as any)?.toJSON?.(includeIgnored) ?? wrapInTryCatch(() => structuredClone(value), value)
 			})
 		const keysToDelete = ['__ignoreInJSON'].concat(...(includeIgnored !== true ? this.__ignoreInJSON : []))
 		keysToDelete.forEach((k: string) => deleteKeyFromObject(json, k.split('.')))
@@ -70,19 +78,6 @@ class __Wrapped<Keys extends Record<string, unknown>, Ignored extends string = n
 		return JSON.stringify(this.toJSON(includeIgnored))
 	}
 }
-
-function WrapWithProperties(): {
-	new <Keys extends Record<string, unknown>, Ignored extends string = never>(
-		keys: Keys,
-		pipe?: Pipe<Keys>,
-		access?: Accessor<Keys>,
-	): __Wrapped<Keys, Ignored> & Keys
-} {
-	return __Wrapped as any
-}
-
-// @ts-expect-error invalid extends
-export class DataClass<Keys extends Record<string, unknown>, Ignored extends string = never> extends WrapWithProperties()<Keys, Ignored> {}
 
 function deleteKeyFromObject(obj: Record<string, any>, keys: string[]) {
 	if (obj === undefined || obj === null) return

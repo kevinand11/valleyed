@@ -52,13 +52,15 @@ export type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> }
 export type DistributiveOmit<T, K extends PropertyKey> = T extends any ? Omit<T, K> : never
 
 type IsInUnion<T, U> = U extends T ? true : false
-export type IsAny<T> = 0 extends 1 & T ? true : false
-export type IsType<A, B> = Exclude<A, B> | Exclude<B, A> extends never ? true : false
 export type IsInTypeList<T, L extends any[]> = L extends [infer First, ...infer Remaining]
 	? IsType<First, T> extends true
 		? true
 		: IsInTypeList<T, Remaining>
 	: false
+
+type IsAny<T> = 0 extends 1 & T ? true : false
+type CheckSameType<A, B> = Exclude<A, B> | Exclude<B, A> extends never ? true : false
+export type IsType<A, B> = IsAny<A> extends true ? (IsAny<B> extends true ? true : CheckSameType<A, B>) : CheckSameType<A, B>
 
 export type IsPlainObject<T> = T extends object
 	? T extends (...args: any[]) => any
