@@ -36,13 +36,13 @@ export const object = <T extends Record<string, Pipe<any, any>>>(objectPipes: T)
 		},
 	)
 
-export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends keyof PipeInput<T>>(t: T, s: S[]) =>
+export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends keyof PipeInput<T> & string>(t: T, s: S[]) =>
 	object(Object.fromEntries(Object.entries(t.context.objectPipes ?? {}).filter(([key]) => s.includes(key as S)))) as Pipe<
 		Prettify<Pick<PipeInput<T>, S>>,
 		Prettify<Pick<PipeOutput<T>, S>>
 	>
 
-export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends keyof PipeInput<T>>(t: T, s: S[]) =>
+export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends keyof PipeInput<T> & string>(t: T, s: S[]) =>
 	object(Object.fromEntries(Object.entries(t.context.objectPipes ?? {}).filter(([key]) => !s.includes(key as S)))) as Pipe<
 		Prettify<Omit<PipeInput<T>, S>>,
 		Prettify<Omit<PipeOutput<T>, S>>

@@ -1,3 +1,5 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec'
+
 import { JsonSchema, Prettify } from '../utils/types'
 
 export type PipeFn<I, O = I> = (input: I, context: PipeContext) => O
@@ -61,7 +63,7 @@ export class PipeError extends Error {
 	}
 }
 
-export type Pipe<I, O = I> = {
+export interface Pipe<I, O = I> extends StandardSchemaV1<I, O> {
 	readonly context: PipeContext
 	pipe<T>(fn: Pipe<O, T> | PipeFn<O, T>): Pipe<I, T>
 	parse(input: unknown): O
@@ -121,6 +123,20 @@ export function pipe<I, O = I>(
 				...(typeof pipeSchema === 'function' ? pipeSchema(context) : pipeSchema),
 				...meta,
 			}),
+		'~standard': {
+			version: 1,
+			vendor: 'valleyed',
+			validate(value) {
+				const validity = piper.safeParse(value)
+				if (validity.valid) return { value: validity.value }
+				return {
+					issues: validity.error.messages.map(({ message, path }) => ({
+						message,
+						path: path ? path.split('.') : undefined,
+					})),
+				}
+			},
+		},
 	}
 	return piper
 }

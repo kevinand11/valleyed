@@ -54,6 +54,7 @@
 		]
 	},
 	"dependencies": {
+		"@standard-schema/spec": "^1.0.0",
 		"url-regex-safe": "^4.0.0"
 	},
 	"standard-version": {}
