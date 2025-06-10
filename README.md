@@ -4,18 +4,21 @@
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
-A powerful, TypeScript-first validation library with a functional pipe-based API that provides type-safe validation with automatic JSON Schema generation.
+A powerful, TypeScript-first validation library with a functional pipe-based API that provides type-safe validation with automatic JSON Schema generation and Standard Schema compatibility.
 
 ## ✨ Features
 
 - 🔒 **Type-safe**: Full TypeScript support with automatic type inference
 - 🧩 **Composable**: Functional pipe-based API for chaining validations
 - 📋 **JSON Schema**: Automatic JSON Schema generation from validation pipes
-- 🚀 **Performance**: Lightweight with zero dependencies (except url-regex-safe)
+- 🏗 **Standard Schema**: Compatible with Standard Schema v1 specification
+- 🚀 **Performance**: Lightweight with minimal dependencies
 - 🎯 **Comprehensive**: Built-in validators for all common data types
 - 🛠 **Extensible**: Easy to create custom validation rules
 - 📦 **Tree-shakable**: Only import what you need
 - 🔧 **Transformations**: Built-in data transformation capabilities
+- 🗂 **Data Classes**: Built-in support for creating validated data classes
+- 🌍 **Geohash Support**: Built-in geohash encoding/decoding utilities
 
 ## 📦 Installation
 
@@ -92,6 +95,24 @@ try {
 }
 ```
 
+### Standard Schema Compatibility
+
+Valleyed implements the Standard Schema v1 specification, making it compatible with other schema libraries:
+
+```ts
+import { v } from 'valleyed'
+
+const schema = v.string().pipe(v.email())
+
+// Standard Schema interface
+const result = schema['~standard'].validate('test@example.com')
+if (result.value) {
+  console.log('Valid:', result.value)
+} else {
+  console.log('Issues:', result.issues)
+}
+```
+
 ## 🔤 Primitive Types
 
 ### Strings
@@ -113,9 +134,9 @@ v.string().pipe(v.url())      // valid URL format
 v.string().pipe(v.asTrim())         // trim whitespace
 v.string().pipe(v.asLower())        // convert to lowercase
 v.string().pipe(v.asUpper())        // convert to uppercase
-v.string().pipe(v.asCapitalize())   // capitalize first letter
+v.string().pipe(v.asCapitalize())   // capitalize first letter of each word
 v.string().pipe(v.asStrippedHTML()) // strip HTML tags
-v.string().pipe(v.asSliced(100))    // truncate to 100 characters
+v.string().pipe(v.asSliced(100))    // truncate to 100 characters with ellipsis
 
 // Custom error messages
 v.string().pipe(v.min(5, 'Must be at least 5 characters long'))
@@ -143,10 +164,11 @@ v.number().pipe(v.asRound(2)) // round to 2 decimal places
 ### Booleans and Others
 
 ```ts
-v.boolean()   // validates boolean type
-v.null()      // validates null
-v.undefined() // validates undefined
-v.any()       // accepts any value (with generic support)
+v.boolean()                    // validates boolean type
+v.null()                      // validates null
+v.undefined()                 // validates undefined
+v.any()                       // accepts any value (with generic support)
+v.instanceOf(Date)            // validates instance of specific class
 ```
 
 ## 📝 Arrays
@@ -157,9 +179,9 @@ const stringArray = v.array(v.string()) // array of strings
 const numberArray = v.array(v.number()) // array of numbers
 
 // Length constraints
-v.array(v.string()).pipe(v.contains(5))    // exactly 5 items
-v.array(v.string()).pipe(v.containsMin(1)) // at least 1 item
-v.array(v.string()).pipe(v.containsMax(10)) // at most 10 items
+v.array(v.string()).pipe(v.has(5))    // exactly 5 items
+v.array(v.string()).pipe(v.min(1))    // at least 1 item
+v.array(v.string()).pipe(v.max(10))   // at most 10 items
 
 // Tuples (fixed-length arrays with different types)
 const coordinatePipe = v.tuple([
@@ -218,6 +240,9 @@ const fullUser = v.objectExtends(originalSchema, {
   lastLogin: v.optional(v.time()),
   permissions: v.array(v.string())
 })
+
+// Trim to only defined fields (remove additional properties)
+const strictUser = v.objectTrim(originalSchema)
 
 // Dynamic objects (records)
 const stringToNumber = v.record(v.string(), v.number()) // { [key: string]: number }
@@ -340,19 +365,19 @@ const audioPipe = v.audio()  // audio/* MIME types
 const videoPipe = v.video()  // video/* MIME types
 
 // Custom file types
-const pdfPipe = v.fileType('application/pdf')
-const documentPipe = v.fileType([
+const pdfPipe = v.file().pipe(v.fileType('application/pdf'))
+const documentPipe = v.file().pipe(v.fileType([
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-])
+]))
 
 // File validation in forms
 const uploadPipe = v.object({
   title: v.string().pipe(v.min(1)),
   description: v.optional(v.string()),
-  file: v.image(), // only allow image uploads
-  thumbnail: v.optional(v.image())
+  file: v.file().pipe(v.image()), // only allow image uploads
+  thumbnail: v.optional(v.file().pipe(v.image()))
 })
 ```
 
@@ -442,6 +467,62 @@ const apiResponsePipe = v.object({
 })
 ```
 
+## 🏗 Data Classes
+
+Create validated data classes with automatic JSON serialization:
+
+```ts
+import { DataClass, v } from 'valleyed'
+
+const userSchema = v.object({
+  id: v.number(),
+  name: v.string().pipe(v.min(1)),
+  email: v.string().pipe(v.email()),
+  createdAt: v.time()
+})
+
+class User extends DataClass {
+  constructor(data: unknown) {
+    super(data, userSchema)
+  }
+  
+  // Custom methods
+  getDisplayName() {
+    return this.name.split(' ')[0]
+  }
+}
+
+const user = new User({
+  id: 1,
+  name: 'John Doe',
+  email: 'john@example.com',
+  createdAt: new Date()
+})
+
+console.log(user.getDisplayName()) // 'John'
+console.log(user.toJSON()) // Serialized object
+```
+
+## 🌍 Geohash Utilities
+
+Built-in geohash encoding and decoding:
+
+```ts
+import { geohash } from 'valleyed'
+
+// Encode coordinates to geohash
+const hash = geohash.encode([40.7128, -74.0060]) // New York coordinates
+console.log(hash) // 'dr5regw3pg'
+
+// Decode geohash to coordinates
+const [lat, lng] = geohash.decode('dr5regw3pg')
+console.log(lat, lng) // 40.7128, -74.0060
+
+// Get neighboring geohashes
+const neighbors = geohash.neighbors('dr5regw3pg')
+console.log(neighbors) // { bl, bc, br, cl, cr, tl, tc, tr }
+```
+
 ## 📋 JSON Schema Generation
 
 All pipes automatically generate JSON Schema:
@@ -501,7 +582,7 @@ Output:
     }
   },
   "required": ["name", "email"],
-  "additionalProperties": false
+  "additionalProperties": true
 }
 ```
 
@@ -566,28 +647,31 @@ import {
   getPercentage,
   shuffleArray,
   chunkArray,
-  compareTwoStrings
+  compareTwoStrings,
+  normalizeUrl
 } from 'valleyed'
 
 // String utilities
-capitalize('hello world')           // 'Hello World'
-stripHTML('<p>Hello <b>world</b></p>') // 'Hello world'
-trimToLength('Long text here', 10)     // 'Long text...'
+capitalize('hello world')                    // 'Hello World'
+stripHTML('<p>Hello <b>world</b></p>')      // 'Hello world'
+trimToLength('Long text here', 10)          // 'Long text...'
+extractUrls('Visit https://example.com')    // [{ original: '...', normalized: '...' }]
+normalizeUrl('HTTPS://Example.Com/Path/')   // 'https://example.com/Path'
 
 // Array utilities
 const users = [{ name: 'John', dept: 'IT' }, { name: 'Jane', dept: 'HR' }]
-groupBy(users, user => user.dept)      // [{ key: 'IT', values: [...] }, ...]
-chunkArray([1,2,3,4,5], 2)            // [[1,2], [3,4], [5]]
-shuffleArray([1,2,3,4,5])             // [3,1,5,2,4] (random order)
+groupBy(users, user => user.dept)           // [{ key: 'IT', values: [...] }, ...]
+chunkArray([1,2,3,4,5], 2)                 // [[1,2], [3,4], [5]]
+shuffleArray([1,2,3,4,5])                  // [3,1,5,2,4] (random order)
 
 // Number utilities
-formatNumber(1234567)                 // '1.2M'
-getPercentage(25, 100)               // 25
-pluralize(1, 'item', 'items')        // 'item'
-pluralize(5, 'item', 'items')        // 'items'
+formatNumber(1234567)                       // '1.2M'
+getPercentage(25, 100)                     // 25
+pluralize(1, 'item', 'items')              // 'item'
+pluralize(5, 'item', 'items')              // 'items'
 
 // String similarity
-compareTwoStrings('hello', 'hallo')   // 0.8 (80% similar)
+compareTwoStrings('hello', 'hallo')         // 0.8 (80% similar)
 ```
 
 ## 📊 TypeScript Integration
@@ -640,7 +724,7 @@ Valleyed is designed for performance:
 - **Early termination**: Stops at first validation failure
 - **Minimal overhead**: Functional approach minimizes object creation
 - **Tree-shakable**: Only bundle what you use
-- **Zero dependencies**: Except for url-regex-safe for URL validation
+- **Minimal dependencies**: Only depends on `@standard-schema/spec` and `url-regex-safe`
 
 ### Benchmarks
 
@@ -706,11 +790,16 @@ pnpm test arrays.test.ts
 | `v.number()` | Number validation | `v.number().pipe(v.gt(0))` |
 | `v.boolean()` | Boolean validation | `v.boolean()` |
 | `v.array(pipe)` | Array validation | `v.array(v.string())` |
+| `v.tuple(pipes)` | Tuple validation | `v.tuple([v.string(), v.number()])` |
 | `v.object(schema)` | Object validation | `v.object({ name: v.string() })` |
+| `v.record(k, v)` | Record validation | `v.record(v.string(), v.number())` |
 | `v.optional(pipe)` | Optional validation | `v.optional(v.string())` |
 | `v.nullable(pipe)` | Nullable validation | `v.nullable(v.string())` |
+| `v.nullish(pipe)` | Nullish validation | `v.nullish(v.string())` |
 | `v.or(pipes)` | Union validation | `v.or([v.string(), v.number()])` |
 | `v.and(pipes)` | Intersection validation | `v.and([pipe1, pipe2])` |
+| `v.discriminate()` | Discriminated union | `v.discriminate(fn, schemas)` |
+| `v.tryJSON(pipe)` | JSON parsing | `v.tryJSON(v.object({}))` |
 
 ### String Validators
 
@@ -739,7 +828,42 @@ pnpm test arrays.test.ts
 | `v.asTrim()` | Trim whitespace | `v.string().pipe(v.asTrim())` |
 | `v.asLower()` | Convert to lowercase | `v.string().pipe(v.asLower())` |
 | `v.asUpper()` | Convert to uppercase | `v.string().pipe(v.asUpper())` |
+| `v.asCapitalize()` | Capitalize words | `v.string().pipe(v.asCapitalize())` |
+| `v.asStrippedHTML()` | Strip HTML tags | `v.string().pipe(v.asStrippedHTML())` |
+| `v.asSliced(n)` | Truncate with ellipsis | `v.string().pipe(v.asSliced(100))` |
 | `v.asRound(dp)` | Round number | `v.number().pipe(v.asRound(2))` |
+| `v.asSet()` | Remove duplicates | `v.array(v.string()).pipe(v.asSet())` |
+| `v.asMap()` | Convert to Map | `v.record(v.string(), v.any()).pipe(v.asMap())` |
+| `v.asStamp()` | Date to timestamp | `v.time().pipe(v.asStamp())` |
+| `v.asISOString()` | Date to ISO string | `v.time().pipe(v.asISOString())` |
+
+### File Validators
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `v.file()` | File validation | `v.file()` |
+| `v.image()` | Image file | `v.file().pipe(v.image())` |
+| `v.audio()` | Audio file | `v.file().pipe(v.audio())` |
+| `v.video()` | Video file | `v.file().pipe(v.video())` |
+| `v.fileType(types)` | Specific MIME types | `v.file().pipe(v.fileType('application/pdf'))` |
+
+### Date/Time Validators
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `v.time()` | Date/time validation | `v.time()` |
+| `v.after(date)` | After date | `v.time().pipe(v.after(new Date()))` |
+| `v.before(date)` | Before date | `v.time().pipe(v.before(new Date()))` |
+
+### Core Validators
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `v.custom(fn, err?)` | Custom validation | `v.custom(x => x > 0, 'Must be positive')` |
+| `v.eq(value)` / `v.is(value)` | Equality check | `v.eq('expected')` |
+| `v.ne(value)` | Not equal | `v.ne('forbidden')` |
+| `v.in(array)` | In array | `v.in(['a', 'b', 'c'])` |
+| `v.nin(array)` | Not in array | `v.nin(['banned'])` |
 
 ## 📜 License
 
@@ -749,9 +873,4 @@ ISC License © [Kevin Izuchukwu](https://github.com/kevinand11)
 
 - [NPM Package](https://www.npmjs.com/package/valleyed)
 - [GitHub Repository](https://github.com/kevinand11/valleyed)
-- [Issue Tracker](https://github.com/kevinand11/valleyed/issues)
-- [Changelog](https://github.com/kevinand11/valleyed/blob/main/CHANGELOG.md)
-
----
-
-**Built with ❤️ by [Kevin Izuchukwu](https://github.com/kevinand11)**
+- [Standard Schema Specification](https://github.com/standard-schema/standard-schema)
