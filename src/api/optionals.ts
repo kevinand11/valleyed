@@ -59,10 +59,13 @@ function runDefault<T>(def: DefaultValue<T>): T {
 }
 
 export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) =>
-	pipe<PipeInput<T>, Exclude<PipeOutput<T>, undefined>>((input) => branch.parse(input !== undefined ? input : runDefault(def)) as any, {
-		schema: () => ({ ...branch.toJsonSchema(), default: runDefault(def) }),
-		context: { optional: true },
-	})
+	pipe<PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>>(
+		(input) => branch.parse(input !== undefined ? input : runDefault(def)) as any,
+		{
+			schema: () => ({ ...branch.toJsonSchema(), default: runDefault(def) }),
+			context: { optional: true },
+		},
+	)
 
 export const defaultsOnFail = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) =>
 	pipe<PipeInput<T>, PipeOutput<T>>(

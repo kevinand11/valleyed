@@ -1,7 +1,10 @@
 import { pipe, PipeError, PipeInput, PipeOutput, type Pipe } from './base'
-import { Prettify } from '../utils/types'
+import { ConditionalObjectKeys, Prettify } from '../utils/types'
 
-type ObjectPipe<T extends Record<string, Pipe<any, any>>> = Pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>
+type ObjectPipe<T extends Record<string, Pipe<any, any>>> = Pipe<
+	ConditionalObjectKeys<{ [K in keyof T]: PipeInput<T[K]> }>,
+	ConditionalObjectKeys<{ [K in keyof T]: PipeOutput<T[K]> }>
+>
 
 export const object = <T extends Record<string, Pipe<any, any>>>(objectPipes: T) =>
 	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<T>>>(
@@ -46,7 +49,7 @@ export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any>>>,
 	>
 
 export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends Record<string, Pipe<any, any>>>(t: T, s: S) =>
-	object({ ...(t.context.objectPipes ?? {}), ...s }) as Pipe<
+	object({ ...(t.context.objectPipes ?? {}), ...s }) as unknown as Pipe<
 		Prettify<Omit<PipeInput<T>, keyof S> & PipeInput<ObjectPipe<S>>>,
 		Prettify<Omit<PipeOutput<T>, keyof S> & PipeOutput<ObjectPipe<S>>>
 	>

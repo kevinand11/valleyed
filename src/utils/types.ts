@@ -12,6 +12,14 @@ export type DeepOmit<T, K, A = never> = T extends any[]
 					>
 				}
 
+export type ConditionalObjectKeys<T> = Prettify<
+	{
+		[K in keyof T as undefined extends T[K] ? never : K]: T[K]
+	} & {
+		[K in keyof T as undefined extends T[K] ? K : never]?: T[K]
+	}
+>
+
 export type JSONPrimitives = string | number | boolean | null
 export type JSONValue = JSONPrimitives | JSONValue[] | { [k: string]: JSONValue }
 export type JSONValueOf<T> = Prettify<
@@ -28,11 +36,11 @@ export type JSONValueOf<T> = Prettify<
 						: T extends Function
 							? never
 							: T extends object
-								? {
+								? ConditionalObjectKeys<{
 										[K in keyof T as IsInTypeList<JSONValueOf<T[K]>, [never, undefined]> extends true
 											? never
 											: K]: JSONValueOf<T[K]>
-									}
+									}>
 								: never
 >
 
