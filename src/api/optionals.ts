@@ -17,7 +17,15 @@ const partial = <T extends Pipe<any, any>, P>(
 	}, config)
 
 export const nullable = <T extends Pipe<any, any>>(branch: T) =>
-	partial<T, null>(branch, (i) => i === null, true, { schema: { anyOf: [branch.toJsonSchema(), { type: 'null' }] } })
+	partial<T, null>(branch, (i) => i === null, true, {
+		schema: () => {
+			const branchSchema = branch.toJsonSchema()
+			const type = branchSchema.type
+			const newType = Array.isArray(type) ? type : type ? [type] : []
+			if (!newType.includes('null')) newType.push('null')
+			return { ...branchSchema, type: newType }
+		},
+	})
 
 export const optional = <T extends Pipe<any, any>>(branch: T) =>
 	partial<T, undefined>(branch, (i) => i === undefined, true, {
@@ -27,7 +35,13 @@ export const optional = <T extends Pipe<any, any>>(branch: T) =>
 
 export const nullish = <T extends Pipe<any, any>>(branch: T) =>
 	partial<T, null | undefined>(branch, (i) => i === null || i === undefined, true, {
-		schema: () => ({ anyOf: [branch.toJsonSchema(), { type: 'null' }] }),
+		schema: () => {
+			const branchSchema = branch.toJsonSchema()
+			const type = branchSchema.type
+			const newType = Array.isArray(type) ? type : type ? [type] : []
+			if (!newType.includes('null')) newType.push('null')
+			return { ...branchSchema, type: newType }
+		},
 		context: { optional: true },
 	})
 
