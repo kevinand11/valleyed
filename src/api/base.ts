@@ -1,16 +1,16 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec'
 
-import { JsonSchema, Prettify } from '../utils/types'
+import { IsType, JsonSchema, Prettify } from '../utils/types'
 
-export type PipeFn<I, O = I> = (input: I, context: PipeContext) => O
+export type PipeFn<I, O = I, C = any> = (input: I, context: PipeContext<C>) => O
 export type PipeInput<T> = T extends Pipe<infer I, any> ? Prettify<I> : never
 export type PipeOutput<T> = T extends Pipe<any, infer O> ? Prettify<O> : never
-export type PipeContext = Partial<{
-	optional: boolean
-	objectPipes: Record<string, Pipe<any, any>>
-}>
+export type PipeContext<C> = (IsType<C, any> extends true ? {} : C) & {
+	optional?: boolean
+	objectPipes?: Record<string, Pipe<any, any>>
+}
 export type PipeMeta = Pick<JsonSchema, 'title' | 'description' | 'examples' | 'default'>
-export type JsonSchemaBuilder = JsonSchema | ((context: PipeContext) => JsonSchema)
+export type JsonSchemaBuilder<C> = JsonSchema | ((context: PipeContext<C>) => JsonSchema)
 
 type Arrayable<T> = T | T[]
 
@@ -63,28 +63,28 @@ export class PipeError extends Error {
 	}
 }
 
-export interface Pipe<I, O = I> extends StandardSchemaV1<I, O> {
-	readonly context: PipeContext
-	pipe<T>(fn: Pipe<O, T> | PipeFn<O, T>): Pipe<I, T>
+export interface Pipe<I, O = I, C = any> extends StandardSchemaV1<I, O> {
+	readonly context: PipeContext<C>
+	pipe<T>(fn: Pipe<O, T, C> | PipeFn<O, T, C>): Pipe<I, T, C>
 	parse(input: unknown): O
 	safeParse(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
-	meta(schema: PipeMeta): Pipe<I, O>
+	meta(schema: PipeMeta): Pipe<I, O, C>
 	toJsonSchema(schema?: JsonSchema): JsonSchema
 }
 
-export function pipe<I, O = I>(
-	func: PipeFn<I, O>,
+export function pipe<I, O = I, C = any>(
+	func: PipeFn<I, O, C>,
 	config: {
-		context?: PipeContext | ((context: PipeContext) => PipeContext)
-		schema?: JsonSchemaBuilder
+		context?: PipeContext<C> | ((context: PipeContext<C>) => PipeContext<C>)
+		schema?: JsonSchemaBuilder<C>
 	} = {},
-): Pipe<I, O> {
+): Pipe<I, O, C> {
 	const chain: Pipe<any, any>[] = []
 	const pipeSchema = config?.schema ?? {}
 	let meta: PipeMeta = {}
-	let context = typeof config?.context === 'function' ? config.context({}) : (config?.context ?? {})
+	let context: any = typeof config?.context === 'function' ? config.context({} as any) : (config?.context ?? {})
 
-	const piper: Pipe<I, O> = {
+	const piper: Pipe<I, O, C> = {
 		context,
 		pipe: (p) => {
 			const pp = typeof p === 'function' ? pipe(p, config) : p
