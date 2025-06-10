@@ -1,4 +1,5 @@
 import { pipe, PipeError, PipeInput, PipeOutput, type Pipe } from './base'
+import { Prettify } from '../utils/types'
 
 type ObjectPipe<T extends Record<string, Pipe<any, any>>> = Pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>
 
@@ -32,32 +33,35 @@ export const object = <T extends Record<string, Pipe<any, any>>>(objectPipes: T)
 		},
 	)
 
-export const objectPick = <T extends Record<string, Pipe<any, any>>, S extends keyof T>(s: S[]) =>
-	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<Pick<T, S>>>>((input) => input as any, {
-		context: (context) => ({
-			objectPipes: Object.fromEntries(Object.entries(context.objectPipes ?? {}).filter(([key]) => s.includes(key as S))),
-		}),
-	})
+export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends keyof PipeInput<T>>(t: T, s: S[]) =>
+	object(Object.fromEntries(Object.entries(t.context.objectPipes ?? {}).filter(([key]) => s.includes(key as S)))) as Pipe<
+		Prettify<Pick<PipeInput<T>, S>>,
+		Prettify<Pick<PipeOutput<T>, S>>
+	>
 
-export const objectOmit = <T extends Record<string, Pipe<any, any>>, S extends keyof T>(s: S[]) =>
-	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<Omit<T, S>>>>((input) => input as any, {
-		context: (context) => ({
-			objectPipes: Object.fromEntries(Object.entries(context.objectPipes ?? {}).filter(([key]) => !s.includes(key as S))),
-		}),
-	})
+export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends keyof PipeInput<T>>(t: T, s: S[]) =>
+	object(Object.fromEntries(Object.entries(t.context.objectPipes ?? {}).filter(([key]) => !s.includes(key as S)))) as Pipe<
+		Prettify<Omit<PipeInput<T>, S>>,
+		Prettify<Omit<PipeOutput<T>, S>>
+	>
 
-export const objectExtends = <T extends Record<string, Pipe<any, any>>, S extends Record<string, Pipe<any, any>>>(s: S) =>
-	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<Omit<T, keyof S> & S>>>((input) => input as any, {
-		context: (context) => ({ objectPipes: { ...context.objectPipes, ...s } }),
-	})
+export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends Record<string, Pipe<any, any>>>(t: T, s: S) =>
+	object({ ...(t.context.objectPipes ?? {}), ...s }) as Pipe<
+		Prettify<Omit<PipeInput<T>, keyof S> & PipeInput<ObjectPipe<S>>>,
+		Prettify<Omit<PipeOutput<T>, keyof S> & PipeOutput<ObjectPipe<S>>>
+	>
 
-export const objectTrim = <T extends Record<string, Pipe<any, any>>>() =>
-	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<T>>>(
-		(input, context) => {
-			const schema = context.objectPipes ?? {}
-			return Object.fromEntries(Object.entries(input as any).filter(([key]) => !!schema[key])) as any
+export const objectTrim = <T extends ObjectPipe<Record<string, Pipe<any, any>>>>(t: T) =>
+	pipe<PipeInput<T>, PipeOutput<T>>(
+		(input) => {
+			const value = t.parse(input)
+			const schema = t.context.objectPipes ?? {}
+			return Object.fromEntries(Object.entries(value).filter(([key]) => !!schema[key])) as any
 		},
-		{ schema: { additionalProperties: false } },
+		{
+			schema: () => ({ ...t.toJsonSchema(), additionalProperties: false }),
+			context: t.context,
+		},
 	)
 
 export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any>>(kPipe: K, vPipe: V) =>

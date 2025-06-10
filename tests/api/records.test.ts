@@ -18,7 +18,7 @@ describe('records', () => {
 		const rules = v.object({
 			name: v.string(),
 		})
-		let res = v.objectTrim().pipe(rules).safeParse({ name: '', age: 23 })
+		let res = v.objectTrim(rules).safeParse({ name: '', age: 23 })
 		expect(rules.safeParse({ name: '', age: 23 }).valid).toBe(true)
 		expect((res as any).value).toEqual({ name: '' })
 
