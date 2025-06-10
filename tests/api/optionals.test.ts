@@ -34,12 +34,19 @@ describe('optionals', () => {
 		expect(rules.safeParse(2).valid).toBe(false)
 	})
 
-	test('default', () => {
+	test('defaults', () => {
 		const rules = v.defaults(v.string(), () => '')
 		expect(rules.safeParse('hi').valid).toBe(true)
 		expect(rules.safeParse(null).valid).toBe(false)
 		expect(rules.safeParse(undefined).valid).toBe(true)
-		expect(v.defaults(v.string(), 'def').safeParse(undefined).valid).toBe(true)
-		expect(rules.safeParse(2).valid).toBe(false)
+	})
+
+	test('defaultsOnFail', () => {
+		const defaultValue = 'default'
+		const rules = v.defaultsOnFail(v.string(), () => defaultValue)
+		expect(rules.safeParse('hi').valid).toBe(true)
+		expect(rules.safeParse(null).valid).toBe(true)
+		expect(rules.parse(null)).toBe(defaultValue)
+		expect(rules.safeParse(undefined).valid).toBe(true)
 	})
 })

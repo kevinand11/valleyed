@@ -2,25 +2,21 @@ import { describe, expect, test } from 'vitest'
 
 import { v } from '../../src'
 
-describe('or', () => {
+describe('junctions', () => {
 	test('or', () => {
 		const rules = v.or([v.string(), v.number()])
 		expect(rules.safeParse('').valid).toBe(true)
 		expect(rules.safeParse(2).valid).toBe(true)
 		expect(rules.safeParse(false).valid).toBe(false)
 	})
-})
 
-describe('and', () => {
 	test('and', () => {
 		const rules = v.and([v.string(), v.is('and')])
 		expect(rules.safeParse('and').valid).toBe(true)
 		expect(rules.safeParse('').valid).toBe(false)
 		expect(rules.safeParse(false).valid).toBe(false)
 	})
-})
 
-describe('discriminate', () => {
 	test('discriminate', () => {
 		const rules = v.discriminate((v) => v as any, {
 			ha: v.string(),
@@ -38,5 +34,12 @@ describe('discriminate', () => {
 		expect(objectRules.safeParse({ status: 'ha', total: 12 }).valid).toBe(true)
 		expect(objectRules.safeParse({ status: 'ha', total: 9 }).valid).toBe(false)
 		expect(objectRules.safeParse({ status: 'none' }).valid).toBe(false)
+	})
+
+	test('tryJSON', () => {
+		const rules = v.tryJSON(v.number())
+		expect(rules.safeParse('and').valid).toBe(false)
+		expect(rules.safeParse('"1"').valid).toBe(false)
+		expect(rules.safeParse('1').valid).toBe(true)
 	})
 })

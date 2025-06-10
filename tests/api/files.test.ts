@@ -30,4 +30,11 @@ describe('file', () => {
 		expect(rules.safeParse({ type: '' }).valid).toBe(false)
 		expect(rules.safeParse(false).valid).toBe(false)
 	})
+
+	test('fileType', () => {
+		const rules = v.file().pipe(v.fileType('application/pdf'))
+		expect(rules.safeParse({ type: 'application/pdf' }).valid).toBe(true)
+		expect(rules.safeParse({ type: '' }).valid).toBe(false)
+		expect(rules.safeParse(false).valid).toBe(false)
+	})
 })

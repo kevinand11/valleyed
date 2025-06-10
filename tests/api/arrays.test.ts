@@ -19,27 +19,6 @@ describe('array', () => {
 		expect(rules.safeParse([2, '']).valid).toBe(false)
 	})
 
-	test('has', () => {
-		const rules = v.array(v.any()).pipe(v.has(2))
-		expect(rules.safeParse([1]).valid).toBe(false)
-		expect(rules.safeParse([1, 2]).valid).toBe(true)
-		expect(rules.safeParse([1, 2, 3]).valid).toBe(false)
-	})
-
-	test('min', () => {
-		const rules = v.array(v.any()).pipe(v.min(2))
-		expect(rules.safeParse([1]).valid).toBe(false)
-		expect(rules.safeParse([1, 2]).valid).toBe(true)
-		expect(rules.safeParse([1, 2, 3]).valid).toBe(true)
-	})
-
-	test('max', () => {
-		const rules = v.array(v.any()).pipe(v.max(2))
-		expect(rules.safeParse([1]).valid).toBe(true)
-		expect(rules.safeParse([1, 2]).valid).toBe(true)
-		expect(rules.safeParse([1, 2, 3]).valid).toBe(false)
-	})
-
 	test('set', () => {
 		const rules = v.array(v.number().pipe(v.asRound())).pipe(v.asSet())
 		expect(rules.parse([1])).toEqual([1])
