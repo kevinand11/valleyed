@@ -1,0 +1,88 @@
+import { StandardSchemaV1 } from '@standard-schema/spec'
+
+import { PipeError } from './errors'
+import { IsType, JsonSchema, Prettify } from '../../utils/types'
+
+export type PipeFn<I, O = I, C = any> = (input: I, context: PipeContext<C>) => O
+export type PipeInput<T> = T extends Pipe<infer I, any> ? Prettify<I> : never
+export type PipeOutput<T> = T extends Pipe<any, infer O> ? Prettify<O> : never
+export type PipeContext<C> = (IsType<C, any> extends true ? {} : C) & {
+	optional?: boolean
+	objectPipes?: Record<string, Pipe<any, any>>
+}
+export type PipeMeta = Pick<JsonSchema, 'title' | 'description' | 'examples' | 'default'>
+export type JsonSchemaBuilder<C> = JsonSchema | ((context: PipeContext<C>) => JsonSchema)
+
+type Entry<I, O, C> = Pipe<I, O, C> | PipeFn<I, O, C>
+type PipeChain<I, O, C> = {
+	<T1>(fn1: Entry<O, T1, C>): Pipe<I, T1, C>
+	<T1, T2>(fn1: Entry<O, T1, C>, fn2: Entry<T1, T2, C>): Pipe<I, T2, C>
+	<T1, T2, T3>(fn1: Entry<O, T1, C>, fn2: Entry<T1, T2, C>, f3: Entry<T2, T3, C>): Pipe<I, T3, C>
+	<T1, T2, T3, T4>(fn1: Entry<O, T1, C>, fn2: Entry<T1, T2, C>, f3: Entry<T2, T3, C>, f4: Entry<T3, T4, C>): Pipe<I, T4, C>
+	<T1, T2, T3, T4, T5>(
+		fn1: Entry<O, T1, C>,
+		fn2: Entry<T1, T2, C>,
+		f3: Entry<T2, T3, C>,
+		f4: Entry<T3, T4, C>,
+		f5: Entry<T4, T5, C>,
+	): Pipe<I, T5, C>
+	<T1, T2, T3, T4, T5, T6>(
+		fn1: Entry<O, T1, C>,
+		fn2: Entry<T1, T2, C>,
+		f3: Entry<T2, T3, C>,
+		f4: Entry<T3, T4, C>,
+		f5: Entry<T4, T5, C>,
+		f6: Entry<T5, T6, C>,
+	): Pipe<I, T6, C>
+	<T1, T2, T3, T4, T5, T6, T7>(
+		fn1: Entry<O, T1, C>,
+		fn2: Entry<T1, T2, C>,
+		f3: Entry<T2, T3, C>,
+		f4: Entry<T3, T4, C>,
+		f5: Entry<T4, T5, C>,
+		f6: Entry<T5, T6, C>,
+		f7: Entry<T6, T7, C>,
+	): Pipe<I, T7, C>
+	<T1, T2, T3, T4, T5, T6, T7, T8>(
+		fn1: Entry<O, T1, C>,
+		fn2: Entry<T1, T2, C>,
+		f3: Entry<T2, T3, C>,
+		f4: Entry<T3, T4, C>,
+		f5: Entry<T4, T5, C>,
+		f6: Entry<T5, T6, C>,
+		f7: Entry<T6, T7, C>,
+		f8: Entry<T7, T8, C>,
+	): Pipe<I, T8, C>
+	<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+		fn1: Entry<O, T1, C>,
+		fn2: Entry<T1, T2, C>,
+		f3: Entry<T2, T3, C>,
+		f4: Entry<T3, T4, C>,
+		f5: Entry<T4, T5, C>,
+		f6: Entry<T5, T6, C>,
+		f7: Entry<T6, T7, C>,
+		f8: Entry<T7, T8, C>,
+		f9: Entry<T8, T9, C>,
+	): Pipe<I, T9, C>
+	<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+		fn1: Entry<O, T1, C>,
+		fn2: Entry<T1, T2, C>,
+		f3: Entry<T2, T3, C>,
+		f4: Entry<T3, T4, C>,
+		f5: Entry<T4, T5, C>,
+		f6: Entry<T5, T6, C>,
+		f7: Entry<T6, T7, C>,
+		f8: Entry<T7, T8, C>,
+		f9: Entry<T8, T9, C>,
+		f10: Entry<T9, T10, C>,
+	): Pipe<I, T10, C>
+}
+
+export interface Pipe<I, O = I, C = any> extends StandardSchemaV1<I, O> {
+	readonly context: PipeContext<C>
+	pipe: PipeChain<I, O, C>
+	parse(input: unknown): O
+	safeParse(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
+	meta(schema: PipeMeta): Pipe<I, O, C>
+	toJsonSchema(schema?: JsonSchema): JsonSchema
+}
