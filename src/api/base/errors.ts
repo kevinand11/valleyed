@@ -12,6 +12,7 @@ export class PipeError extends Error {
 	constructor(
 		public messages: { message: string; path?: string }[],
 		readonly value: unknown,
+		readonly stopped: boolean,
 		cause?: unknown,
 	) {
 		const message = messages[0]
@@ -26,6 +27,7 @@ export class PipeError extends Error {
 		return new PipeError(
 			flatArray(messages).map((message) => ({ message })),
 			value,
+			false,
 			cause,
 		)
 	}
@@ -34,6 +36,7 @@ export class PipeError extends Error {
 		return new PipeError(
 			flatArray(errors).flatMap((error) => error.messages),
 			value,
+			false,
 			cause,
 		)
 	}
@@ -44,7 +47,12 @@ export class PipeError extends Error {
 				error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
 			),
 			value,
+			false,
 			cause,
 		)
+	}
+
+	static stop(value: unknown) {
+		return new PipeError([], value, true)
 	}
 }

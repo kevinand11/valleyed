@@ -1,40 +1,42 @@
 import { PipeError } from './errors'
-import { PipeFn, PipeContext, JsonSchemaBuilder, PipeMeta, Pipe } from './types'
+import { PipeFn, Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode } from './types'
 
-export function pipe<I, O = I, C = any>(
+export function pipe<I, O, C>(
 	func: PipeFn<I, O, C>,
 	config: {
-		context?: PipeContext<C> | ((context: PipeContext<C>) => PipeContext<C>)
-		schema?: JsonSchemaBuilder<C>
+		context?: () => Context<C>
+		schema?: () => JsonSchemaBuilder
 	} = {},
 ): Pipe<I, O, C> {
-	const chain: Pipe<any, any>[] = []
-	const pipeSchema = config?.schema ?? {}
 	let meta: PipeMeta = {}
-	let context: any = typeof config?.context === 'function' ? config.context({} as any) : (config?.context ?? {})
+
+	const node: PipeNode<I, O, C> = {
+		fn: func,
+		context: () => config.context?.() ?? ({} as any),
+		schema: () => ({ ...config.schema?.(), ...meta }),
+	}
 
 	const piper: Pipe<I, O, C> = {
-		context,
-		pipe: (...entries: any[]) => {
-			entries.forEach((entry) => {
-				const p = typeof entry === 'function' ? pipe(entry, config) : entry
-				context = { ...context, ...p.context }
-				chain.push(p)
-			})
-			return piper as any
+		prev: undefined,
+		node,
+		pipe: (...entries: Entry<any, any, any>[]) =>
+			entries.reduce((acc, cur) => {
+				const p = typeof cur === 'function' ? pipe(cur, config) : cur
+				p.prev = acc
+				return p
+			}, piper),
+		parse: (input) => {
+			try {
+				const { nodes, context } = gather(piper)
+				return nodes.reduce((acc, cur) => cur.fn(acc, context), input) as O
+			} catch (error) {
+				if (error instanceof PipeError) {
+					if (error.stopped) return error.value as O
+					throw error
+				}
+				throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
+			}
 		},
-		parse: (input) =>
-			chain.reduce(
-				(acc, p) => {
-					try {
-						return p.parse(acc)
-					} catch (error) {
-						if (error instanceof PipeError) throw error
-						throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
-					}
-				},
-				func(input as any, context),
-			),
 		safeParse: (input) => {
 			try {
 				const value = piper.parse(input)
@@ -44,16 +46,15 @@ export function pipe<I, O = I, C = any>(
 				throw error
 			}
 		},
+		context: () => gather(piper).context as any,
 		meta: (schema) => {
 			meta = { ...meta, ...schema }
 			return piper
 		},
-		toJsonSchema: (schema = {}) =>
-			chain.reduce((acc, p) => p.toJsonSchema(acc), {
-				...schema,
-				...(typeof pipeSchema === 'function' ? pipeSchema(context) : pipeSchema),
-				...meta,
-			}),
+		toJsonSchema: (schema = {}) => {
+			const { nodes } = gather(piper)
+			return nodes.reduce((acc, cur) => ({ ...acc, ...cur.schema() }), schema)
+		},
 		'~standard': {
 			version: 1,
 			vendor: 'valleyed',
@@ -70,4 +71,30 @@ export function pipe<I, O = I, C = any>(
 		},
 	}
 	return piper
+}
+
+function gather(pipe: Pipe<any, any, any>) {
+	const pipes = [pipe.node]
+	while (pipe.prev) {
+		pipes.push(pipe.prev.node)
+		pipe = pipe.prev
+	}
+	const nodes = pipes.reverse()
+	const context = nodes.reduce((acc, cur) => ({ ...acc, ...cur.context() }), {}) as Context<any>
+	return { nodes, context }
+}
+
+export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C>(
+	branch: P,
+	fn: PipeFn<I, O, C>,
+	config: {
+		context: (context: Context<C>) => Context<C>
+		schema: (schema: JsonSchemaBuilder) => JsonSchemaBuilder
+	},
+) {
+	return pipe(fn, {
+		...config,
+		context: () => config.context(branch.context() as any),
+		schema: () => ({ ...config.schema(branch.node.schema()) }),
+	})
 }
