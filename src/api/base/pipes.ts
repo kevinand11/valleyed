@@ -1,5 +1,5 @@
 import { PipeError } from './errors'
-import { PipeFn, PipeContext, JsonSchemaBuilder, PipeMeta, Pipe, Entry } from './types'
+import { PipeFn, PipeContext, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode } from './types'
 
 export function pipe<I, O = I, C = any>(
 	func: PipeFn<I, O, C>,
@@ -12,22 +12,33 @@ export function pipe<I, O = I, C = any>(
 	let meta: PipeMeta = {}
 	const context: any = typeof config?.context === 'function' ? config.context({} as any) : (config?.context ?? {})
 
+	const node: PipeNode<I, O, C> = {
+		fn: func,
+		context,
+		schema: (context) => ({
+			...(typeof pipeSchema === 'function' ? pipeSchema(context) : pipeSchema),
+			...meta,
+		}),
+	}
+
 	const piper: Pipe<I, O, C> = {
 		prev: undefined,
-		context,
+		node,
 		pipe: (...entries: Entry<any, any, any>[]) =>
 			entries.reduce((acc, cur) => {
 				const p = typeof cur === 'function' ? pipe(cur, config) : cur
-				p.context = { ...context, ...p.context }
+				p.node.context = { ...context, ...p.node.context }
 				p.prev = acc
 				return p
 			}, piper),
 		parse: (input) => {
 			try {
-				const inputToRun = piper.prev ? piper.prev.parse(input) : input
-				return func(inputToRun, context)
+				return gather(piper).reduce((acc, cur) => cur.fn(acc, context), input) as O
 			} catch (error) {
-				if (error instanceof PipeError) throw error
+				if (error instanceof PipeError) {
+					if (error.stopped) return error.value as O
+					throw error
+				}
 				throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
 			}
 		},
@@ -44,12 +55,7 @@ export function pipe<I, O = I, C = any>(
 			meta = { ...meta, ...schema }
 			return piper
 		},
-		toJsonSchema: (schema = {}) => ({
-			...piper.prev?.toJsonSchema(schema),
-			...schema,
-			...(typeof pipeSchema === 'function' ? pipeSchema(context) : pipeSchema),
-			...meta,
-		}),
+		toJsonSchema: (schema = {}) => gather(piper).reduce((acc, cur) => ({ ...acc, ...cur.schema(context) }), schema),
 		'~standard': {
 			version: 1,
 			vendor: 'valleyed',
@@ -66,4 +72,13 @@ export function pipe<I, O = I, C = any>(
 		},
 	}
 	return piper
+}
+
+function gather(pipe: Pipe<any, any, any>) {
+	const pipes = [pipe.node]
+	while (pipe.prev) {
+		pipes.push(pipe.prev.node)
+		pipe = pipe.prev
+	}
+	return pipes.reverse()
 }

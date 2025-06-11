@@ -28,7 +28,7 @@ export const object = <T extends Record<string, Pipe<any, any>>>(objectPipes: T)
 			type: 'object',
 			properties: Object.fromEntries(Object.entries(context.objectPipes ?? {}).map(([key, pipe]) => [key, pipe.toJsonSchema()])),
 			required: Object.entries(context.objectPipes ?? {})
-				.filter(([, pipe]) => !pipe.context.optional)
+				.filter(([, pipe]) => !pipe.node.context.optional)
 				.map(([key]) => key),
 			additionalProperties: true,
 		}),
@@ -39,8 +39,8 @@ export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any>>>,
 	pipe<Prettify<Pick<PipeInput<T>, S>>, Prettify<Pick<PipeOutput<T>, S>>>(objectPipeFn, {
 		schema: () => t.toJsonSchema(),
 		context: {
-			...t.context,
-			objectPipes: Object.fromEntries(Object.entries(t.context.objectPipes ?? {}).filter(([key]) => s.includes(key as S))),
+			...t.node.context,
+			objectPipes: Object.fromEntries(Object.entries(t.node.context.objectPipes ?? {}).filter(([key]) => s.includes(key as S))),
 		},
 	})
 
@@ -48,8 +48,8 @@ export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any>>>,
 	pipe<Prettify<Omit<PipeInput<T>, S>>, Prettify<Omit<PipeOutput<T>, S>>>(objectPipeFn, {
 		schema: () => t.toJsonSchema(),
 		context: {
-			...t.context,
-			objectPipes: Object.fromEntries(Object.entries(t.context.objectPipes ?? {}).filter(([key]) => !s.includes(key as S))),
+			...t.node.context,
+			objectPipes: Object.fromEntries(Object.entries(t.node.context.objectPipes ?? {}).filter(([key]) => !s.includes(key as S))),
 		},
 	})
 
@@ -59,19 +59,19 @@ export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any>
 		Prettify<Omit<PipeOutput<T>, keyof S> & PipeOutput<ObjectPipe<S>>>
 	>(objectPipeFn, {
 		schema: () => t.toJsonSchema(),
-		context: { ...t.context, objectPipes: { ...t.context.objectPipes, ...s } },
+		context: { ...t.node.context, objectPipes: { ...t.node.context.objectPipes, ...s } },
 	})
 
 export const objectTrim = <T extends ObjectPipe<Record<string, Pipe<any, any>>>>(t: T) =>
 	pipe<PipeInput<T>, PipeOutput<T>>(
 		(input) => {
 			const value = t.parse(input)
-			const schema = t.context.objectPipes ?? {}
+			const schema = t.node.context.objectPipes ?? {}
 			return Object.fromEntries(Object.entries(value).filter(([key]) => !!schema[key])) as any
 		},
 		{
 			schema: () => ({ ...t.toJsonSchema(), additionalProperties: false }),
-			context: t.context,
+			context: t.node.context,
 		},
 	)
 

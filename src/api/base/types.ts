@@ -79,11 +79,17 @@ type PipeChain<I, O, C> = {
 }
 
 export interface Pipe<I, O = I, C = any> extends StandardSchemaV1<I, O> {
+	readonly node: PipeNode<I, O, C>
 	prev?: Pipe<any, any, any>
-	context: PipeContext<C>
 	pipe: PipeChain<I, O, C>
 	parse(input: unknown): O
 	safeParse(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
 	meta(schema: PipeMeta): Pipe<I, O, C>
 	toJsonSchema(schema?: JsonSchema): JsonSchema
+}
+
+export type PipeNode<I, O = I, C = any> = {
+	fn: PipeFn<I, O, C>
+	schema: (context: PipeContext<C>) => JsonSchema
+	context: PipeContext<C>
 }
