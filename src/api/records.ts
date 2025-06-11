@@ -1,9 +1,10 @@
-import { makeBranchPipe, pipe, PipeError, PipeFn, PipeInput, PipeOutput, type Pipe } from './base'
+import { makeBranchPipe, pipe, PipeContext, PipeError, PipeFn, PipeInput, PipeOutput, type Pipe } from './base'
 import { ConditionalObjectKeys, Prettify } from '../utils/types'
 
-type ObjectPipe<T extends Record<string, Pipe<any, any>>> = Pipe<
+type ObjectPipe<T extends Record<string, Pipe<any, any, any>>> = Pipe<
 	ConditionalObjectKeys<{ [K in keyof T]: PipeInput<T[K]> }>,
-	ConditionalObjectKeys<{ [K in keyof T]: PipeOutput<T[K]> }>
+	ConditionalObjectKeys<{ [K in keyof T]: PipeOutput<T[K]> }>,
+	any
 >
 
 const objectPipeFn: PipeFn<any> = (input, context) => {
@@ -22,7 +23,7 @@ const objectPipeFn: PipeFn<any> = (input, context) => {
 	return obj
 }
 
-const makeObjectSchema = <T extends Record<string, Pipe<any, any>>>(objectPipes: T) => ({
+const makeObjectSchema = <T extends Record<string, Pipe<any, any, any>>>(objectPipes: T) => ({
 	type: 'object',
 	properties: Object.fromEntries(Object.entries(objectPipes ?? {}).map(([key, pipe]) => [key, pipe.toJsonSchema()])),
 	required: Object.entries(objectPipes ?? {})
@@ -31,17 +32,17 @@ const makeObjectSchema = <T extends Record<string, Pipe<any, any>>>(objectPipes:
 	additionalProperties: true,
 })
 
-export const object = <T extends Record<string, Pipe<any, any>>>(objectPipes: T) =>
-	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<T>>>(objectPipeFn, {
+export const object = <T extends Record<string, Pipe<any, any, any>>>(objectPipes: T) =>
+	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<T>>, any>(objectPipeFn, {
 		schema: () => makeObjectSchema(objectPipes),
 		context: () => ({ objectPipes }),
 	})
 
-export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends keyof PipeInput<T> & string>(
+export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>, S extends keyof PipeInput<T> & string>(
 	branch: T,
 	keys: S[],
 ) =>
-	makeBranchPipe<T, Prettify<Pick<PipeInput<T>, S>>, Prettify<Pick<PipeOutput<T>, S>>>(branch, objectPipeFn, {
+	makeBranchPipe<T, Prettify<Pick<PipeInput<T>, S>>, Prettify<Pick<PipeOutput<T>, S>>, PipeContext<T>>(branch, objectPipeFn, {
 		schema: (s) => ({
 			...s,
 			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => keys.includes(key as S))),
@@ -53,11 +54,11 @@ export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any>>>,
 		}),
 	})
 
-export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends keyof PipeInput<T> & string>(
+export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>, S extends keyof PipeInput<T> & string>(
 	branch: T,
 	keys: S[],
 ) =>
-	makeBranchPipe<T, Prettify<Omit<PipeInput<T>, S>>, Prettify<Omit<PipeOutput<T>, S>>>(branch, objectPipeFn, {
+	makeBranchPipe<T, Prettify<Omit<PipeInput<T>, S>>, Prettify<Omit<PipeOutput<T>, S>>, PipeContext<T>>(branch, objectPipeFn, {
 		schema: (s) => ({
 			...s,
 			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => !keys.includes(key as S))),
@@ -69,14 +70,15 @@ export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any>>>,
 		}),
 	})
 
-export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends Record<string, Pipe<any, any>>>(
+export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>, S extends Record<string, Pipe<any, any, any>>>(
 	branch: T,
 	pipes: S,
 ) =>
 	makeBranchPipe<
 		T,
 		Prettify<Omit<PipeInput<T>, keyof S> & PipeInput<ObjectPipe<S>>>,
-		Prettify<Omit<PipeOutput<T>, keyof S> & PipeOutput<ObjectPipe<S>>>
+		Prettify<Omit<PipeOutput<T>, keyof S> & PipeOutput<ObjectPipe<S>>>,
+		PipeContext<T> & PipeContext<ObjectPipe<S>>
 	>(branch, objectPipeFn, {
 		schema: (s) => {
 			const newSchema = makeObjectSchema(pipes)
@@ -90,8 +92,8 @@ export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any>
 		context: (c) => ({ ...c, objectPipes: { ...c.objectPipes, ...pipes } }),
 	})
 
-export const objectTrim = <T extends ObjectPipe<Record<string, Pipe<any, any>>>>(branch: T) =>
-	makeBranchPipe<T, PipeInput<T>, PipeOutput<T>>(
+export const objectTrim = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>>(branch: T) =>
+	makeBranchPipe<T, PipeInput<T>, PipeOutput<T>, PipeContext<T>>(
 		branch,
 		(input, context) => {
 			const value = branch.parse(input)
@@ -104,8 +106,8 @@ export const objectTrim = <T extends ObjectPipe<Record<string, Pipe<any, any>>>>
 		},
 	)
 
-export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any>>(kPipe: K, vPipe: V) =>
-	pipe<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>>(
+export const record = <K extends Pipe<any, PropertyKey, any>, V extends Pipe<any, any, any>>(kPipe: K, vPipe: V) =>
+	pipe<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>, any>(
 		(input: unknown) => {
 			if (typeof input !== 'object' || input === null || Array.isArray(input)) throw PipeError.root(['is not an object'], input)
 			const obj = structuredClone(input)
@@ -133,4 +135,4 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 	)
 
 export const asMap = <K extends PropertyKey, V>() =>
-	pipe<Record<K, V>, Map<K, V>>((input) => new Map<K, V>(Object.entries(input) as any), {})
+	pipe<Record<K, V>, Map<K, V>, any>((input) => new Map<K, V>(Object.entries(input) as any), {})

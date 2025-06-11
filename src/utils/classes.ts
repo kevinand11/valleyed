@@ -38,7 +38,7 @@ export class DataClass<Keys extends Record<string, unknown>, Ignored extends str
 
 	constructor(
 		keys: Keys,
-		pipe?: Pipe<Keys>,
+		pipe?: Pipe<unknown, Keys, any>,
 		access: Accessor<Keys> = {
 			get: (key, keys) => keys[key],
 			set: (key, value, keys) => {

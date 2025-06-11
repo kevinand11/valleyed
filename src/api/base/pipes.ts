@@ -1,10 +1,10 @@
 import { PipeError } from './errors'
-import { PipeFn, PipeContext, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode } from './types'
+import { PipeFn, Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode } from './types'
 
-export function pipe<I, O = I, C = any>(
+export function pipe<I, O, C>(
 	func: PipeFn<I, O, C>,
 	config: {
-		context?: () => PipeContext<C>
+		context?: () => Context<C>
 		schema?: () => JsonSchemaBuilder
 	} = {},
 ): Pipe<I, O, C> {
@@ -79,15 +79,15 @@ function gather(pipe: Pipe<any, any, any>) {
 		pipe = pipe.prev
 	}
 	const nodes = pipes.reverse()
-	const context = nodes.reduce((acc, cur) => ({ ...acc, ...cur.context() }), {} as PipeContext<any>)
+	const context = nodes.reduce((acc, cur) => ({ ...acc, ...cur.context() }), {} as Context<any>)
 	return { nodes, context }
 }
 
-export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C = any>(
+export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C>(
 	branch: P,
 	fn: PipeFn<I, O, C>,
 	config: {
-		context: (context: PipeContext<C>) => PipeContext<C>
+		context: (context: Context<C>) => Context<C>
 		schema: (schema: JsonSchemaBuilder) => JsonSchemaBuilder
 	},
 ) {

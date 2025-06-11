@@ -2,13 +2,13 @@ import { pipe, PipeError } from './base'
 import { equal } from '../utils/differ'
 
 export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass custom rule`) =>
-	pipe<T>((input) => {
+	pipe<T, T, any>((input) => {
 		if (condition(input as any)) return input as T
 		throw PipeError.root(err, input)
 	}, {})
 
 export const eq = <T>(compare: T, comparer = equal as (val: any, compare: T) => boolean, err = `is not equal ${compare}`) =>
-	pipe<T>(
+	pipe<T, T, any>(
 		(input) => {
 			if (input === compare || comparer(input, compare)) return input as T
 			throw PipeError.root(err, input)
@@ -19,7 +19,7 @@ export const eq = <T>(compare: T, comparer = equal as (val: any, compare: T) => 
 export const is = eq
 
 export const ne = <T>(compare: T, comparer = equal as (val: any, compare: T) => boolean, err = `is equal to ${compare}`) =>
-	pipe<T>(
+	pipe<T, T, any>(
 		(input) => {
 			if (!comparer(input, compare) && input !== compare) return input as T
 			throw PipeError.root(err, input)
@@ -32,7 +32,7 @@ const inArray = <T>(
 	comparer = equal as (val: any, arrayItem: T) => boolean,
 	err = `is not in the list: [${array.join(',')}]`,
 ) =>
-	pipe<T>(
+	pipe<T, T, any>(
 		(input) => {
 			if (array.find((x) => comparer(input, x))) return input as T
 			throw PipeError.root(err, input)
@@ -45,7 +45,7 @@ export const nin = <T>(
 	comparer = equal as (val: any, arrayItem: T) => boolean,
 	err = `is in the list: [${array.join(',')}]`,
 ) =>
-	pipe<T>(
+	pipe<T, T, any>(
 		(input) => {
 			if (!array.find((x) => comparer(input, x))) return input as T
 			throw PipeError.root(err, input)
@@ -58,7 +58,7 @@ function itemType(input: unknown) {
 }
 
 export const has = <T extends { length: number }>(length: number, err?: string) =>
-	pipe<T>(
+	pipe<T, T, any>(
 		(input) => {
 			if (input.length === length) return input
 			throw PipeError.root(err ?? `must contain ${length} ${itemType(input)}`, input)
@@ -67,7 +67,7 @@ export const has = <T extends { length: number }>(length: number, err?: string) 
 	)
 
 export const min = <T extends { length: number }>(length: number, err?: string) =>
-	pipe<T>(
+	pipe<T, T, any>(
 		(input) => {
 			if (input.length >= length) return input
 			throw PipeError.root(err ?? `must contain ${length} or more ${itemType(input)}`, input)
@@ -76,7 +76,7 @@ export const min = <T extends { length: number }>(length: number, err?: string) 
 	)
 
 export const max = <T extends { length: number }>(length: number, err?: string) =>
-	pipe<T>(
+	pipe<T, T, any>(
 		(input) => {
 			if (input.length <= length) return input
 			throw PipeError.root(err ?? `must contain ${length} or less ${itemType(input)}`, input)

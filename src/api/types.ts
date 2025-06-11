@@ -1,8 +1,8 @@
 import { pipe, PipeError } from './base'
 
 const isString = (err = 'is not a string') =>
-	pipe<string>(
-		(input: unknown) => {
+	pipe<unknown, string, any>(
+		(input) => {
 			if (typeof input === 'string' || input?.constructor?.name === 'String') return input as string
 			throw PipeError.root(err, input)
 		},
@@ -10,8 +10,8 @@ const isString = (err = 'is not a string') =>
 	)
 
 const isNumber = (err = 'is not a number') =>
-	pipe<number>(
-		(input: unknown) => {
+	pipe<unknown, number, any>(
+		(input) => {
 			if (typeof input === 'number' && !isNaN(input)) return input
 			throw PipeError.root(err, input)
 		},
@@ -19,8 +19,8 @@ const isNumber = (err = 'is not a number') =>
 	)
 
 const isBoolean = (err = 'is not a boolean') =>
-	pipe<boolean>(
-		(input: unknown) => {
+	pipe<unknown, boolean, any>(
+		(input) => {
 			if (input === true || input === false) return input
 			throw PipeError.root(err, input)
 		},
@@ -28,8 +28,8 @@ const isBoolean = (err = 'is not a boolean') =>
 	)
 
 const isNull = (err = 'is not null') =>
-	pipe<null>(
-		(input: unknown) => {
+	pipe<unknown, null, any>(
+		(input) => {
 			if (input === null) return input
 			throw PipeError.root(err, input)
 		},
@@ -37,19 +37,19 @@ const isNull = (err = 'is not null') =>
 	)
 
 const isUndefined = (err = 'is not undefined') =>
-	pipe<undefined>(
-		(input: unknown) => {
+	pipe<unknown, undefined, any>(
+		(input) => {
 			if (input === undefined) return input
 			throw PipeError.root(err, input)
 		},
 		{ schema: () => ({ type: 'undefined' }) },
 	)
 
-const isAny = <T>() => pipe<T>((input) => input)
+const isAny = <T>() => pipe<unknown, T, any>((input) => input as T)
 
 const isInstanceOf = <T>(classDef: abstract new (...args: any[]) => T, err = `is not an instance of ${classDef.name}`) =>
-	pipe<T>((input) => {
-		if ((input as any)?.constructor === classDef) return input
+	pipe<unknown, T, any>((input) => {
+		if ((input as any)?.constructor === classDef) return input as T
 		if (input instanceof classDef) return input
 		throw PipeError.root(err, input)
 	})
