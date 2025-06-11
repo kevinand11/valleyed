@@ -13,7 +13,7 @@ export type PipeContext<C> = (IsType<C, any> extends true ? {} : C) & {
 export type PipeMeta = Pick<JsonSchema, 'title' | 'description' | 'examples' | 'default'>
 export type JsonSchemaBuilder<C> = JsonSchema | ((context: PipeContext<C>) => JsonSchema)
 
-type Entry<I, O, C> = Pipe<I, O, C> | PipeFn<I, O, C>
+export type Entry<I, O, C> = Pipe<I, O, C> | PipeFn<I, O, C>
 type PipeChain<I, O, C> = {
 	<T1>(fn1: Entry<O, T1, C>): Pipe<I, T1, C>
 	<T1, T2>(fn1: Entry<O, T1, C>, fn2: Entry<T1, T2, C>): Pipe<I, T2, C>
@@ -79,7 +79,8 @@ type PipeChain<I, O, C> = {
 }
 
 export interface Pipe<I, O = I, C = any> extends StandardSchemaV1<I, O> {
-	readonly context: PipeContext<C>
+	prev?: Pipe<any, any, any>
+	context: PipeContext<C>
 	pipe: PipeChain<I, O, C>
 	parse(input: unknown): O
 	safeParse(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
