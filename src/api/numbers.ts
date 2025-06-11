@@ -6,7 +6,7 @@ export const gt = (value: number, err = `must be greater than ${value}`) =>
 			if (input > value) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { exclusiveMinimum: value } },
+		{ schema: () => ({ exclusiveMinimum: value }) },
 	)
 
 export const gte = (value: number, err = `must be greater than or equal to ${value}`) =>
@@ -15,7 +15,7 @@ export const gte = (value: number, err = `must be greater than or equal to ${val
 			if (input >= value) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { minimum: value } },
+		{ schema: () => ({ minimum: value }) },
 	)
 
 export const lt = (value: number, err = `must be less than ${value}`) =>
@@ -24,7 +24,7 @@ export const lt = (value: number, err = `must be less than ${value}`) =>
 			if (input < value) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { exclusiveMaximum: value } },
+		{ schema: () => ({ exclusiveMaximum: value }) },
 	)
 
 export const lte = (value: number, err = `must be less than or equal to ${value}`) =>
@@ -33,7 +33,7 @@ export const lte = (value: number, err = `must be less than or equal to ${value}
 			if (input <= value) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { maximum: value } },
+		{ schema: () => ({ maximum: value }) },
 	)
 
 export const int = (err = 'is not an integer') =>
@@ -42,7 +42,7 @@ export const int = (err = 'is not an integer') =>
 			if (input === parseInt(input as any)) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { type: 'integer' } },
+		{ schema: () => ({ type: 'integer' }) },
 	)
 
 export const asRound = (dp = 0) => pipe<number>((input) => Number(input.toFixed(dp)), {})

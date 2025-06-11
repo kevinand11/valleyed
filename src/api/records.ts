@@ -26,15 +26,15 @@ const makeObjectSchema = <T extends Record<string, Pipe<any, any>>>(objectPipes:
 	type: 'object',
 	properties: Object.fromEntries(Object.entries(objectPipes ?? {}).map(([key, pipe]) => [key, pipe.toJsonSchema()])),
 	required: Object.entries(objectPipes ?? {})
-		.filter(([, pipe]) => !pipe.node.context.optional)
+		.filter(([, pipe]) => !pipe.context().optional)
 		.map(([key]) => key),
 	additionalProperties: true,
 })
 
 export const object = <T extends Record<string, Pipe<any, any>>>(objectPipes: T) =>
 	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<T>>>(objectPipeFn, {
-		schema: makeObjectSchema(objectPipes),
-		context: { objectPipes },
+		schema: () => makeObjectSchema(objectPipes),
+		context: () => ({ objectPipes }),
 	})
 
 export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any>>>, S extends keyof PipeInput<T> & string>(
@@ -124,11 +124,11 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 			return obj as any
 		},
 		{
-			schema: {
+			schema: () => ({
 				type: 'object',
 				propertyNames: kPipe.toJsonSchema(),
 				additionalProperties: vPipe.toJsonSchema(),
-			},
+			}),
 		},
 	)
 

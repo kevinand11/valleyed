@@ -13,7 +13,7 @@ export const eq = <T>(compare: T, comparer = equal as (val: any, compare: T) => 
 			if (input === compare || comparer(input, compare)) return input as T
 			throw PipeError.root(err, input)
 		},
-		{ schema: { const: compare } },
+		{ schema: () => ({ const: compare }) },
 	)
 
 export const is = eq
@@ -24,7 +24,7 @@ export const ne = <T>(compare: T, comparer = equal as (val: any, compare: T) => 
 			if (!comparer(input, compare) && input !== compare) return input as T
 			throw PipeError.root(err, input)
 		},
-		{ schema: { not: { const: compare } } },
+		{ schema: () => ({ not: { const: compare } }) },
 	)
 
 const inArray = <T>(
@@ -37,7 +37,7 @@ const inArray = <T>(
 			if (array.find((x) => comparer(input, x))) return input as T
 			throw PipeError.root(err, input)
 		},
-		{ schema: { enum: [...array] } },
+		{ schema: () => ({ enum: [...array] }) },
 	)
 
 export const nin = <T>(
@@ -50,7 +50,7 @@ export const nin = <T>(
 			if (!array.find((x) => comparer(input, x))) return input as T
 			throw PipeError.root(err, input)
 		},
-		{ schema: { not: { enum: [...array] } } },
+		{ schema: () => ({ not: { enum: [...array] } }) },
 	)
 
 function itemType(input: unknown) {
@@ -63,7 +63,7 @@ export const has = <T extends { length: number }>(length: number, err?: string) 
 			if (input.length === length) return input
 			throw PipeError.root(err ?? `must contain ${length} ${itemType(input)}`, input)
 		},
-		{ schema: { minItems: length, maxItems: length, minLength: length, maxLength: length } },
+		{ schema: () => ({ minItems: length, maxItems: length, minLength: length, maxLength: length }) },
 	)
 
 export const min = <T extends { length: number }>(length: number, err?: string) =>
@@ -72,7 +72,7 @@ export const min = <T extends { length: number }>(length: number, err?: string) 
 			if (input.length >= length) return input
 			throw PipeError.root(err ?? `must contain ${length} or more ${itemType(input)}`, input)
 		},
-		{ schema: { minItems: length, minLength: length } },
+		{ schema: () => ({ minItems: length, minLength: length }) },
 	)
 
 export const max = <T extends { length: number }>(length: number, err?: string) =>
@@ -81,7 +81,7 @@ export const max = <T extends { length: number }>(length: number, err?: string) 
 			if (input.length <= length) return input
 			throw PipeError.root(err ?? `must contain ${length} or less ${itemType(input)}`, input)
 		},
-		{ schema: { maxItems: length, maxLength: length } },
+		{ schema: () => ({ maxItems: length, maxLength: length }) },
 	)
 
 export { inArray as in }

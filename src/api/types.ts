@@ -6,7 +6,7 @@ const isString = (err = 'is not a string') =>
 			if (typeof input === 'string' || input?.constructor?.name === 'String') return input as string
 			throw PipeError.root(err, input)
 		},
-		{ schema: { type: 'string' } },
+		{ schema: () => ({ type: 'string' }) },
 	)
 
 const isNumber = (err = 'is not a number') =>
@@ -15,7 +15,7 @@ const isNumber = (err = 'is not a number') =>
 			if (typeof input === 'number' && !isNaN(input)) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { type: 'number' } },
+		{ schema: () => ({ type: 'number' }) },
 	)
 
 const isBoolean = (err = 'is not a boolean') =>
@@ -24,7 +24,7 @@ const isBoolean = (err = 'is not a boolean') =>
 			if (input === true || input === false) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { type: 'boolean' } },
+		{ schema: () => ({ type: 'boolean' }) },
 	)
 
 const isNull = (err = 'is not null') =>
@@ -33,7 +33,7 @@ const isNull = (err = 'is not null') =>
 			if (input === null) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { type: 'null' } },
+		{ schema: () => ({ type: 'null' }) },
 	)
 
 const isUndefined = (err = 'is not undefined') =>
@@ -42,7 +42,7 @@ const isUndefined = (err = 'is not undefined') =>
 			if (input === undefined) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { type: 'undefined' } },
+		{ schema: () => ({ type: 'undefined' }) },
 	)
 
 const isAny = <T>() => pipe<T>((input) => input)

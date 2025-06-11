@@ -13,7 +13,7 @@ export const or = <T extends Pipe<any, any>[]>(pipes: T) =>
 			}
 			throw errors[0]
 		},
-		{ schema: { oneOf: pipes.map((branch) => branch.toJsonSchema()) } },
+		{ schema: () => ({ oneOf: pipes.map((branch) => branch.toJsonSchema()) }) },
 	)
 
 export const and = <T extends Pipe<any, any>>(pipes: T[]) =>
@@ -26,7 +26,7 @@ export const and = <T extends Pipe<any, any>>(pipes: T[]) =>
 			}
 			return input as any
 		},
-		{ schema: { allOf: pipes.map((branch) => branch.toJsonSchema()) } },
+		{ schema: () => ({ allOf: pipes.map((branch) => branch.toJsonSchema()) }) },
 	)
 
 export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
@@ -40,7 +40,9 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 			if (!schemas[accessor]) throw PipeError.root(err, input)
 			return schemas[accessor].parse(input)
 		},
-		{ schema: { oneOf: Object.values(schemas).map((schema) => schema.toJsonSchema()) } },
+		{
+			schema: () => ({ oneOf: Object.values(schemas).map((schema) => schema.toJsonSchema()) }),
+		},
 	)
 
 export const tryJSON = <T extends Pipe<any, any>>(branch: T) =>

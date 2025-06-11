@@ -8,7 +8,7 @@ export const email = (err = 'is not a valid email') =>
 			if (emailRegex.test(input)) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { format: 'email' } },
+		{ schema: () => ({ format: 'email' }) },
 	)
 
 export const url = (err = 'is not a valid url') =>
@@ -17,7 +17,7 @@ export const url = (err = 'is not a valid url') =>
 			if (urlRegex().test(input)) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { format: 'uri' } },
+		{ schema: () => ({ format: 'uri' }) },
 	)
 
 export const asTrim = () => pipe<string>((input) => input.trim(), {})

@@ -13,7 +13,7 @@ export const file = <T extends File>(err = 'is not a recognized file') =>
 			if (isFile(input) && isMimeType(input.type)) return input
 			throw PipeError.root(err, input)
 		},
-		{ schema: { type: 'string', format: 'binary' } },
+		{ schema: () => ({ type: 'string', format: 'binary' }) },
 	)
 
 export const image = <T extends File>(err = 'is not a recognized image file') =>

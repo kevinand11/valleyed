@@ -4,17 +4,15 @@ import { PipeFn, PipeContext, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode
 export function pipe<I, O = I, C = any>(
 	func: PipeFn<I, O, C>,
 	config: {
-		context?: PipeContext<C>
-		schema?: JsonSchemaBuilder
+		context?: () => PipeContext<C>
+		schema?: () => JsonSchemaBuilder
 	} = {},
 ): Pipe<I, O, C> {
-	const pipeSchema = config?.schema ?? {}
 	let meta: PipeMeta = {}
 
 	const node: PipeNode<I, O, C> = {
 		fn: func,
-		context: config?.context ?? ({} as any),
-		schema: () => ({ ...pipeSchema, ...meta }),
+		schema: () => ({ ...config?.schema?.(), ...meta }),
 	}
 
 	const piper: Pipe<I, O, C> = {
@@ -29,7 +27,7 @@ export function pipe<I, O = I, C = any>(
 		parse: (input) => {
 			try {
 				const { nodes, context } = gather(piper)
-				return nodes.reduce((acc, cur) => cur.fn(acc, context), input) as O
+				return nodes.reduce((acc, cur) => cur.node.fn(acc, context), input) as O
 			} catch (error) {
 				if (error instanceof PipeError) {
 					if (error.stopped) return error.value as O
@@ -47,13 +45,14 @@ export function pipe<I, O = I, C = any>(
 				throw error
 			}
 		},
+		context: () => config.context?.() ?? ({} as any),
 		meta: (schema) => {
 			meta = { ...meta, ...schema }
 			return piper
 		},
 		toJsonSchema: (schema = {}) => {
-			const { nodes, context } = gather(piper)
-			return nodes.reduce((acc, cur) => ({ ...acc, ...cur.schema(context) }), schema)
+			const { nodes } = gather(piper)
+			return nodes.reduce((acc, cur) => ({ ...acc, ...cur.node.schema() }), schema)
 		},
 		'~standard': {
 			version: 1,
@@ -74,13 +73,13 @@ export function pipe<I, O = I, C = any>(
 }
 
 function gather(pipe: Pipe<any, any, any>) {
-	const pipes = [pipe.node]
+	const pipes = [pipe]
 	while (pipe.prev) {
-		pipes.push(pipe.prev.node)
+		pipes.push(pipe.prev)
 		pipe = pipe.prev
 	}
 	const nodes = pipes.reverse()
-	const context = nodes.reduce((acc, cur) => ({ ...acc, ...cur.context }), {} as PipeContext<any>)
+	const context = nodes.reduce((acc, cur) => ({ ...acc, ...cur.context() }), {} as PipeContext<any>)
 	return { nodes, context }
 }
 
@@ -92,10 +91,9 @@ export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C = any>(
 		schema: (schema: JsonSchemaBuilder) => JsonSchemaBuilder
 	},
 ) {
-	const context = config.context(branch.node.context as any)
 	return pipe(fn, {
 		...config,
-		context,
-		schema: { ...config.schema(branch.node.schema(context as any)) },
+		context: () => config.context(branch.context() as any),
+		schema: () => ({ ...config.schema(branch.node.schema()) }),
 	})
 }
