@@ -17,7 +17,7 @@ export const array = <T extends Pipe<any, any>>(pipeSchema: T) =>
 				)
 			return res
 		},
-		{ schema: () => ({ type: 'array', items: pipeSchema.toJsonSchema() }) },
+		{ schema: { type: 'array', items: pipeSchema.toJsonSchema() } },
 	)
 
 export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(pipes: readonly [...T]) =>
@@ -39,12 +39,12 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(pipes: readonly [
 			return res
 		},
 		{
-			schema: () => ({
+			schema: {
 				type: 'array',
 				items: pipes.map((pipe) => pipe.toJsonSchema()),
 				minItems: pipes.length,
 				maxItems: pipes.length,
-			}),
+			},
 		},
 	)
 

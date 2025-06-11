@@ -4,8 +4,8 @@ import { PipeFn, PipeContext, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode
 export function pipe<I, O = I, C = any>(
 	func: PipeFn<I, O, C>,
 	config: {
-		context?: PipeContext<C> | (() => PipeContext<C>)
-		schema?: JsonSchemaBuilder<C>
+		context?: PipeContext<C>
+		schema?: JsonSchemaBuilder
 	} = {},
 ): Pipe<I, O, C> {
 	const pipeSchema = config?.schema ?? {}
@@ -13,12 +13,8 @@ export function pipe<I, O = I, C = any>(
 
 	const node: PipeNode<I, O, C> = {
 		fn: func,
-		context: typeof config?.context === 'function' ? config.context() : (config?.context ?? ({} as any)),
-		schema: (schema, context) => ({
-			...schema,
-			...(typeof pipeSchema === 'function' ? pipeSchema(schema, context) : pipeSchema),
-			...meta,
-		}),
+		context: config?.context ?? ({} as any),
+		schema: () => ({ ...pipeSchema, ...meta }),
 	}
 
 	const piper: Pipe<I, O, C> = {
@@ -57,7 +53,7 @@ export function pipe<I, O = I, C = any>(
 		},
 		toJsonSchema: (schema = {}) => {
 			const { nodes, context } = gather(piper)
-			return nodes.reduce((acc, cur) => cur.schema(acc, context), schema)
+			return nodes.reduce((acc, cur) => ({ ...acc, ...cur.schema(context) }), schema)
 		},
 		'~standard': {
 			version: 1,
@@ -86,4 +82,20 @@ function gather(pipe: Pipe<any, any, any>) {
 	const nodes = pipes.reverse()
 	const context = nodes.reduce((acc, cur) => ({ ...acc, ...cur.context }), {} as PipeContext<any>)
 	return { nodes, context }
+}
+
+export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C = any>(
+	branch: P,
+	fn: PipeFn<I, O, C>,
+	config: {
+		context: (context: PipeContext<C>) => PipeContext<C>
+		schema: (schema: JsonSchemaBuilder) => JsonSchemaBuilder
+	},
+) {
+	const context = config.context(branch.node.context as any)
+	return pipe(fn, {
+		...config,
+		context,
+		schema: { ...config.schema(branch.node.schema(context as any)) },
+	})
 }
