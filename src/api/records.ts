@@ -24,7 +24,7 @@ const objectPipeFn: PipeFn<any> = (input, context) => {
 
 export const object = <T extends Record<string, Pipe<any, any>>>(objectPipes: T) =>
 	pipe<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<T>>>(objectPipeFn, {
-		schema: (context) => ({
+		schema: (_, context) => ({
 			type: 'object',
 			properties: Object.fromEntries(Object.entries(context.objectPipes ?? {}).map(([key, pipe]) => [key, pipe.toJsonSchema()])),
 			required: Object.entries(context.objectPipes ?? {})

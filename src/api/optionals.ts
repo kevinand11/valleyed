@@ -30,7 +30,7 @@ export const nullable = <T extends Pipe<any, any>>(branch: T) =>
 export const optional = <T extends Pipe<any, any>>(branch: T) =>
 	partial<T, undefined>(branch, (i) => i === undefined, true, {
 		schema: () => branch.toJsonSchema(),
-		context: { optional: true },
+		context: () => ({ ...branch.node.context, optional: true }),
 	})
 
 export const nullish = <T extends Pipe<any, any>>(branch: T) =>
@@ -42,13 +42,13 @@ export const nullish = <T extends Pipe<any, any>>(branch: T) =>
 			if (!newType.includes('null')) newType.push('null')
 			return { ...branchSchema, type: newType }
 		},
-		context: { optional: true },
+		context: () => ({ ...branch.node.context, optional: true }),
 	})
 
 export const requiredIf = <T extends Pipe<any, any>>(branch: T, condition: () => boolean) =>
 	partial<T, undefined>(branch, () => !condition(), condition(), {
 		schema: () => branch.toJsonSchema(),
-		context: { optional: true },
+		context: () => ({ ...branch.node.context, optional: true }),
 	})
 
 type FunctionOrValue<T> = T | (() => T) | undefined

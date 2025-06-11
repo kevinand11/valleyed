@@ -11,7 +11,7 @@ export type PipeContext<C> = (IsType<C, any> extends true ? {} : C) & {
 	objectPipes?: Record<string, Pipe<any, any>>
 }
 export type PipeMeta = Pick<JsonSchema, 'title' | 'description' | 'examples' | 'default'>
-export type JsonSchemaBuilder<C> = JsonSchema | ((context: PipeContext<C>) => JsonSchema)
+export type JsonSchemaBuilder<C> = JsonSchema | ((schema: JsonSchema, context: PipeContext<C>) => JsonSchema)
 
 export type Entry<I, O, C> = Pipe<I, O, C> | PipeFn<I, O, C>
 type PipeChain<I, O, C> = {
@@ -90,7 +90,6 @@ export interface Pipe<I, O = I, C = any> extends StandardSchemaV1<I, O> {
 
 export type PipeNode<I, O = I, C = any> = {
 	fn: PipeFn<I, O, C>
-	schema: (context: PipeContext<C>) => JsonSchema
+	schema: (schema: JsonSchema, context: PipeContext<C>) => JsonSchema
 	context: PipeContext<C>
-	wrap: boolean
 }

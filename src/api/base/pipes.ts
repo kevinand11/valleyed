@@ -4,21 +4,19 @@ import { PipeFn, PipeContext, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode
 export function pipe<I, O = I, C = any>(
 	func: PipeFn<I, O, C>,
 	config: {
-		context?: PipeContext<C> | ((context: PipeContext<C>) => PipeContext<C>)
+		context?: PipeContext<C> | (() => PipeContext<C>)
 		schema?: JsonSchemaBuilder<C>
-		wrap?: boolean
 	} = {},
 ): Pipe<I, O, C> {
 	const pipeSchema = config?.schema ?? {}
 	let meta: PipeMeta = {}
-	const context: any = typeof config?.context === 'function' ? config.context({} as any) : (config?.context ?? {})
 
 	const node: PipeNode<I, O, C> = {
 		fn: func,
-		context,
-		wrap: config?.wrap ?? false,
-		schema: (context) => ({
-			...(typeof pipeSchema === 'function' ? pipeSchema(context) : pipeSchema),
+		context: typeof config?.context === 'function' ? config.context() : (config?.context ?? ({} as any)),
+		schema: (schema, context) => ({
+			...schema,
+			...(typeof pipeSchema === 'function' ? pipeSchema(schema, context) : pipeSchema),
 			...meta,
 		}),
 	}
@@ -29,14 +27,13 @@ export function pipe<I, O = I, C = any>(
 		pipe: (...entries: Entry<any, any, any>[]) =>
 			entries.reduce((acc, cur) => {
 				const p = typeof cur === 'function' ? pipe(cur, config) : cur
-				p.node.context = { ...context, ...p.node.context }
-				if (p.node.wrap) getRootPipe(acc).prev = p
 				p.prev = acc
 				return p
 			}, piper),
 		parse: (input) => {
 			try {
-				return gather(piper).reduce((acc, cur) => cur.fn(acc, context), input) as O
+				const { nodes, context } = gather(piper)
+				return nodes.reduce((acc, cur) => cur.fn(acc, context), input) as O
 			} catch (error) {
 				if (error instanceof PipeError) {
 					if (error.stopped) return error.value as O
@@ -58,7 +55,10 @@ export function pipe<I, O = I, C = any>(
 			meta = { ...meta, ...schema }
 			return piper
 		},
-		toJsonSchema: (schema = {}) => gather(piper).reduce((acc, cur) => ({ ...acc, ...cur.schema(context) }), schema),
+		toJsonSchema: (schema = {}) => {
+			const { nodes, context } = gather(piper)
+			return nodes.reduce((acc, cur) => cur.schema(acc, context), schema)
+		},
 		'~standard': {
 			version: 1,
 			vendor: 'valleyed',
@@ -83,11 +83,7 @@ function gather(pipe: Pipe<any, any, any>) {
 		pipes.push(pipe.prev.node)
 		pipe = pipe.prev
 	}
-	return pipes.reverse()
-}
-
-function getRootPipe(pipe: Pipe<any, any, any>) {
-	let current = pipe
-	while (current.prev) current = current.prev
-	return current
+	const nodes = pipes.reverse()
+	const context = nodes.reduce((acc, cur) => ({ ...acc, ...cur.context }), {} as PipeContext<any>)
+	return { nodes, context }
 }
