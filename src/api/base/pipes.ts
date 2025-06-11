@@ -6,6 +6,7 @@ export function pipe<I, O = I, C = any>(
 	config: {
 		context?: PipeContext<C> | ((context: PipeContext<C>) => PipeContext<C>)
 		schema?: JsonSchemaBuilder<C>
+		wrap?: boolean
 	} = {},
 ): Pipe<I, O, C> {
 	const pipeSchema = config?.schema ?? {}
@@ -15,6 +16,7 @@ export function pipe<I, O = I, C = any>(
 	const node: PipeNode<I, O, C> = {
 		fn: func,
 		context,
+		wrap: config?.wrap ?? false,
 		schema: (context) => ({
 			...(typeof pipeSchema === 'function' ? pipeSchema(context) : pipeSchema),
 			...meta,
@@ -28,6 +30,7 @@ export function pipe<I, O = I, C = any>(
 			entries.reduce((acc, cur) => {
 				const p = typeof cur === 'function' ? pipe(cur, config) : cur
 				p.node.context = { ...context, ...p.node.context }
+				if (p.node.wrap) getRootPipe(acc).prev = p
 				p.prev = acc
 				return p
 			}, piper),
@@ -81,4 +84,10 @@ function gather(pipe: Pipe<any, any, any>) {
 		pipe = pipe.prev
 	}
 	return pipes.reverse()
+}
+
+function getRootPipe(pipe: Pipe<any, any, any>) {
+	let current = pipe
+	while (current.prev) current = current.prev
+	return current
 }

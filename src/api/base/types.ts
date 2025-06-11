@@ -92,4 +92,5 @@ export type PipeNode<I, O = I, C = any> = {
 	fn: PipeFn<I, O, C>
 	schema: (context: PipeContext<C>) => JsonSchema
 	context: PipeContext<C>
+	wrap: boolean
 }

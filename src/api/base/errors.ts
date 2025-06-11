@@ -9,7 +9,7 @@ function formatError(message: { message: string; path?: string }) {
 }
 
 export class PipeError extends Error {
-	private constructor(
+	constructor(
 		public messages: { message: string; path?: string }[],
 		readonly value: unknown,
 		readonly stopped: boolean,
