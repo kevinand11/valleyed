@@ -1,12 +1,12 @@
 import { StandardSchemaV1 } from '@standard-schema/spec'
 
 import { PipeError } from './errors'
-import { JsonSchema, Prettify } from '../../utils/types'
+import { JsonSchema } from '../../utils/types'
 
 export type PipeFn<I, O = I, C = any> = (input: I, context: Context<C>) => O
-export type PipeInput<T> = T extends Pipe<infer I, any, any> ? Prettify<I> : never
-export type PipeOutput<T> = T extends Pipe<any, infer O, any> ? Prettify<O> : never
-export type PipeContext<T> = T extends Pipe<any, any, infer C> ? Prettify<C> : never
+export type PipeInput<T> = T extends Pipe<infer I, any, any> ? I : never
+export type PipeOutput<T> = T extends Pipe<any, infer O, any> ? O : never
+export type PipeContext<T> = T extends Pipe<any, any, infer C> ? C : never
 export type Context<C> = C & {
 	optional?: boolean
 	objectPipes?: Record<string, Pipe<any, any, any>>

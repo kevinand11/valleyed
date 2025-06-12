@@ -1,9 +1,8 @@
 import { makeBranchPipe, pipe, PipeContext, PipeError, PipeFn, PipeInput, PipeOutput, type Pipe } from './base'
-import { ConditionalObjectKeys, Prettify } from '../utils/types'
 
 type ObjectPipe<T extends Record<string, Pipe<any, any, any>>> = Pipe<
-	ConditionalObjectKeys<{ [K in keyof T]: PipeInput<T[K]> }>,
-	ConditionalObjectKeys<{ [K in keyof T]: PipeOutput<T[K]> }>,
+	{ [K in keyof T]: PipeInput<T[K]> },
+	{ [K in keyof T]: PipeOutput<T[K]> },
 	any
 >
 
@@ -42,7 +41,7 @@ export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any, an
 	branch: T,
 	keys: S[],
 ) =>
-	makeBranchPipe<T, Prettify<Pick<PipeInput<T>, S>>, Prettify<Pick<PipeOutput<T>, S>>, any>(branch, objectPipeFn, {
+	makeBranchPipe<T, Pick<PipeInput<T>, S>, Pick<PipeOutput<T>, S>, any>(branch, objectPipeFn, {
 		schema: (s) => ({
 			...s,
 			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => keys.includes(key as S))),
@@ -58,7 +57,7 @@ export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any, an
 	branch: T,
 	keys: S[],
 ) =>
-	makeBranchPipe<T, Prettify<Omit<PipeInput<T>, S>>, Prettify<Omit<PipeOutput<T>, S>>, any>(branch, objectPipeFn, {
+	makeBranchPipe<T, Omit<PipeInput<T>, S>, Omit<PipeOutput<T>, S>, any>(branch, objectPipeFn, {
 		schema: (s) => ({
 			...s,
 			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => !keys.includes(key as S))),
@@ -76,8 +75,8 @@ export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any,
 ) =>
 	makeBranchPipe<
 		T,
-		Prettify<Omit<PipeInput<T>, keyof S> & PipeInput<ObjectPipe<S>>>,
-		Prettify<Omit<PipeOutput<T>, keyof S> & PipeOutput<ObjectPipe<S>>>,
+		Omit<PipeInput<T>, keyof S> & PipeInput<ObjectPipe<S>>,
+		Omit<PipeOutput<T>, keyof S> & PipeOutput<ObjectPipe<S>>,
 		any
 	>(branch, objectPipeFn, {
 		schema: (s) => {

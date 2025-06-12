@@ -12,13 +12,15 @@ export type DeepOmit<T, K, A = never> = T extends any[]
 					>
 				}
 
-export type ConditionalObjectKeys<T> = Prettify<
-	{
-		[K in keyof T as undefined extends T[K] ? never : K]: T[K]
-	} & {
-		[K in keyof T as undefined extends T[K] ? K : never]?: T[K]
-	}
->
+export type ConditionalObjectKeys<T> = T extends object
+	? Prettify<
+			{
+				[K in keyof T as undefined extends T[K] ? never : K]: ConditionalObjectKeys<T[K]>
+			} & {
+				[K in keyof T as undefined extends T[K] ? K : never]?: ConditionalObjectKeys<T[K]>
+			}
+		>
+	: T
 
 export type JSONPrimitives = string | number | boolean | null
 export type JSONValue = JSONPrimitives | JSONValue[] | { [k: string]: JSONValue }
