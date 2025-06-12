@@ -40,6 +40,15 @@ export class DataClass<Keys extends Record<string, unknown>, Ignored extends str
 	constructor(
 		keys: Keys,
 		public __pipe: Pipe<Keys, Keys, any> = v.any(),
+		access?: Accessor<Keys>,
+	) {
+		super()
+		keys = __pipe.parse(keys)
+		this.__update(keys, access)
+	}
+
+	__update(
+		keys: Keys,
 		access: Accessor<Keys> = {
 			get: (key, keys) => keys[key],
 			set: (key, value, keys) => {
@@ -47,8 +56,6 @@ export class DataClass<Keys extends Record<string, unknown>, Ignored extends str
 			},
 		},
 	) {
-		super()
-		keys = __pipe.parse(keys)
 		Object.keys(keys).forEach((key) => {
 			Object.defineProperty(this, key, {
 				get: () => access.get(key as keyof Keys, keys),
@@ -61,7 +68,7 @@ export class DataClass<Keys extends Record<string, unknown>, Ignored extends str
 		})
 	}
 
-	toJSON(includeIgnored = false): JSONOf<this, Keys, Ignored, '__ignoreInJSON' | 'toJSON' | '__pipe'> {
+	toJSON(includeIgnored = false): JSONOf<this, Keys, Ignored, '__pipe' | '__ignoreInJSON' | '__update' | 'toJSON'> {
 		const json: Record<string, any> = {}
 		Object.keys(this)
 			.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))
