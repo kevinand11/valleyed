@@ -10,9 +10,9 @@ export function pipe<I, O, C>(
 ): Pipe<I, O, C> {
 	let meta: PipeMeta = {}
 
-	const node: PipeNode<I, O, C> = {
+	const node: PipeNode = {
 		fn: func,
-		context: () => config.context?.() ?? ({} as any),
+		context: () => config.context?.() ?? {},
 		schema: () => ({ ...config.schema?.(), ...meta }),
 	}
 
@@ -20,7 +20,7 @@ export function pipe<I, O, C>(
 		prev: undefined,
 		node,
 		pipe: (...entries: Entry<any, any, any>[]) =>
-			entries.reduce((acc, cur) => {
+			entries.reduce<Pipe<any, any, any>>((acc, cur) => {
 				const p = typeof cur === 'function' ? pipe(cur, config) : cur
 				p.prev = acc
 				return p
@@ -46,7 +46,7 @@ export function pipe<I, O, C>(
 				throw error
 			}
 		},
-		context: () => gather(piper).context as any,
+		context: () => gather(piper).context,
 		meta: (schema) => {
 			meta = { ...meta, ...schema }
 			return piper
@@ -94,7 +94,7 @@ export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C>(
 ) {
 	return pipe(fn, {
 		...config,
-		context: () => config.context(branch.context() as any),
+		context: () => config.context(branch.context()),
 		schema: () => ({ ...config.schema(branch.node.schema()) }),
 	})
 }

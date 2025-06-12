@@ -1,13 +1,13 @@
 import { StandardSchemaV1 } from '@standard-schema/spec'
 
 import { PipeError } from './errors'
-import { IsType, JsonSchema, Prettify } from '../../utils/types'
+import { JsonSchema, Prettify } from '../../utils/types'
 
 export type PipeFn<I, O = I, C = any> = (input: I, context: Context<C>) => O
 export type PipeInput<T> = T extends Pipe<infer I, any, any> ? Prettify<I> : never
 export type PipeOutput<T> = T extends Pipe<any, infer O, any> ? Prettify<O> : never
 export type PipeContext<T> = T extends Pipe<any, any, infer C> ? Prettify<C> : never
-export type Context<C> = (IsType<C, any> extends true ? {} : C) & {
+export type Context<C> = C & {
 	optional?: boolean
 	objectPipes?: Record<string, Pipe<any, any, any>>
 }
@@ -80,7 +80,7 @@ type PipeChain<I, O, C> = {
 }
 
 export interface Pipe<I, O, C> extends StandardSchemaV1<I, O> {
-	readonly node: PipeNode<I, O, C>
+	readonly node: PipeNode
 	prev?: Pipe<any, any, any>
 	pipe: PipeChain<I, O, C>
 	parse(input: unknown): O
@@ -90,8 +90,8 @@ export interface Pipe<I, O, C> extends StandardSchemaV1<I, O> {
 	toJsonSchema(schema?: JsonSchema): JsonSchema
 }
 
-export type PipeNode<I, O, C> = {
-	fn: PipeFn<I, O, C>
-	context: () => C
+export type PipeNode = {
+	fn: PipeFn<any, any, any>
+	context: () => Context<any>
 	schema: () => JsonSchema
 }

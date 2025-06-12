@@ -10,7 +10,7 @@ type ObjectPipe<T extends Record<string, Pipe<any, any, any>>> = Pipe<
 const objectPipeFn: PipeFn<any> = (input, context) => {
 	const pipes = context.objectPipes ?? {}
 	if (typeof input !== 'object' || input === null || Array.isArray(input)) throw PipeError.root('is not an object', input)
-	const obj = structuredClone(input) as any
+	const obj = structuredClone(input)
 	const keys = new Set([...Object.keys(pipes ?? {}), ...Object.keys(obj)])
 	const errors: PipeError[] = []
 	for (const key of keys) {
@@ -42,7 +42,7 @@ export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any, an
 	branch: T,
 	keys: S[],
 ) =>
-	makeBranchPipe<T, Prettify<Pick<PipeInput<T>, S>>, Prettify<Pick<PipeOutput<T>, S>>, PipeContext<T>>(branch, objectPipeFn, {
+	makeBranchPipe<T, Prettify<Pick<PipeInput<T>, S>>, Prettify<Pick<PipeOutput<T>, S>>, any>(branch, objectPipeFn, {
 		schema: (s) => ({
 			...s,
 			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => keys.includes(key as S))),
@@ -58,7 +58,7 @@ export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any, an
 	branch: T,
 	keys: S[],
 ) =>
-	makeBranchPipe<T, Prettify<Omit<PipeInput<T>, S>>, Prettify<Omit<PipeOutput<T>, S>>, PipeContext<T>>(branch, objectPipeFn, {
+	makeBranchPipe<T, Prettify<Omit<PipeInput<T>, S>>, Prettify<Omit<PipeOutput<T>, S>>, any>(branch, objectPipeFn, {
 		schema: (s) => ({
 			...s,
 			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => !keys.includes(key as S))),
@@ -78,7 +78,7 @@ export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any,
 		T,
 		Prettify<Omit<PipeInput<T>, keyof S> & PipeInput<ObjectPipe<S>>>,
 		Prettify<Omit<PipeOutput<T>, keyof S> & PipeOutput<ObjectPipe<S>>>,
-		PipeContext<T> & PipeContext<ObjectPipe<S>>
+		any
 	>(branch, objectPipeFn, {
 		schema: (s) => {
 			const newSchema = makeObjectSchema(pipes)

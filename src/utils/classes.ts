@@ -2,6 +2,7 @@ import util from 'util'
 
 import { wrapInTryCatch } from './functions'
 import { DeepOmit, IsType, JSONValueOf } from './types'
+import { v } from '../api'
 import { Pipe } from '../api/base'
 
 if (util?.inspect?.defaultOptions) {
@@ -38,7 +39,7 @@ export class DataClass<Keys extends Record<string, unknown>, Ignored extends str
 
 	constructor(
 		keys: Keys,
-		pipe?: Pipe<unknown, Keys, any>,
+		public __pipe: Pipe<Keys, Keys, any> = v.any(),
 		access: Accessor<Keys> = {
 			get: (key, keys) => keys[key],
 			set: (key, value, keys) => {
@@ -47,7 +48,7 @@ export class DataClass<Keys extends Record<string, unknown>, Ignored extends str
 		},
 	) {
 		super()
-		if (pipe) keys = pipe.parse(keys)
+		keys = __pipe.parse(keys)
 		Object.keys(keys).forEach((key) => {
 			Object.defineProperty(this, key, {
 				get: () => access.get(key as keyof Keys, keys),
@@ -60,7 +61,7 @@ export class DataClass<Keys extends Record<string, unknown>, Ignored extends str
 		})
 	}
 
-	toJSON(includeIgnored = false): JSONOf<this, Keys, Ignored, '__ignoreInJSON' | 'toJSON'> {
+	toJSON(includeIgnored = false): JSONOf<this, Keys, Ignored, '__ignoreInJSON' | 'toJSON' | '__pipe'> {
 		const json: Record<string, any> = {}
 		Object.keys(this)
 			.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))

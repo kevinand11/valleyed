@@ -1,7 +1,7 @@
-import { pipe, PipeContext, PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
+import { pipe, PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
 
 export const array = <T extends Pipe<any, any, any>>(pipeSchema: T) =>
-	pipe<PipeInput<T>[], PipeOutput<T>[], PipeContext<T>[]>(
+	pipe<PipeInput<T>[], PipeOutput<T>[], any>(
 		(input: unknown) => {
 			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
 			if (input.length === 0) return input
@@ -21,7 +21,7 @@ export const array = <T extends Pipe<any, any, any>>(pipeSchema: T) =>
 	)
 
 export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: readonly [...T]) =>
-	pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }, { [K in keyof T]: PipeContext<T[K]> }>(
+	pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }, any>(
 		(input: unknown) => {
 			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
 			if (pipes.length !== input.length) throw PipeError.root(`expected ${pipes.length} but got ${input.length} items`, input)

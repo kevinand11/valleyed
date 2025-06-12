@@ -3,11 +3,11 @@ import { pipe, PipeError } from './base'
 export type Timeable = Date | string | number
 
 export const time = (err = 'is not a valid datetime') =>
-	pipe<unknown, Date, any>(
+	pipe<Date, Date, any>(
 		(input) => {
 			if (input instanceof Date) return input
 			if (typeof input === 'number' || typeof input === 'string') {
-				const date = new Date(input as any)
+				const date = new Date(input)
 				if (!isNaN(date.getTime())) return date
 			}
 			throw PipeError.root(err, input)

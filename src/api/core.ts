@@ -3,11 +3,11 @@ import { equal } from '../utils/differ'
 
 export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass custom rule`) =>
 	pipe<T, T, any>((input) => {
-		if (condition(input as any)) return input as T
+		if (condition(input)) return input as T
 		throw PipeError.root(err, input)
 	}, {})
 
-export const eq = <T>(compare: T, comparer = equal as (val: any, compare: T) => boolean, err = `is not equal ${compare}`) =>
+export const eq = <T>(compare: T, comparer = equal as (val: T, compare: T) => boolean, err = `is not equal ${compare}`) =>
 	pipe<T, T, any>(
 		(input) => {
 			if (input === compare || comparer(input, compare)) return input as T
@@ -18,7 +18,7 @@ export const eq = <T>(compare: T, comparer = equal as (val: any, compare: T) => 
 
 export const is = eq
 
-export const ne = <T>(compare: T, comparer = equal as (val: any, compare: T) => boolean, err = `is equal to ${compare}`) =>
+export const ne = <T>(compare: T, comparer = equal as (val: T, compare: T) => boolean, err = `is equal to ${compare}`) =>
 	pipe<T, T, any>(
 		(input) => {
 			if (!comparer(input, compare) && input !== compare) return input as T
@@ -29,7 +29,7 @@ export const ne = <T>(compare: T, comparer = equal as (val: any, compare: T) => 
 
 const inArray = <T>(
 	array: Readonly<T[]>,
-	comparer = equal as (val: any, arrayItem: T) => boolean,
+	comparer = equal as (val: T, arrayItem: T) => boolean,
 	err = `is not in the list: [${array.join(',')}]`,
 ) =>
 	pipe<T, T, any>(
@@ -42,7 +42,7 @@ const inArray = <T>(
 
 export const nin = <T>(
 	array: Readonly<T[]>,
-	comparer = equal as (val: any, arrayItem: T) => boolean,
+	comparer = equal as (val: T, arrayItem: T) => boolean,
 	err = `is in the list: [${array.join(',')}]`,
 ) =>
 	pipe<T, T, any>(

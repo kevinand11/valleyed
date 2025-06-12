@@ -1,8 +1,8 @@
 import { pipe, PipeError } from './base'
 
 const isString = (err = 'is not a string') =>
-	pipe<unknown, string, any>(
-		(input) => {
+	pipe<string, string, any>(
+		(input: unknown) => {
 			if (typeof input === 'string' || input?.constructor?.name === 'String') return input as string
 			throw PipeError.root(err, input)
 		},
@@ -10,8 +10,8 @@ const isString = (err = 'is not a string') =>
 	)
 
 const isNumber = (err = 'is not a number') =>
-	pipe<unknown, number, any>(
-		(input) => {
+	pipe<number, number, any>(
+		(input: unknown) => {
 			if (typeof input === 'number' && !isNaN(input)) return input
 			throw PipeError.root(err, input)
 		},
@@ -19,8 +19,8 @@ const isNumber = (err = 'is not a number') =>
 	)
 
 const isBoolean = (err = 'is not a boolean') =>
-	pipe<unknown, boolean, any>(
-		(input) => {
+	pipe<boolean, boolean, any>(
+		(input: unknown) => {
 			if (input === true || input === false) return input
 			throw PipeError.root(err, input)
 		},
@@ -28,8 +28,8 @@ const isBoolean = (err = 'is not a boolean') =>
 	)
 
 const isNull = (err = 'is not null') =>
-	pipe<unknown, null, any>(
-		(input) => {
+	pipe<null, null, any>(
+		(input: unknown) => {
 			if (input === null) return input
 			throw PipeError.root(err, input)
 		},
@@ -37,19 +37,19 @@ const isNull = (err = 'is not null') =>
 	)
 
 const isUndefined = (err = 'is not undefined') =>
-	pipe<unknown, undefined, any>(
-		(input) => {
+	pipe<undefined, undefined, any>(
+		(input: unknown) => {
 			if (input === undefined) return input
 			throw PipeError.root(err, input)
 		},
 		{ schema: () => ({ type: 'undefined' }) },
 	)
 
-const isAny = <T>() => pipe<unknown, T, any>((input) => input as T)
+const isAny = <T>() => pipe<T, T, any>((input) => input as T)
 
 const isInstanceOf = <T>(classDef: abstract new (...args: any[]) => T, err = `is not an instance of ${classDef.name}`) =>
-	pipe<unknown, T, any>((input) => {
-		if ((input as any)?.constructor === classDef) return input as T
+	pipe<T, T, any>((input) => {
+		if (input?.constructor === classDef) return input as T
 		if (input instanceof classDef) return input
 		throw PipeError.root(err, input)
 	})
