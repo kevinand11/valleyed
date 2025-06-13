@@ -11,7 +11,7 @@ export type Context<C> = C & {
 	optional?: boolean
 	objectPipes?: Record<string, Pipe<any, any, any>>
 }
-export type PipeMeta = Pick<JsonSchema, 'title' | 'description' | 'examples' | 'default'>
+export type PipeMeta = Pick<JsonSchema, '$refId' | 'title' | 'description' | 'examples' | 'default'>
 export type JsonSchemaBuilder = JsonSchema
 
 export type Entry<I, O, C> = Pipe<I, O, C> | PipeFn<I, O, C>

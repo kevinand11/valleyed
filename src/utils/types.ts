@@ -98,6 +98,8 @@ export type Paths<T, D = never> = T extends StopTypes
 			: D
 
 export interface JsonSchema {
+	$ref?: string
+	$refId?: string
 	type?: string | string[]
 	format?: string
 	pattern?: string
