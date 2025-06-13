@@ -35,16 +35,12 @@ function WrapWithProperties(): { new <Keys extends Record<string, unknown>>(): K
 class __Root<Keys extends Record<string, unknown>> extends WrapWithProperties()<Keys> {}
 
 export class DataClass<Keys extends Record<string, unknown>, Ignored extends string = never> extends __Root<Keys> {
+	public readonly __pipe: Pipe<Keys, Keys, any> = v.any()
 	public readonly __ignoreInJSON: ReadonlyArray<Ignored> = []
 
-	constructor(
-		keys: Keys,
-		public __pipe: Pipe<Keys, Keys, any> = v.any(),
-		access?: Accessor<Keys>,
-	) {
+	constructor(keys: Keys, access?: Accessor<Keys>) {
 		super()
-		keys = __pipe.parse(keys)
-		this.__update(keys, access)
+		this.__update(this.__pipe.parse(keys), access)
 	}
 
 	__update(
