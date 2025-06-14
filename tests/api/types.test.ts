@@ -44,4 +44,20 @@ describe('types', () => {
 		expect(rules.safeParse(1).valid).toBe(true)
 		expect(rules.safeParse([2]).valid).toBe(true)
 	})
+
+	test('instanceof', () => {
+		const rules = v.instanceOf(Date)
+		expect(rules.safeParse('').valid).toBe(false)
+		expect(rules.safeParse(1).valid).toBe(false)
+		expect(rules.safeParse({}).valid).toBe(false)
+		expect(rules.safeParse(new Date()).valid).toBe(true)
+	})
+
+	test('function', () => {
+		const rules = v.function()
+		expect(rules.safeParse('').valid).toBe(false)
+		expect(rules.safeParse(1).valid).toBe(false)
+		expect(rules.safeParse({}).valid).toBe(false)
+		expect(rules.safeParse(() => 1).valid).toBe(true)
+	})
 })

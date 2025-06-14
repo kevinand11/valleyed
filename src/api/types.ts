@@ -54,6 +54,12 @@ const isInstanceOf = <T>(classDef: abstract new (...args: any[]) => T, err = `is
 		throw PipeError.root(err, input)
 	})
 
+const isFunction = <T extends (...args: any[]) => any>(err = `is not a function`) =>
+	pipe<T, T, any>((input) => {
+		if (typeof input === 'function') return input
+		throw PipeError.root(err, input)
+	})
+
 export {
 	isString as string,
 	isNumber as number,
@@ -62,4 +68,5 @@ export {
 	isUndefined as undefined,
 	isAny as any,
 	isInstanceOf as instanceOf,
+	isFunction as function,
 }
