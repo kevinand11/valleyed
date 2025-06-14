@@ -12,15 +12,18 @@ export type DeepOmit<T, K, A = never> = T extends any[]
 					>
 				}
 
-export type ConditionalObjectKeys<T> = T extends object
-	? Prettify<
-			{
-				[K in keyof T as undefined extends T[K] ? never : K]: ConditionalObjectKeys<T[K]>
-			} & {
-				[K in keyof T as undefined extends T[K] ? K : never]?: ConditionalObjectKeys<T[K]>
-			}
-		>
-	: T
+export type ConditionalObjectKeys<T> =
+	T extends Array<infer I>
+		? Array<ConditionalObjectKeys<I>>
+		: T extends object
+			? Prettify<
+					{
+						[K in keyof T as undefined extends T[K] ? never : K]: ConditionalObjectKeys<T[K]>
+					} & {
+						[K in keyof T as undefined extends T[K] ? K : never]?: ConditionalObjectKeys<T[K]>
+					}
+				>
+			: T
 
 export type JSONPrimitives = string | number | boolean | null
 export type JSONValue = JSONPrimitives | JSONValue[] | { [k: string]: JSONValue }
@@ -47,13 +50,15 @@ export type JSONValueOf<T> = Prettify<
 >
 
 export type Prettify<T> =
-	IsClassInstance<T> extends true
-		? T
-		: T extends object
-			? {
-					[K in keyof T]: Prettify<T[K]>
-				} & {}
-			: T
+	T extends Array<infer I>
+		? Array<Prettify<I>>
+		: IsClassInstance<T> extends true
+			? T
+			: T extends object
+				? {
+						[K in keyof T]: Prettify<T[K]>
+					} & {}
+				: T
 
 export type EnumToStringUnion<T extends Record<string, string | number>> = `${T[keyof T]}`
 
