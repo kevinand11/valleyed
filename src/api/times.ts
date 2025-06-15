@@ -12,7 +12,7 @@ export const time = (err = 'is not a valid datetime') =>
 			}
 			throw PipeError.root(err, input)
 		},
-		{ schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'int' }] }) },
+		{ schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }) },
 	)
 
 export const after = (compare: Timeable, err = 'is not later than compared value') =>

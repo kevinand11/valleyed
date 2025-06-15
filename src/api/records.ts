@@ -9,13 +9,17 @@ type ObjectPipe<T extends Record<string, Pipe<any, any, any>>> = Pipe<
 const objectPipeFn: PipeFn<any> = (input, context) => {
 	const pipes = context.objectPipes ?? {}
 	if (typeof input !== 'object' || input === null || Array.isArray(input)) throw PipeError.root('is not an object', input)
-	const obj = structuredClone(input)
-	const keys = new Set([...Object.keys(pipes ?? {}), ...Object.keys(obj)])
+	const obj = {}
+	const keys = new Set([...Object.keys(pipes ?? {}), ...Object.keys(input)])
 	const errors: PipeError[] = []
 	for (const key of keys) {
-		if (!(key in pipes)) continue
-		const validity = pipes[key].safeParse(obj[key])
-		if (!validity.valid) errors.push(PipeError.path(key, validity.error, obj[key]))
+		const value = input[key]
+		if (!(key in pipes)) {
+			obj[key] = value
+			continue
+		}
+		const validity = pipes[key].safeParse(value)
+		if (!validity.valid) errors.push(PipeError.path(key, validity.error, value))
 		else obj[key] = validity.value
 	}
 	if (errors.length) throw PipeError.rootFrom(errors, input)

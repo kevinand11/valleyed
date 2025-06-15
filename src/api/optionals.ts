@@ -22,12 +22,7 @@ const partial = <T extends Pipe<any, any, any>, P, C>(
 
 export const nullable = <T extends Pipe<any, any, any>>(branch: T) =>
 	partial<T, null, any>(branch, (i) => i === null, true, {
-		schema: (schema) => {
-			const type = schema.type
-			const newType = Array.isArray(type) ? type : type ? [type] : []
-			if (!newType.includes('null')) newType.push('null')
-			return { ...schema, type: newType }
-		},
+		schema: (schema) => ({ oneOf: [schema, { type: 'null' }] }),
 		context: (c) => c,
 	})
 
@@ -39,12 +34,7 @@ export const optional = <T extends Pipe<any, any, any>>(branch: T) =>
 
 export const nullish = <T extends Pipe<any, any, any>>(branch: T) =>
 	partial<T, null | undefined, any>(branch, (i) => i === null || i === undefined, true, {
-		schema: (schema) => {
-			const type = schema.type
-			const newType = Array.isArray(type) ? type : type ? [type] : []
-			if (!newType.includes('null')) newType.push('null')
-			return { ...schema, type: newType }
-		},
+		schema: (schema) => ({ oneOf: [schema, { type: 'null' }] }),
 		context: (c) => ({ ...c, optional: true }),
 	})
 
