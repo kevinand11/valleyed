@@ -1,4 +1,4 @@
-import { pipe, PipeError } from './base'
+import { makeBranchPipe, Pipe, pipe, PipeError } from './base'
 import * as fns from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
@@ -20,6 +20,20 @@ export const url = (err = 'is not a valid url') =>
 		{ schema: () => ({ format: 'uri' }) },
 	)
 
+export const withStrippedHtml = (pipe: Pipe<string, string, any>) =>
+	makeBranchPipe<Pipe<string, string, any>, string, string, any>(
+		pipe,
+		(input) => {
+			const stripped = fns.stripHTML(input)
+			pipe.parse(stripped)
+			return input
+		},
+		{
+			context: (c) => c,
+			schema: (s) => s,
+		},
+	)
+
 export const asTrim = () => pipe<string, string, any>((input) => input.trim(), {})
 
 export const asLower = () => pipe<string, string, any>((input) => input.toLowerCase(), {})
@@ -28,6 +42,6 @@ export const asUpper = () => pipe<string, string, any>((input) => input.toUpperC
 
 export const asCapitalize = () => pipe<string, string, any>((input) => fns.capitalize(input), {})
 
-export const asStrippedHTML = () => pipe<string, string, any>((input) => fns.stripHTML(input), {})
+export const asStrippedHtml = () => pipe<string, string, any>((input) => fns.stripHTML(input), {})
 
 export const asSliced = (length: number) => pipe<string, string, any>((input) => fns.trimToLength(input, length), {})

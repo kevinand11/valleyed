@@ -17,32 +17,40 @@ describe('strings', () => {
 		expect(rules.safeParse(false).valid).toBe(false)
 	})
 
-	test('trim', () => {
+	test('withStrippedHtml', () => {
+		const rules = v.string().pipe(v.withStrippedHtml(v.min(1)))
+		expect(rules.safeParse('<img>').valid).toBe(false)
+		expect(rules.safeParse('<img>1').valid).toBe(true)
+		expect(rules.safeParse('<p></p>').valid).toBe(false)
+		expect(rules.safeParse('<p>Hi</p>').valid).toBe(true)
+	})
+
+	test('asTrim', () => {
 		const rules = v.string().pipe(v.asTrim())
 		expect(rules.parse(' 12  ')).toEqual('12')
 	})
 
-	test('lower', () => {
+	test('asLower', () => {
 		const rules = v.string().pipe(v.asLower())
 		expect(rules.parse('ABC')).toEqual('abc')
 	})
 
-	test('upper', () => {
+	test('asUpper', () => {
 		const rules = v.string().pipe(v.asUpper())
 		expect(rules.parse('abc')).toEqual('ABC')
 	})
 
-	test('capitalize', () => {
+	test('asCapitalize', () => {
 		const rules = v.string().pipe(v.asCapitalize())
 		expect(rules.parse('abc. no. i.')).toEqual('Abc. No. I.')
 	})
 
-	test('stripHTML', () => {
-		const rules = v.string().pipe(v.asStrippedHTML())
+	test('asStrippedHtml', () => {
+		const rules = v.string().pipe(v.asStrippedHtml())
 		expect(rules.parse('<p>Hi</p>')).toEqual('Hi')
 	})
 
-	test('slice', () => {
+	test('asSliced', () => {
 		const rules = v.string().pipe(v.asSliced(2))
 		expect(rules.parse('Hi!')).toEqual('Hi...')
 		expect(rules.parse('Hi')).toEqual('Hi')
