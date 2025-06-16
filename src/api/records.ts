@@ -113,13 +113,13 @@ export const record = <K extends Pipe<any, PropertyKey, any>, V extends Pipe<any
 	pipe<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>, any>(
 		(input: unknown) => {
 			if (typeof input !== 'object' || input === null || Array.isArray(input)) throw PipeError.root(['is not an object'], input)
-			const obj = structuredClone(input)
+			const obj = {} as object
 			const errors: PipeError[] = []
-			for (const [k, v] of Object.entries(obj)) {
+			for (const [k, v] of Object.entries(input)) {
 				const kValidity = kPipe.safeParse(k)
 				const vValidity = vPipe.safeParse(v)
 				if (!kValidity.valid) errors.push(PipeError.path(k, kValidity.error, k))
-				if (!vValidity.valid) errors.push(PipeError.path(v, vValidity.error, v))
+				if (!vValidity.valid) errors.push(PipeError.path(k, vValidity.error, v))
 				if (kValidity.valid && vValidity.valid) {
 					if (k !== kValidity.value) delete obj[k]
 					obj[kValidity.value] = vValidity.value

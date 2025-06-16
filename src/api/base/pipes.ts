@@ -95,6 +95,6 @@ export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C>(
 	return pipe(fn, {
 		...config,
 		context: () => config.context(branch.context()),
-		schema: () => ({ ...config.schema(branch.node.schema()) }),
+		schema: () => ({ ...config.schema(branch.toJsonSchema()) }),
 	})
 }

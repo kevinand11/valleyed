@@ -2,8 +2,6 @@ import util from 'util'
 
 import { wrapInTryCatch } from './functions'
 import { DeepOmit, IsType, JSONValueOf } from './types'
-import { v } from '../api'
-import { Pipe } from '../api/base'
 
 if (util?.inspect?.defaultOptions) {
 	util.inspect.defaultOptions.depth = Number.MAX_SAFE_INTEGER
@@ -13,7 +11,7 @@ if (util?.inspect?.defaultOptions) {
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
-type Accessor<Keys extends Record<string, unknown>> = {
+type Accessor<Keys extends object> = {
 	get: <Key extends keyof Keys>(key: Key, keysObj: Keys) => Keys[Key]
 	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void
 }
@@ -32,15 +30,14 @@ function WrapWithProperties(): { new <Keys extends Record<string, unknown>>(): K
 }
 
 // @ts-expect-error invalid extends
-class __Root<Keys extends Record<string, unknown>> extends WrapWithProperties()<Keys> {}
+class __Root<Keys extends object> extends WrapWithProperties()<Keys> {}
 
-export class DataClass<Keys extends Record<string, unknown>, Ignored extends string = never> extends __Root<Keys> {
-	public readonly __pipe: Pipe<Keys, Keys, any> = v.any()
-	public readonly __ignoreInJSON: ReadonlyArray<Ignored> = []
+export class DataClass<Keys extends object, Ignored extends string = never> extends __Root<Keys> {
+	public __ignoreInJSON: ReadonlyArray<Ignored> = []
 
 	constructor(keys: Keys, access?: Accessor<Keys>) {
 		super()
-		this.__update(this.__pipe.parse(keys), access)
+		this.__update(keys, access)
 	}
 
 	__update(
