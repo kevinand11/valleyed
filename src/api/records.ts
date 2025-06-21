@@ -41,35 +41,35 @@ export const object = <T extends Record<string, Pipe<any, any, any>>>(objectPipe
 		context: () => ({ objectPipes }),
 	})
 
-export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>, S extends keyof PipeInput<T> & string>(
+export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>, S extends ReadonlyArray<keyof PipeInput<T> & string>>(
 	branch: T,
-	keys: S[],
+	keys: S,
 ) =>
-	makeBranchPipe<T, Pick<PipeInput<T>, S>, Pick<PipeOutput<T>, S>, any>(branch, objectPipeFn, {
+	makeBranchPipe<T, Pick<PipeInput<T>, S[number]>, Pick<PipeOutput<T>, S[number]>, any>(branch, objectPipeFn, {
 		schema: (s) => ({
 			...s,
-			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => keys.includes(key as S))),
-			required: (s.required ?? []).filter((key) => keys.includes(key as S)),
+			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => keys.includes(key as S[number]))),
+			required: (s.required ?? []).filter((key) => keys.includes(key as S[number])),
 		}),
 		context: (c) => ({
 			...c,
-			objectPipes: Object.fromEntries(Object.entries(c.objectPipes ?? {}).filter(([key]) => keys.includes(key as S))),
+			objectPipes: Object.fromEntries(Object.entries(c.objectPipes ?? {}).filter(([key]) => keys.includes(key as S[number]))),
 		}),
 	})
 
-export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>, S extends keyof PipeInput<T> & string>(
+export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>, S extends ReadonlyArray<keyof PipeInput<T> & string>>(
 	branch: T,
-	keys: S[],
+	keys: S,
 ) =>
-	makeBranchPipe<T, Omit<PipeInput<T>, S>, Omit<PipeOutput<T>, S>, any>(branch, objectPipeFn, {
+	makeBranchPipe<T, Omit<PipeInput<T>, S[number]>, Omit<PipeOutput<T>, S[number]>, any>(branch, objectPipeFn, {
 		schema: (s) => ({
 			...s,
-			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => !keys.includes(key as S))),
-			required: (s.required ?? []).filter((key) => !keys.includes(key as S)),
+			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => !keys.includes(key as S[number]))),
+			required: (s.required ?? []).filter((key) => !keys.includes(key as S[number])),
 		}),
 		context: (c) => ({
 			...c,
-			objectPipes: Object.fromEntries(Object.entries(c.objectPipes ?? {}).filter(([key]) => !keys.includes(key as S))),
+			objectPipes: Object.fromEntries(Object.entries(c.objectPipes ?? {}).filter(([key]) => !keys.includes(key as S[number]))),
 		}),
 	})
 
