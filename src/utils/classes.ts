@@ -35,12 +35,7 @@ class __Root<Keys extends object> extends WrapWithProperties()<Keys> {}
 export class DataClass<Keys extends object, Ignored extends string = never> extends __Root<Keys> {
 	public __ignoreInJSON: ReadonlyArray<Ignored> = []
 
-	constructor(keys: Keys, access?: Accessor<Keys>) {
-		super()
-		this.__update(keys, access)
-	}
-
-	__update(
+	constructor(
 		keys: Keys,
 		access: Accessor<Keys> = {
 			get: (key, keys) => keys[key],
@@ -49,6 +44,7 @@ export class DataClass<Keys extends object, Ignored extends string = never> exte
 			},
 		},
 	) {
+		super()
 		Object.keys(keys).forEach((key) => {
 			Object.defineProperty(this, key, {
 				get: () => access.get(key as keyof Keys, keys),
