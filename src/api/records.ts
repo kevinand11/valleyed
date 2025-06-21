@@ -95,6 +95,21 @@ export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any,
 		context: (c) => ({ ...c, objectPipes: { ...c.objectPipes, ...pipes } }),
 	})
 
+export const objectMerge = <
+	T extends ObjectPipe<Record<string, Pipe<any, any, any>>>,
+	U extends ObjectPipe<Record<string, Pipe<any, any, any>>>,
+>(
+	branch1: T,
+	branch2: U,
+) => {
+	const objectPipes = { ...branch1.context().objectPipes, ...branch2.context().objectPipes }
+	return object(objectPipes) as Pipe<
+		Omit<PipeInput<T>, keyof PipeInput<U>> & PipeInput<U>,
+		Omit<PipeOutput<T>, keyof PipeOutput<U>> & PipeOutput<U>,
+		any
+	>
+}
+
 export const objectTrim = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>>(branch: T) =>
 	makeBranchPipe<T, PipeInput<T>, PipeOutput<T>, PipeContext<T>>(
 		branch,
