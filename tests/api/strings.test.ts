@@ -25,23 +25,23 @@ describe('strings', () => {
 		expect(rules.safeParse('<p>Hi</p>').valid).toBe(true)
 	})
 
-	test('asTrim', () => {
-		const rules = v.string().pipe(v.asTrim())
+	test('asTrimmed', () => {
+		const rules = v.string().pipe(v.asTrimmed())
 		expect(rules.parse(' 12  ')).toEqual('12')
 	})
 
-	test('asLower', () => {
-		const rules = v.string().pipe(v.asLower())
+	test('asLowercased', () => {
+		const rules = v.string().pipe(v.asLowercased())
 		expect(rules.parse('ABC')).toEqual('abc')
 	})
 
-	test('asUpper', () => {
-		const rules = v.string().pipe(v.asUpper())
+	test('asUppercased', () => {
+		const rules = v.string().pipe(v.asUppercased())
 		expect(rules.parse('abc')).toEqual('ABC')
 	})
 
-	test('asCapitalize', () => {
-		const rules = v.string().pipe(v.asCapitalize())
+	test('asCapitalized', () => {
+		const rules = v.string().pipe(v.asCapitalized())
 		expect(rules.parse('abc. no. i.')).toEqual('Abc. No. I.')
 	})
 

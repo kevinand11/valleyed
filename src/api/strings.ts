@@ -34,13 +34,13 @@ export const withStrippedHtml = (pipe: Pipe<string, string, any>) =>
 		},
 	)
 
-export const asTrim = () => pipe<string, string, any>((input) => input.trim(), {})
+export const asTrimmed = () => pipe<string, string, any>((input) => input.trim(), {})
 
-export const asLower = () => pipe<string, string, any>((input) => input.toLowerCase(), {})
+export const asLowercased = () => pipe<string, string, any>((input) => input.toLowerCase(), {})
 
-export const asUpper = () => pipe<string, string, any>((input) => input.toUpperCase(), {})
+export const asUppercased = () => pipe<string, string, any>((input) => input.toUpperCase(), {})
 
-export const asCapitalize = () => pipe<string, string, any>((input) => fns.capitalize(input), {})
+export const asCapitalized = () => pipe<string, string, any>((input) => fns.capitalize(input), {})
 
 export const asStrippedHtml = () => pipe<string, string, any>((input) => fns.stripHTML(input), {})
 

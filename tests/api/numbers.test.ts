@@ -37,8 +37,8 @@ describe('number', () => {
 		expect(rules.safeParse(3).valid).toBe(true)
 	})
 
-	test('round', () => {
-		const rules = v.number().pipe(v.asRound(3))
+	test('asRounded', () => {
+		const rules = v.number().pipe(v.asRounded(3))
 		expect(rules.parse(3.45678)).toEqual(3.457)
 		expect(rules.parse(4)).toEqual(4)
 	})

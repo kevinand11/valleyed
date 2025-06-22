@@ -20,7 +20,7 @@ describe('array', () => {
 	})
 
 	test('set', () => {
-		const rules = v.array(v.number().pipe(v.asRound())).pipe(v.asSet())
+		const rules = v.array(v.number().pipe(v.asRounded())).pipe(v.asSet())
 		expect(rules.parse([1])).toEqual([1])
 		expect(rules.parse([1, 1])).toEqual([1])
 		expect(rules.parse([1, 2, 3])).toEqual([1, 2, 3])

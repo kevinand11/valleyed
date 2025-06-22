@@ -45,4 +45,4 @@ export const int = (err = 'is not an integer') =>
 		{ schema: () => ({ type: 'integer' }) },
 	)
 
-export const asRound = (dp = 0) => pipe<number, number, any>((input) => Number(input.toFixed(dp)), {})
+export const asRounded = (dp = 0) => pipe<number, number, any>((input) => Number(input.toFixed(dp)), {})
