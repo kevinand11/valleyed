@@ -5,18 +5,18 @@ import { v } from '../../src'
 describe('array', () => {
 	test('array', () => {
 		const rules = v.array(v.string())
-		expect(rules.safeParse([]).valid).toBe(true)
-		expect(rules.safeParse(['']).valid).toBe(true)
-		expect(rules.safeParse([2]).valid).toBe(false)
+		expect(rules.validate([]).valid).toBe(true)
+		expect(rules.validate(['']).valid).toBe(true)
+		expect(rules.validate([2]).valid).toBe(false)
 	})
 
 	test('tuple', () => {
 		const rules = v.tuple([v.string(), v.number()])
-		expect(rules.safeParse([]).valid).toBe(false)
-		expect(rules.safeParse(['']).valid).toBe(false)
-		expect(rules.safeParse([2]).valid).toBe(false)
-		expect(rules.safeParse(['', 2]).valid).toBe(true)
-		expect(rules.safeParse([2, '']).valid).toBe(false)
+		expect(rules.validate([]).valid).toBe(false)
+		expect(rules.validate(['']).valid).toBe(false)
+		expect(rules.validate([2]).valid).toBe(false)
+		expect(rules.validate(['', 2]).valid).toBe(true)
+		expect(rules.validate([2, '']).valid).toBe(false)
 	})
 
 	test('set', () => {

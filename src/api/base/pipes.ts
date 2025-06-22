@@ -37,7 +37,7 @@ export function pipe<I, O, C>(
 				throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
 			}
 		},
-		safeParse: (input) => {
+		validate: (input) => {
 			try {
 				const value = piper.parse(input)
 				return { value, valid: true }
@@ -59,7 +59,7 @@ export function pipe<I, O, C>(
 			version: 1,
 			vendor: 'valleyed',
 			validate(value) {
-				const validity = piper.safeParse(value)
+				const validity = piper.validate(value)
 				if (validity.valid) return { value: validity.value }
 				return {
 					issues: validity.error.messages.map(({ message, path }) => ({

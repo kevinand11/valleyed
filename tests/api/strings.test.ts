@@ -5,24 +5,24 @@ import { v } from '../../src'
 describe('strings', () => {
 	test('email', () => {
 		const rules = v.string().pipe(v.email())
-		expect(rules.safeParse('a@mail.co').valid).toBe(true)
-		expect(rules.safeParse('12').valid).toBe(false)
-		expect(rules.safeParse(false).valid).toBe(false)
+		expect(rules.validate('a@mail.co').valid).toBe(true)
+		expect(rules.validate('12').valid).toBe(false)
+		expect(rules.validate(false).valid).toBe(false)
 	})
 
 	test('url', () => {
 		const rules = v.string().pipe(v.url())
-		expect(rules.safeParse('www.a.co').valid).toBe(true)
-		expect(rules.safeParse('12').valid).toBe(false)
-		expect(rules.safeParse(false).valid).toBe(false)
+		expect(rules.validate('www.a.co').valid).toBe(true)
+		expect(rules.validate('12').valid).toBe(false)
+		expect(rules.validate(false).valid).toBe(false)
 	})
 
 	test('withStrippedHtml', () => {
 		const rules = v.string().pipe(v.withStrippedHtml(v.min(1)))
-		expect(rules.safeParse('<img>').valid).toBe(false)
-		expect(rules.safeParse('<img>1').valid).toBe(true)
-		expect(rules.safeParse('<p></p>').valid).toBe(false)
-		expect(rules.safeParse('<p>Hi</p>').valid).toBe(true)
+		expect(rules.validate('<img>').valid).toBe(false)
+		expect(rules.validate('<img>1').valid).toBe(true)
+		expect(rules.validate('<p></p>').valid).toBe(false)
+		expect(rules.validate('<p>Hi</p>').valid).toBe(true)
 	})
 
 	test('asTrimmed', () => {

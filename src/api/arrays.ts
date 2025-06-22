@@ -6,7 +6,7 @@ export const array = <T extends Pipe<any, any, any>>(pipeSchema: T) =>
 			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
 			if (input.length === 0) return input
 			const res = input.map((i, idx) => {
-				const validity = pipeSchema.safeParse(i)
+				const validity = pipeSchema.validate(i)
 				if (!validity.valid) return PipeError.path(idx, validity.error, i)
 				return validity.value
 			})
@@ -27,7 +27,7 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: reado
 			if (pipes.length !== input.length) throw PipeError.root(`expected ${pipes.length} but got ${input.length} items`, input)
 			if (input.length === 0) return input as any
 			const res = input.map((i, idx) => {
-				const validitity = pipes[idx].safeParse(i)
+				const validitity = pipes[idx].validate(i)
 				if ('error' in validitity) return PipeError.path(idx, validitity.error, i)
 				return validitity.value
 			})

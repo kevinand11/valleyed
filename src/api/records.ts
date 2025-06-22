@@ -18,7 +18,7 @@ const objectPipeFn: PipeFn<any> = (input, context) => {
 			obj[key] = value
 			continue
 		}
-		const validity = pipes[key].safeParse(value)
+		const validity = pipes[key].validate(value)
 		if (!validity.valid) errors.push(PipeError.path(key, validity.error, value))
 		else obj[key] = validity.value
 	}
@@ -131,8 +131,8 @@ export const record = <K extends Pipe<any, PropertyKey, any>, V extends Pipe<any
 			const obj = {} as object
 			const errors: PipeError[] = []
 			for (const [k, v] of Object.entries(input)) {
-				const kValidity = kPipe.safeParse(k)
-				const vValidity = vPipe.safeParse(v)
+				const kValidity = kPipe.validate(k)
+				const vValidity = vPipe.validate(v)
 				if (!kValidity.valid) errors.push(PipeError.path(k, kValidity.error, k))
 				if (!vValidity.valid) errors.push(PipeError.path(k, vValidity.error, v))
 				if (kValidity.valid && vValidity.valid) {

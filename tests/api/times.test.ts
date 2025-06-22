@@ -6,24 +6,24 @@ describe('times', () => {
 	test('time', () => {
 		const rules = v.time()
 		const date = new Date()
-		expect(rules.safeParse(date.toDateString()).valid).toBe(true)
-		expect(rules.safeParse(date.getDate()).valid).toBe(true)
-		expect(rules.safeParse(date).valid).toBe(true)
-		expect(rules.safeParse(false).valid).toBe(false)
+		expect(rules.validate(date.toDateString()).valid).toBe(true)
+		expect(rules.validate(date.getDate()).valid).toBe(true)
+		expect(rules.validate(date).valid).toBe(true)
+		expect(rules.validate(false).valid).toBe(false)
 	})
 
 	test('min', () => {
 		const rules = v.time().pipe(v.after(() => 2))
-		expect(rules.safeParse(3).valid).toBe(true)
-		expect(rules.safeParse(2).valid).toBe(false)
-		expect(rules.safeParse(1).valid).toBe(false)
+		expect(rules.validate(3).valid).toBe(true)
+		expect(rules.validate(2).valid).toBe(false)
+		expect(rules.validate(1).valid).toBe(false)
 	})
 
 	test('max', () => {
 		const rules = v.time().pipe(v.before(() => 2))
-		expect(rules.safeParse(1).valid).toBe(true)
-		expect(rules.safeParse(2).valid).toBe(false)
-		expect(rules.safeParse(3).valid).toBe(false)
+		expect(rules.validate(1).valid).toBe(true)
+		expect(rules.validate(2).valid).toBe(false)
+		expect(rules.validate(3).valid).toBe(false)
 	})
 
 	test('asStamp', () => {

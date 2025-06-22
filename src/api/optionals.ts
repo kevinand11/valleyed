@@ -13,7 +13,7 @@ const partial = <T extends Pipe<any, any, any>, P, C>(
 		(input) => {
 			const isPartial = partialCondition(input)
 			if (isPartial) return input as P
-			const validity = branch.safeParse(input)
+			const validity = branch.validate(input)
 			if (validity.valid) return validity.value as PipeOutput<T>
 			if (force) throw validity.error
 			return input as P
@@ -61,7 +61,7 @@ export const defaultsOnFail = <T extends Pipe<any, any, any>>(branch: T, def: De
 	makeBranchPipe<T, PipeInput<T>, PipeOutput<T>, PipeContext<T>>(
 		branch,
 		(input) => {
-			const validity = branch.safeParse(input)
+			const validity = branch.validate(input)
 			if (validity.valid) return validity.value
 			return execValueFunction(def)
 		},

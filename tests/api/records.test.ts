@@ -7,11 +7,11 @@ describe('records', () => {
 		const rules = v.object({
 			name: v.string(),
 		})
-		expect(rules.safeParse([]).valid).toBe(false)
-		expect(rules.safeParse('').valid).toBe(false)
-		expect(rules.safeParse({}).valid).toBe(false)
-		expect(rules.safeParse({ name: 1 }).valid).toBe(false)
-		expect(rules.safeParse({ name: '' }).valid).toBe(true)
+		expect(rules.validate([]).valid).toBe(false)
+		expect(rules.validate('').valid).toBe(false)
+		expect(rules.validate({}).valid).toBe(false)
+		expect(rules.validate({ name: 1 }).valid).toBe(false)
+		expect(rules.validate({ name: '' }).valid).toBe(true)
 	})
 
 	test('object pick', () => {
@@ -22,9 +22,9 @@ describe('records', () => {
 			}),
 			['name'],
 		)
-		expect(rules.safeParse({}).valid).toBe(false)
-		expect(rules.safeParse({ name: '' }).valid).toBe(true)
-		expect(rules.safeParse({ name: '', age: '' }).valid).toBe(true)
+		expect(rules.validate({}).valid).toBe(false)
+		expect(rules.validate({ name: '' }).valid).toBe(true)
+		expect(rules.validate({ name: '', age: '' }).valid).toBe(true)
 	})
 
 	test('object omit', () => {
@@ -35,9 +35,9 @@ describe('records', () => {
 			}),
 			['age'],
 		)
-		expect(rules.safeParse({}).valid).toBe(false)
-		expect(rules.safeParse({ name: '' }).valid).toBe(true)
-		expect(rules.safeParse({ name: '', age: '' }).valid).toBe(true)
+		expect(rules.validate({}).valid).toBe(false)
+		expect(rules.validate({ name: '' }).valid).toBe(true)
+		expect(rules.validate({ name: '', age: '' }).valid).toBe(true)
 	})
 
 	test('object extends', () => {
@@ -50,38 +50,38 @@ describe('records', () => {
 				old: v.boolean(),
 			},
 		)
-		expect(rules.safeParse({}).valid).toBe(false)
-		expect(rules.safeParse({ name: '', age: 23 }).valid).toBe(false)
-		expect(rules.safeParse({ name: '', age: 23, old: false }).valid).toBe(true)
+		expect(rules.validate({}).valid).toBe(false)
+		expect(rules.validate({ name: '', age: 23 }).valid).toBe(false)
+		expect(rules.validate({ name: '', age: 23, old: false }).valid).toBe(true)
 	})
 
 	test('object trim', () => {
 		const rules = v.object({
 			name: v.string(),
 		})
-		let res = v.objectTrim(rules).safeParse({ name: '', age: 23 })
+		let res = v.objectTrim(rules).validate({ name: '', age: 23 })
 		expect(res.valid).toBe(true)
 		expect((res as any).value).toEqual({ name: '' })
 
-		res = v.object({ name: v.string() }).safeParse({ name: '', age: 23 })
+		res = v.object({ name: v.string() }).validate({ name: '', age: 23 })
 		expect(res.valid).toBe(true)
 		expect((res as any).value).toEqual({ name: '', age: 23 })
 	})
 
 	test('record', () => {
 		const rules = v.record(v.string(), v.number())
-		expect(rules.safeParse([]).valid).toBe(false)
-		expect(rules.safeParse({}).valid).toBe(true)
-		expect(rules.safeParse({ a: 'a' }).valid).toBe(false)
-		expect(rules.safeParse({ a: 1 }).valid).toBe(true)
+		expect(rules.validate([]).valid).toBe(false)
+		expect(rules.validate({}).valid).toBe(true)
+		expect(rules.validate({ a: 'a' }).valid).toBe(false)
+		expect(rules.validate({ a: 1 }).valid).toBe(true)
 	})
 
 	test('asMap', () => {
 		const rules = v.record(v.string(), v.number()).pipe(v.asMap())
-		expect(rules.safeParse([]).valid).toBe(false)
-		expect(rules.safeParse({}).valid).toBe(true)
-		expect(rules.safeParse({ a: 'a' }).valid).toBe(false)
-		expect(rules.safeParse({ a: 1 }).valid).toBe(true)
+		expect(rules.validate([]).valid).toBe(false)
+		expect(rules.validate({}).valid).toBe(true)
+		expect(rules.validate({ a: 'a' }).valid).toBe(false)
+		expect(rules.validate({ a: 1 }).valid).toBe(true)
 		expect(rules.parse({ a: 1, b: 2 })).toEqual(
 			new Map([
 				['a', 1],

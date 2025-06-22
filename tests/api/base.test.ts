@@ -13,14 +13,14 @@ describe('base', () => {
 		expect(() => errPipe.parse(5)).toThrow(PipeError)
 	})
 
-	test('safeParse', () => {
+	test('validate', () => {
 		const pipe = makePipe((x: number) => x + 1, {}).pipe((x) => x * 2)
-		expect(pipe.safeParse(5)).toEqual({ value: 12, valid: true })
+		expect(pipe.validate(5)).toEqual({ value: 12, valid: true })
 		const err = PipeError.root('pipe error', 0)
 		const errPipe = pipe.pipe((i) => {
 			if (i < 1000) throw err
 			return i
 		})
-		expect(errPipe.safeParse(5)).toEqual({ error: err, valid: false })
+		expect(errPipe.validate(5)).toEqual({ error: err, valid: false })
 	})
 })

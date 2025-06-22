@@ -7,7 +7,7 @@ export const or = <T extends Pipe<any, any, any>[]>(pipes: T) =>
 			if (pipes.length === 0) return input as any
 			const errors: PipeError[] = []
 			for (const [idx, pipe] of Object.entries(pipes)) {
-				const validity = pipe.safeParse(input)
+				const validity = pipe.validate(input)
 				if (validity.valid) return validity.value
 				errors.push(PipeError.path(idx, validity.error, input))
 			}
@@ -20,7 +20,7 @@ export const and = <T extends Pipe<any, any, any>>(pipes: T[]) =>
 	pipe<PipeInput<T>, PipeOutput<T>, PipeContext<T>>(
 		(input) => {
 			for (const [idx, pipe] of Object.entries(pipes)) {
-				const validity = pipe.safeParse(input)
+				const validity = pipe.validate(input)
 				if (!validity.valid) throw PipeError.path(idx, validity.error, input)
 				input = validity.value
 			}
@@ -49,7 +49,7 @@ export const tryJSON = <T extends Pipe<any, any, any>>(branch: T) =>
 	makeBranchPipe<T, PipeInput<T>, PipeOutput<T>, PipeContext<T>>(
 		branch,
 		(input) => {
-			const validity = branch.safeParse(input)
+			const validity = branch.validate(input)
 			if (validity.valid) return validity.value
 			if (input?.constructor?.name !== 'String') throw validity.error
 

@@ -5,16 +5,16 @@ import { v } from '../../src'
 describe('junctions', () => {
 	test('or', () => {
 		const rules = v.or([v.string(), v.number()])
-		expect(rules.safeParse('').valid).toBe(true)
-		expect(rules.safeParse(2).valid).toBe(true)
-		expect(rules.safeParse(false).valid).toBe(false)
+		expect(rules.validate('').valid).toBe(true)
+		expect(rules.validate(2).valid).toBe(true)
+		expect(rules.validate(false).valid).toBe(false)
 	})
 
 	test('and', () => {
 		const rules = v.and([v.string(), v.is('and')])
-		expect(rules.safeParse('and').valid).toBe(true)
-		expect(rules.safeParse('').valid).toBe(false)
-		expect(rules.safeParse(false).valid).toBe(false)
+		expect(rules.validate('and').valid).toBe(true)
+		expect(rules.validate('').valid).toBe(false)
+		expect(rules.validate(false).valid).toBe(false)
 	})
 
 	test('discriminate', () => {
@@ -22,24 +22,24 @@ describe('junctions', () => {
 			ha: v.string(),
 			make: v.string().pipe(v.has(4)),
 		})
-		expect(rules.safeParse('ha').valid).toBe(true)
-		expect(rules.safeParse(2).valid).toBe(false)
-		expect(rules.safeParse('make').valid).toBe(true)
-		expect(rules.safeParse('made').valid).toBe(false)
+		expect(rules.validate('ha').valid).toBe(true)
+		expect(rules.validate(2).valid).toBe(false)
+		expect(rules.validate('make').valid).toBe(true)
+		expect(rules.validate('made').valid).toBe(false)
 
 		const objectRules = v.discriminate((v) => (v as any).status, {
 			ha: v.object({ status: v.is('ha'), total: v.number().pipe(v.gt(10)) }),
 			name: v.object({ status: v.is('name'), flow: v.boolean() }),
 		})
-		expect(objectRules.safeParse({ status: 'ha', total: 12 }).valid).toBe(true)
-		expect(objectRules.safeParse({ status: 'ha', total: 9 }).valid).toBe(false)
-		expect(objectRules.safeParse({ status: 'none' }).valid).toBe(false)
+		expect(objectRules.validate({ status: 'ha', total: 12 }).valid).toBe(true)
+		expect(objectRules.validate({ status: 'ha', total: 9 }).valid).toBe(false)
+		expect(objectRules.validate({ status: 'none' }).valid).toBe(false)
 	})
 
 	test('tryJSON', () => {
 		const rules = v.tryJSON(v.number())
-		expect(rules.safeParse('and').valid).toBe(false)
-		expect(rules.safeParse('"1"').valid).toBe(false)
-		expect(rules.safeParse('1').valid).toBe(true)
+		expect(rules.validate('and').valid).toBe(false)
+		expect(rules.validate('"1"').valid).toBe(false)
+		expect(rules.validate('1').valid).toBe(true)
 	})
 })

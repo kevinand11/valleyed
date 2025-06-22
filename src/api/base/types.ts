@@ -84,7 +84,7 @@ export interface Pipe<I, O, C> extends StandardSchemaV1<I, O> {
 	prev?: Pipe<any, any, any>
 	pipe: PipeChain<I, O, C>
 	parse(input: unknown): O
-	safeParse(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
+	validate(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
 	context(): Context<C>
 	meta(schema: PipeMeta): Pipe<I, O, C>
 	toJsonSchema(schema?: JsonSchema): JsonSchema
