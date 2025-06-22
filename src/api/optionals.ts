@@ -39,7 +39,7 @@ export const nullish = <T extends Pipe<any, any, any>>(branch: T) =>
 	})
 
 export const requiredIf = <T extends Pipe<any, any, any>>(branch: T, condition: () => boolean) =>
-	partial<T, undefined, any>(branch, () => !condition(), condition(), {
+	partial<T, never, any>(branch, () => !condition(), condition(), {
 		schema: (schema) => schema,
 		context: (c) => ({ ...c, optional: true }),
 	})
