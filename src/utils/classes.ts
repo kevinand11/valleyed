@@ -16,7 +16,7 @@ type Accessor<Keys extends object> = {
 	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void
 }
 
-type JSONOf<T, K, I, A> = JSONValueOf<IsType<K, any> extends true ? Record<string, any> : DeepOmit<T, I, A>>
+type JSONOf<K, I> = JSONValueOf<IsType<K, any> extends true ? Record<string, any> : DeepOmit<K, I>>
 
 function WrapWithProperties(): { new <Keys extends Record<string, unknown>>(): Keys } {
 	return class {
@@ -57,15 +57,13 @@ export class DataClass<Keys extends object, Ignored extends string = never> exte
 		})
 	}
 
-	toJSON(includeIgnored = false): JSONOf<this, Keys, Ignored, '__pipe' | '__ignoreInJSON' | '__update' | 'toJSON'> {
+	toJSON(includeIgnored = false): JSONOf<Keys, Ignored> {
 		const json: Record<string, any> = {}
-		Object.keys(this)
-			.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))
-			.forEach((key) => {
-				const value = this[key]
-				if (typeof value === 'function' || value === undefined) return
-				json[key] = (value as any)?.toJSON?.(includeIgnored) ?? wrapInTryCatch(() => structuredClone(value), value)
-			})
+		Object.keys(this).forEach((key) => {
+			const value = this[key]
+			if (typeof value === 'function' || value === undefined) return
+			json[key] = (value as any)?.toJSON?.(includeIgnored) ?? wrapInTryCatch(() => structuredClone(value), value)
+		})
 		const keysToDelete = ['__ignoreInJSON'].concat(...(includeIgnored !== true ? this.__ignoreInJSON : []))
 		keysToDelete.forEach((k: string) => deleteKeyFromObject(json, k.split('.')))
 		return json as any
