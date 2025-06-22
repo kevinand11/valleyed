@@ -15,16 +15,16 @@ export const time = (err = 'is not a valid datetime') =>
 		{ schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }) },
 	)
 
-export const after = (compare: Timeable, err = 'is not later than compared value') =>
+export const after = (compareFn: () => Timeable, err = 'is not later than compared value') =>
 	pipe<Date, Date, any>((input) => {
-		const compareDate = new Date(compare)
+		const compareDate = new Date(compareFn())
 		if (input > compareDate) return input
 		throw PipeError.root(err, input)
 	})
 
-export const before = (compare: Timeable, err = 'is not earlier than compared value') =>
+export const before = (compareFn: () => Timeable, err = 'is not earlier than compared value') =>
 	pipe<Date, Date, any>((input) => {
-		const compareDate = new Date(compare)
+		const compareDate = new Date(compareFn())
 		if (input < compareDate) return input
 		throw PipeError.root(err, input)
 	})

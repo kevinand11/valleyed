@@ -13,14 +13,14 @@ describe('times', () => {
 	})
 
 	test('min', () => {
-		const rules = v.time().pipe(v.after(2))
+		const rules = v.time().pipe(v.after(() => 2))
 		expect(rules.safeParse(3).valid).toBe(true)
 		expect(rules.safeParse(2).valid).toBe(false)
 		expect(rules.safeParse(1).valid).toBe(false)
 	})
 
 	test('max', () => {
-		const rules = v.time().pipe(v.before(2))
+		const rules = v.time().pipe(v.before(() => 2))
 		expect(rules.safeParse(1).valid).toBe(true)
 		expect(rules.safeParse(2).valid).toBe(false)
 		expect(rules.safeParse(3).valid).toBe(false)
