@@ -1,5 +1,6 @@
 import { pipe, PipeError } from './base'
 import { equal } from '../utils/differ'
+import { execValueFunction, ValueFunction } from '../utils/functions'
 
 export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass custom rule`) =>
 	pipe<T, T, any>((input) => {
@@ -7,81 +8,86 @@ export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass 
 		throw PipeError.root(err, input)
 	}, {})
 
-export const eq = <T>(compare: T, comparer = equal as (val: T, compare: T) => boolean, err = `is not equal ${compare}`) =>
+export const eq = <T>(compare: ValueFunction<T>, comparer = equal as (val: T, compare: T) => boolean, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
-			if (input === compare || comparer(input, compare)) return input as T
-			throw PipeError.root(err, input)
+			const comp = execValueFunction(compare)
+			if (input === comp || comparer(input, comp)) return input as T
+			throw PipeError.root(err ?? `is not equal to ${comp}`, input)
 		},
-		{ schema: () => ({ const: compare }) },
+		{ schema: () => ({ const: execValueFunction(compare) }) },
 	)
 
 export const is = eq
 
-export const ne = <T>(compare: T, comparer = equal as (val: T, compare: T) => boolean, err = `is equal to ${compare}`) =>
+export const ne = <T>(compare: ValueFunction<T>, comparer = equal as (val: T, compare: T) => boolean, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
-			if (!comparer(input, compare) && input !== compare) return input as T
-			throw PipeError.root(err, input)
+			const comp = execValueFunction(compare)
+			if (!comparer(input, comp) && input !== comp) return input as T
+			throw PipeError.root(err ?? `is equal to ${comp}`, input)
 		},
-		{ schema: () => ({ not: { const: compare } }) },
+		{ schema: () => ({ not: { const: execValueFunction(compare) } }) },
 	)
 
-const inArray = <T>(
-	array: Readonly<T[]>,
-	comparer = equal as (val: T, arrayItem: T) => boolean,
-	err = `is not in the list: [${array.join(',')}]`,
-) =>
+const inArray = <T>(array: ValueFunction<Readonly<T[]>>, comparer = equal as (val: T, arrayItem: T) => boolean, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
-			if (array.find((x) => comparer(input, x))) return input as T
-			throw PipeError.root(err, input)
+			const arr = execValueFunction(array)
+			if (arr.find((x) => comparer(input, x))) return input as T
+			throw PipeError.root(err ?? `is not in the list: [${arr.join(',')}]`, input)
 		},
-		{ schema: () => ({ enum: [...array] }) },
+		{ schema: () => ({ enum: [...execValueFunction(array)] }) },
 	)
 
-export const nin = <T>(
-	array: Readonly<T[]>,
-	comparer = equal as (val: T, arrayItem: T) => boolean,
-	err = `is in the list: [${array.join(',')}]`,
-) =>
+export const nin = <T>(array: ValueFunction<Readonly<T[]>>, comparer = equal as (val: T, arrayItem: T) => boolean, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
-			if (!array.find((x) => comparer(input, x))) return input as T
-			throw PipeError.root(err, input)
+			const arr = execValueFunction(array)
+			if (!arr.find((x) => comparer(input, x))) return input as T
+			throw PipeError.root(err ?? `is in the list: [${arr.join(',')}]`, input)
 		},
-		{ schema: () => ({ not: { enum: [...array] } }) },
+		{ schema: () => ({ not: { enum: [...execValueFunction(array)] } }) },
 	)
 
 function itemType(input: unknown) {
 	return input?.constructor?.name === 'String' ? 'characters' : 'items'
 }
 
-export const has = <T extends { length: number }>(length: number, err?: string) =>
+export const has = <T extends { length: number }>(length: ValueFunction<number>, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
-			if (input.length === length) return input
+			if (input.length === execValueFunction(length)) return input
 			throw PipeError.root(err ?? `must contain ${length} ${itemType(input)}`, input)
 		},
-		{ schema: () => ({ minItems: length, maxItems: length, minLength: length, maxLength: length }) },
+		{
+			schema: () => ({
+				minItems: execValueFunction(length),
+				maxItems: execValueFunction(length),
+				minLength: execValueFunction(length),
+				maxLength: execValueFunction(length),
+			}),
+		},
 	)
 
-export const min = <T extends { length: number }>(length: number, err?: string) =>
+export const min = <T extends { length: number }>(length: ValueFunction<number>, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
-			if (input.length >= length) return input
-			throw PipeError.root(err ?? `must contain ${length} or more ${itemType(input)}`, input)
+			const len = execValueFunction(length)
+			if (input.length >= len) return input
+			throw PipeError.root(err ?? `must contain ${len} or more ${itemType(input)}`, input)
 		},
-		{ schema: () => ({ minItems: length, minLength: length }) },
+		{ schema: () => ({ minItems: execValueFunction(execValueFunction(length)), minLength: execValueFunction(length) }) },
 	)
 
-export const max = <T extends { length: number }>(length: number, err?: string) =>
+export const max = <T extends { length: number }>(length: ValueFunction<number>, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
-			if (input.length <= length) return input
-			throw PipeError.root(err ?? `must contain ${length} or less ${itemType(input)}`, input)
+			const len = execValueFunction(length)
+			if (input.length <= len) return input
+			throw PipeError.root(err ?? `must contain ${len} or less ${itemType(input)}`, input)
 		},
-		{ schema: () => ({ maxItems: length, maxLength: length }) },
+		{ schema: () => ({ maxItems: execValueFunction(length), maxLength: execValueFunction(length) }) },
 	)
 
 export { inArray as in }

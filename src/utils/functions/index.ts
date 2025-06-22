@@ -145,3 +145,8 @@ export const compareTwoStrings = (first: string, second: string) => {
 
 	return (2.0 * intersectionSize) / (first.length + second.length - 2)
 }
+
+export type ValueFunction<T> = T | (() => T)
+export function execValueFunction<T>(def: ValueFunction<T>): T {
+	return typeof def === 'function' ? (def as any)() : def
+}

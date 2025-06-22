@@ -1,4 +1,5 @@
 import { makeBranchPipe, Pipe, PipeContext, PipeInput, PipeOutput } from './base'
+import { execValueFunction, ValueFunction } from '../utils/functions'
 import { DeepPartial } from '../utils/types'
 
 const partial = <T extends Pipe<any, any, any>, P, C>(
@@ -44,19 +45,14 @@ export const requiredIf = <T extends Pipe<any, any, any>>(branch: T, condition: 
 		context: (c) => ({ ...c, optional: true }),
 	})
 
-type FunctionOrValue<T> = T | (() => T) | undefined
-type DefaultValue<T> = FunctionOrValue<T extends object ? DeepPartial<T> : T>
-
-function runDefault<T>(def: DefaultValue<T>): T {
-	return typeof def === 'function' ? (def as Function)() : (def as any)
-}
+type DefaultValue<T> = ValueFunction<T extends object ? DeepPartial<T> : T>
 
 export const defaults = <T extends Pipe<any, any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) =>
 	makeBranchPipe<T, PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>, any>(
 		branch,
-		(input) => branch.parse(input !== undefined ? input : runDefault(def)),
+		(input) => branch.parse(input !== undefined ? input : execValueFunction(def)),
 		{
-			schema: (s) => ({ ...s, default: runDefault(def) }),
+			schema: (s) => ({ ...s, default: execValueFunction(def) }),
 			context: (c) => ({ ...c, optional: true }),
 		},
 	)
@@ -67,10 +63,10 @@ export const defaultsOnFail = <T extends Pipe<any, any, any>>(branch: T, def: De
 		(input) => {
 			const validity = branch.safeParse(input)
 			if (validity.valid) return validity.value
-			return runDefault(def)
+			return execValueFunction(def)
 		},
 		{
-			schema: (s) => ({ ...s, default: runDefault(def) }),
+			schema: (s) => ({ ...s, default: execValueFunction(def) }),
 			context: (c) => ({ ...c, optional: true }),
 		},
 	)

@@ -1,39 +1,44 @@
 import { pipe, PipeError } from './base'
+import { execValueFunction, ValueFunction } from '../utils/functions'
 
-export const gt = (value: number, err = `must be greater than ${value}`) =>
+export const gt = (value: ValueFunction<number>, err?: string) =>
 	pipe<number, number, any>(
 		(input) => {
-			if (input > value) return input
-			throw PipeError.root(err, input)
+			const v = execValueFunction(value)
+			if (input > v) return input
+			throw PipeError.root(err ?? `must be greater than ${v}`, input)
 		},
-		{ schema: () => ({ exclusiveMinimum: value }) },
+		{ schema: () => ({ exclusiveMinimum: execValueFunction(value) }) },
 	)
 
-export const gte = (value: number, err = `must be greater than or equal to ${value}`) =>
+export const gte = (value: ValueFunction<number>, err?: string) =>
 	pipe<number, number, any>(
 		(input) => {
-			if (input >= value) return input
-			throw PipeError.root(err, input)
+			const v = execValueFunction(value)
+			if (input >= v) return input
+			throw PipeError.root(err ?? `must be greater than or equal to ${v}`, input)
 		},
-		{ schema: () => ({ minimum: value }) },
+		{ schema: () => ({ minimum: execValueFunction(value) }) },
 	)
 
-export const lt = (value: number, err = `must be less than ${value}`) =>
+export const lt = (value: ValueFunction<number>, err?: string) =>
 	pipe<number, number, any>(
 		(input) => {
-			if (input < value) return input
-			throw PipeError.root(err, input)
+			const v = execValueFunction(value)
+			if (input < v) return input
+			throw PipeError.root(err ?? `must be less than ${v}`, input)
 		},
-		{ schema: () => ({ exclusiveMaximum: value }) },
+		{ schema: () => ({ exclusiveMaximum: execValueFunction(value) }) },
 	)
 
-export const lte = (value: number, err = `must be less than or equal to ${value}`) =>
+export const lte = (value: ValueFunction<number>, err?: string) =>
 	pipe<number, number, any>(
 		(input) => {
-			if (input <= value) return input
-			throw PipeError.root(err, input)
+			const v = execValueFunction(value)
+			if (input <= v) return input
+			throw PipeError.root(err ?? `must be less than or equal to ${v}`, input)
 		},
-		{ schema: () => ({ maximum: value }) },
+		{ schema: () => ({ maximum: execValueFunction(value) }) },
 	)
 
 export const int = (err = 'is not an integer') =>
