@@ -8,11 +8,11 @@ export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass 
 		throw PipeError.root(err, input)
 	}, {})
 
-export const eq = <T>(compare: ValueFunction<T>, comparer = equal as (val: T, compare: T) => boolean, err?: string) =>
+export const eq = <T>(compare: ValueFunction<T>, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
 			const comp = execValueFunction(compare)
-			if (input === comp || comparer(input, comp)) return input as T
+			if (input === comp || equal(input, comp)) return input as T
 			throw PipeError.root(err ?? `is not equal to ${comp}`, input)
 		},
 		{ schema: () => ({ const: execValueFunction(compare) }) },
@@ -20,31 +20,31 @@ export const eq = <T>(compare: ValueFunction<T>, comparer = equal as (val: T, co
 
 export const is = eq
 
-export const ne = <T>(compare: ValueFunction<T>, comparer = equal as (val: T, compare: T) => boolean, err?: string) =>
+export const ne = <T>(compare: ValueFunction<T>, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
 			const comp = execValueFunction(compare)
-			if (!comparer(input, comp) && input !== comp) return input as T
+			if (!equal(input, comp) && input !== comp) return input as T
 			throw PipeError.root(err ?? `is equal to ${comp}`, input)
 		},
 		{ schema: () => ({ not: { const: execValueFunction(compare) } }) },
 	)
 
-const inArray = <T>(array: ValueFunction<Readonly<T[]>>, comparer = equal as (val: T, arrayItem: T) => boolean, err?: string) =>
+const inArray = <T>(array: ValueFunction<Readonly<T[]>>, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
 			const arr = execValueFunction(array)
-			if (arr.find((x) => comparer(input, x))) return input as T
+			if (arr.find((x) => equal(input, x))) return input as T
 			throw PipeError.root(err ?? `is not in the list: [${arr.join(',')}]`, input)
 		},
 		{ schema: () => ({ enum: [...execValueFunction(array)] }) },
 	)
 
-export const nin = <T>(array: ValueFunction<Readonly<T[]>>, comparer = equal as (val: T, arrayItem: T) => boolean, err?: string) =>
+export const nin = <T>(array: ValueFunction<Readonly<T[]>>, err?: string) =>
 	pipe<T, T, any>(
 		(input) => {
 			const arr = execValueFunction(array)
-			if (!arr.find((x) => comparer(input, x))) return input as T
+			if (!arr.find((x) => equal(input, x))) return input as T
 			throw PipeError.root(err ?? `is in the list: [${arr.join(',')}]`, input)
 		},
 		{ schema: () => ({ not: { enum: [...execValueFunction(array)] } }) },

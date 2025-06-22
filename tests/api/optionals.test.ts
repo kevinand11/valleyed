@@ -3,8 +3,8 @@ import { describe, expect, test } from 'vitest'
 import { v } from '../../src'
 
 describe('optionals', () => {
-	test('requiredIf', () => {
-		const rules = v.requiredIf(v.string(), () => false)
+	test('conditional', () => {
+		const rules = v.conditional(v.string(), () => false)
 		expect(rules.safeParse('').valid).toBe(true)
 		expect(rules.safeParse(undefined).valid).toBe(true)
 		expect(rules.safeParse(2).valid).toBe(true)
