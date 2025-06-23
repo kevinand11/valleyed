@@ -93,3 +93,22 @@ export function from(keys: string[]) {
 
 	return keys.map(formObject).reduce(deepMerge, {})
 }
+
+export function merge(v1: unknown, v2: unknown) {
+	if (type.null(v1) || type.undefined(v1)) return v2
+	if (type.null(v2) || type.undefined(v2)) return v1
+	if (type.array(v1) && type.array(v2)) {
+		return Array.from({ length: Math.max(v1.length, v2.length) }, (_, i) => merge(v1[i], v2[i]))
+	}
+	if (type.object(v1) && type.object(v2)) {
+		const keys = new Set([...Object.keys(v1), ...Object.keys(v2)])
+		return Array.from(keys).reduce(
+			(acc, key) => {
+				acc[key] = merge(v1[key], v2[key])
+				return acc
+			},
+			{} as Record<string, any>,
+		)
+	}
+	return v2
+}

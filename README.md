@@ -247,7 +247,7 @@ const strictUser = v.objectTrim(originalSchema)
 // Dynamic objects (records)
 const stringToNumber = v.record(v.string(), v.number()) // { [key: string]: number }
 const dynamicConfig = v.record(
-  v.string().pipe(v.min(1)), 
+  v.string().pipe(v.min(1)),
   v.or([v.string(), v.number(), v.boolean()])
 )
 ```
@@ -267,7 +267,7 @@ const userPipe = v.object({
 const conditionalPipe = v.object({
   type: v.string().pipe(v.in(['user', 'admin'])),
   adminKey: v.requiredIf(
-    v.string(), 
+    v.string(),
     () => getCurrentUserType() === 'admin'
   )
 })
@@ -418,7 +418,7 @@ const uniqueEmailPipe = v.string()
 
 ```ts
 // Parse JSON strings or accept objects directly
-const configPipe = v.tryJSON(v.object({
+const configPipe = v.fromJson(v.object({
   apiKey: v.string(),
   timeout: v.number(),
   retries: v.number()
@@ -485,7 +485,7 @@ class User extends DataClass {
   constructor(data: unknown) {
     super(data, userSchema)
   }
-  
+
   // Custom methods
   getDisplayName() {
     return this.name.split(' ')[0]
@@ -634,10 +634,10 @@ if (!result.valid) {
 Valleyed includes utility functions for common operations:
 
 ```ts
-import { 
-  capitalize, 
-  stripHTML, 
-  trimToLength, 
+import {
+  capitalize,
+  stripHTML,
+  trimToLength,
   extractUrls,
   formatNumber,
   pluralize,
@@ -732,7 +732,7 @@ Valleyed is designed for performance:
 // Simple validation - ~1-2ms for 1000 operations
 const simple = v.string().pipe(v.email())
 
-// Complex nested validation - ~5-10ms for 1000 operations  
+// Complex nested validation - ~5-10ms for 1000 operations
 const complex = v.object({
   users: v.array(v.object({
     profile: v.object({
@@ -799,7 +799,7 @@ pnpm test arrays.test.ts
 | `v.or(pipes)` | Union validation | `v.or([v.string(), v.number()])` |
 | `v.and(pipes)` | Intersection validation | `v.and([pipe1, pipe2])` |
 | `v.discriminate()` | Discriminated union | `v.discriminate(fn, schemas)` |
-| `v.tryJSON(pipe)` | JSON parsing | `v.tryJSON(v.object({}))` |
+| `v.fromJson(pipe)` | JSON parsing | `v.fromJson(v.object({}))` |
 
 ### String Validators
 

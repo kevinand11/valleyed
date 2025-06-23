@@ -1,4 +1,5 @@
 import { makeBranchPipe, pipe, Pipe, PipeContext, PipeError, PipeInput, PipeOutput } from './base'
+import { merge as differMerge } from '../utils/differ'
 import { wrapInTryCatch } from '../utils/functions'
 
 export const or = <T extends Pipe<any, any, any>[]>(pipes: T) =>
@@ -29,6 +30,18 @@ export const and = <T extends Pipe<any, any, any>>(pipes: T[]) =>
 		{ schema: () => ({ allOf: pipes.map((branch) => branch.toJsonSchema()) }) },
 	)
 
+export const merge = <T1 extends Pipe<any, any, any>, T2 extends Pipe<any, any, any>>(branch1: T1, branch2: T2) =>
+	pipe<PipeInput<T1> & PipeInput<T2>, PipeOutput<T1> & PipeOutput<T2>, PipeContext<T1> & PipeContext<T2>>(
+		(input) => {
+			const validity1 = branch1.validate(input)
+			if (!validity1.valid) throw validity1.error
+			const validity2 = branch2.validate(input)
+			if (!validity2.valid) throw validity2.error
+			return differMerge(validity1.value, validity2.value)
+		},
+		{ schema: () => ({ allOf: [branch1.toJsonSchema(), branch2.toJsonSchema()] }) },
+	)
+
 export const discriminate = <T extends Record<PropertyKey, Pipe<any, any, any>>>(
 	discriminator: (val: PipeInput<T[keyof T]>) => PropertyKey,
 	schemas: T,
@@ -45,7 +58,7 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any, any>>>
 		},
 	)
 
-export const tryJSON = <T extends Pipe<any, any, any>>(branch: T) =>
+export const fromJson = <T extends Pipe<any, any, any>>(branch: T) =>
 	makeBranchPipe<T, PipeInput<T>, PipeOutput<T>, PipeContext<T>>(
 		branch,
 		(input) => {

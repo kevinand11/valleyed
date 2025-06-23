@@ -36,8 +36,28 @@ describe('junctions', () => {
 		expect(objectRules.validate({ status: 'none' }).valid).toBe(false)
 	})
 
-	test('tryJSON', () => {
-		const rules = v.tryJSON(v.number())
+	test('merge', () => {
+		const rules1 = v.merge(v.string(), v.number())
+		expect(rules1.validate('ha').valid).toBe(false)
+		expect(rules1.validate(2).valid).toBe(false)
+
+		const rules2 = v.merge(v.object({ a: v.string() }), v.object({ b: v.number() }))
+		expect(rules2.validate({}).valid).toBe(false)
+		expect(rules2.validate({ a: '' }).valid).toBe(false)
+		expect(rules2.validate({ b: 2 }).valid).toBe(false)
+		expect(rules2.validate({ a: '', b: 2 }).valid).toBe(true)
+		expect(rules2.parse({ a: '', b: 2 })).toEqual({ a: '', b: 2 })
+
+		const rules3 = v.merge(v.array(v.object({ a: v.string() })), v.array(v.object({ b: v.number() })))
+		expect(rules3.validate([]).valid).toBe(true)
+		expect(rules3.validate([{ a: '' }]).valid).toBe(false)
+		expect(rules3.validate([{ b: 2 }]).valid).toBe(false)
+		expect(rules3.validate([{ a: '' }, { b: 2 }]).valid).toBe(false)
+		expect(rules3.validate([{ a: '', b: 2 }]).valid).toBe(true)
+	})
+
+	test('fromJson', () => {
+		const rules = v.fromJson(v.number())
 		expect(rules.validate('and').valid).toBe(false)
 		expect(rules.validate('"1"').valid).toBe(false)
 		expect(rules.validate('1').valid).toBe(true)
