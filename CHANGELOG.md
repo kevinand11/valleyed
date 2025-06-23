@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.1](https://github.com/kevinand11/valleyed/compare/v4.5.0...v4.5.1) (2025-06-23)
+
+
+### Bug Fixes
+
+* remove objectExtends for merge ([24ad59f](https://github.com/kevinand11/valleyed/commit/24ad59fb5aed17b99db75577d48d49f1a70b160b))
+
 ## [4.5.0](https://github.com/kevinand11/valleyed/compare/v4.4.10...v4.5.0) (2025-06-23)
 
 
