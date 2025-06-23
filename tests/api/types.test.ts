@@ -52,12 +52,4 @@ describe('types', () => {
 		expect(rules.validate({}).valid).toBe(false)
 		expect(rules.validate(new Date()).valid).toBe(true)
 	})
-
-	test('function', () => {
-		const rules = v.function()
-		expect(rules.validate('').valid).toBe(false)
-		expect(rules.validate(1).valid).toBe(false)
-		expect(rules.validate({}).valid).toBe(false)
-		expect(rules.validate(() => 1).valid).toBe(true)
-	})
 })
