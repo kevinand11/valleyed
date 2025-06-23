@@ -1,79 +1,59 @@
 import { describe, expect, test } from 'vitest'
 
-import { v } from '../../src/api'
+import { v } from '../../src'
 
 describe('strings', () => {
-	test('string', () => {
-		const rules = v.string()
-		expect(rules.parse('2').valid).toBe(true)
-		expect(rules.parse(2).valid).toBe(false)
-		expect(rules.parse(false).valid).toBe(false)
-	})
-
-	test('has', () => {
-		const rules = v.string().has(2)
-		expect(rules.parse('hi').valid).toBe(true)
-		expect(rules.parse('h').valid).toBe(false)
-		expect(rules.parse('hi!').valid).toBe(false)
-	})
-
-	test('min', () => {
-		const rules = v.string().min(2)
-		expect(rules.parse('1').valid).toBe(false)
-		expect(rules.parse('12').valid).toBe(true)
-		expect(rules.parse('123').valid).toBe(true)
-	})
-
-	test('max', () => {
-		const rules = v.string().max(2)
-		expect(rules.parse('1').valid).toBe(true)
-		expect(rules.parse('12').valid).toBe(true)
-		expect(rules.parse('123').valid).toBe(false)
-	})
-
 	test('email', () => {
-		const rules = v.string().email()
-		expect(rules.parse('a@mail.co').valid).toBe(true)
-		expect(rules.parse('12').valid).toBe(false)
-		expect(rules.parse(false).valid).toBe(false)
+		const rules = v.string().pipe(v.email())
+		expect(rules.validate('a@mail.co').valid).toBe(true)
+		expect(rules.validate('12').valid).toBe(false)
+		expect(rules.validate(false).valid).toBe(false)
 	})
 
 	test('url', () => {
-		const rules = v.string().url()
-		expect(rules.parse('www.a.co').valid).toBe(true)
-		expect(rules.parse('12').valid).toBe(false)
-		expect(rules.parse(false).valid).toBe(false)
+		const rules = v.string().pipe(v.url())
+		expect(rules.validate('www.a.co').valid).toBe(true)
+		expect(rules.validate('12').valid).toBe(false)
+		expect(rules.validate(false).valid).toBe(false)
 	})
 
-	test('trim', () => {
-		const rules = v.string().trim()
-		expect(rules.parse(' 12  ').value).toEqual('12')
+	test('withStrippedHtml', () => {
+		const rules = v.string().pipe(v.withStrippedHtml(v.min(1)))
+		expect(rules.validate('<img>').valid).toBe(false)
+		expect(rules.validate('<img>1').valid).toBe(true)
+		expect(rules.validate('<p></p>').valid).toBe(false)
+		expect(rules.validate('<p>Hi</p>').valid).toBe(true)
 	})
 
-	test('lower', () => {
-		const rules = v.string().lower()
-		expect(rules.parse('ABC').value).toEqual('abc')
+	test('asTrimmed', () => {
+		const rules = v.string().pipe(v.asTrimmed())
+		expect(rules.parse(' 12  ')).toEqual('12')
 	})
 
-	test('upper', () => {
-		const rules = v.string().upper()
-		expect(rules.parse('abc').value).toEqual('ABC')
+	test('asLowercased', () => {
+		const rules = v.string().pipe(v.asLowercased())
+		expect(rules.parse('ABC')).toEqual('abc')
 	})
 
-	test('capitalize', () => {
-		const rules = v.string().capitalize()
-		expect(rules.parse('abc. no. i.').value).toEqual('Abc. No. I.')
+	test('asUppercased', () => {
+		const rules = v.string().pipe(v.asUppercased())
+		expect(rules.parse('abc')).toEqual('ABC')
 	})
 
-	test('stripHTML', () => {
-		const rules = v.string().stripHTML()
-		expect(rules.parse('<p>Hi</p>').value).toEqual('Hi')
+	test('asCapitalized', () => {
+		const rules = v.string().pipe(v.asCapitalized())
+		expect(rules.parse('abc. no. i.')).toEqual('Abc. No. I.')
 	})
 
-	test('slice', () => {
-		const rules = v.string().slice(2)
-		expect(rules.parse('Hi!').value).toEqual('Hi...')
-		expect(rules.parse('Hi').value).toEqual('Hi')
-		expect(rules.parse('H').value).toEqual('H')
+	test('asStrippedHtml', () => {
+		const rules = v.string().pipe(v.asStrippedHtml())
+		expect(rules.parse('<p>Hi</p>')).toEqual('Hi')
+	})
+
+	test('asSliced', () => {
+		const rules = v.string().pipe(v.asSliced(2))
+		expect(rules.parse('Hi!')).toEqual('Hi...')
+		expect(rules.parse('Hi')).toEqual('Hi')
+		expect(rules.parse('H')).toEqual('H')
 	})
 })

@@ -1,99 +1,78 @@
 import { describe, expect, test } from 'vitest'
 
-import { v } from '../../src/api'
+import { v } from '../../src'
 
 describe('core', () => {
-	test('original', () => {
-		const rules = v.string().trim().original()
-		expect(rules.parse('').value).toBe('')
-		expect(rules.parse(' ha ').value).toBe(' ha ')
-	})
-
-	test('requiredIf', () => {
-		const rules = v.string().requiredIf(() => false)
-		expect(rules.parse('').valid).toBe(true)
-		expect(rules.parse(undefined).valid).toBe(true)
-		expect(rules.parse(2).valid).toBe(true)
-	})
-
-	test('optional', () => {
-		const rules = v.string().optional()
-		expect(rules.parse('').valid).toBe(true)
-		expect(rules.parse(undefined).valid).toBe(true)
-		expect(rules.parse(null).valid).toBe(true)
-		expect(rules.parse(2).valid).toBe(true)
-		expect(rules.parse(2, false).valid).toBe(false)
-	})
-
-	test('nullable', () => {
-		const rules = v.string().nullable()
-		expect(rules.parse('').valid).toBe(true)
-		expect(rules.parse(null).valid).toBe(true)
-		expect(rules.parse(undefined).valid).toBe(false)
-		expect(rules.parse(2).valid).toBe(false)
-	})
-
-	test('nullish', () => {
-		const rules = v.string().nullish()
-		expect(rules.parse('').valid).toBe(true)
-		expect(rules.parse(null).valid).toBe(true)
-		expect(rules.parse(undefined).valid).toBe(true)
-		expect(rules.parse(2).valid).toBe(true)
-		expect(rules.parse(2, false).valid).toBe(false)
-	})
-
-	test('default', () => {
-		const rules = v.string().default(() => '')
-		expect(rules.parse('hi').valid).toBe(true)
-		expect(rules.parse(null).valid).toBe(false)
-		expect(rules.parse(undefined).valid).toBe(true)
-		expect(v.string().default('def').parse(undefined).valid).toBe(true)
-		expect(rules.parse(2).valid).toBe(false)
-	})
-
 	test('custom', () => {
-		const rules = v.string().custom((val) => val !== '')
-		expect(rules.parse('hi').valid).toBe(true)
-		expect(rules.parse('').valid).toBe(false)
+		const rules = v.custom((val) => val !== '')
+		expect(rules.validate('hi').valid).toBe(true)
+		expect(rules.validate('').valid).toBe(false)
 	})
 
 	test('eq', () => {
-		const rules = v.string().eq('hi')
-		expect(rules.parse('hi').valid).toBe(true)
-		expect(rules.parse('').valid).toBe(false)
+		const rules = v.eq('hi')
+		expect(rules.validate('hi').valid).toBe(true)
+		expect(rules.validate('').valid).toBe(false)
+	})
+
+	test('is', () => {
+		const rules = v.is('hi')
+		expect(rules.validate('hi').valid).toBe(true)
+		expect(rules.validate('').valid).toBe(false)
 	})
 
 	test('ne', () => {
-		const rules = v.string().ne('')
-		expect(rules.parse('hi').valid).toBe(true)
-		expect(rules.parse('').valid).toBe(false)
+		const rules = v.ne('')
+		expect(rules.validate('hi').valid).toBe(true)
+		expect(rules.validate('').valid).toBe(false)
+	})
+
+	test('has', () => {
+		const stringRules = v.string().pipe(v.has(2))
+		expect(stringRules.validate('hi').valid).toBe(true)
+		expect(stringRules.validate('h').valid).toBe(false)
+		expect(stringRules.validate('hi!').valid).toBe(false)
+		const arrayRules = v.array(v.any()).pipe(v.has(2))
+		expect(arrayRules.validate([1]).valid).toBe(false)
+		expect(arrayRules.validate([1, 2]).valid).toBe(true)
+		expect(arrayRules.validate([1, 2, 3]).valid).toBe(false)
+	})
+
+	test('min array', () => {
+		const strinRules = v.string().pipe(v.min(2))
+		expect(strinRules.validate('1').valid).toBe(false)
+		expect(strinRules.validate('12').valid).toBe(true)
+		expect(strinRules.validate('123').valid).toBe(true)
+		const arrayRules = v.array(v.any()).pipe(v.min(2))
+		expect(arrayRules.validate([1]).valid).toBe(false)
+		expect(arrayRules.validate([1, 2]).valid).toBe(true)
+		expect(arrayRules.validate([1, 2, 3]).valid).toBe(true)
+	})
+
+	test('max array', () => {
+		const stringRules = v.string().pipe(v.max(2))
+		expect(stringRules.validate('1').valid).toBe(true)
+		expect(stringRules.validate('12').valid).toBe(true)
+		expect(stringRules.validate('123').valid).toBe(false)
+		const arrayRules = v.array(v.any()).pipe(v.max(2))
+		expect(arrayRules.validate([1]).valid).toBe(true)
+		expect(arrayRules.validate([1, 2]).valid).toBe(true)
+		expect(arrayRules.validate([1, 2, 3]).valid).toBe(false)
 	})
 
 	test('in', () => {
-		const rules = v.any().in([1, 2, 3])
-		expect(rules.parse('1').valid).toBe(false)
-		expect(rules.parse(4).valid).toBe(false)
-		expect(rules.parse(true).valid).toBe(false)
-		expect(rules.parse(1).valid).toBe(true)
+		const rules = v.in([1, 2, 3])
+		expect(rules.validate('1').valid).toBe(false)
+		expect(rules.validate(4).valid).toBe(false)
+		expect(rules.validate(true).valid).toBe(false)
+		expect(rules.validate(1).valid).toBe(true)
 	})
 
 	test('nin', () => {
-		const rules = v.any().nin([1, 2, 3])
-		expect(rules.parse('1').valid).toBe(true)
-		expect(rules.parse(4).valid).toBe(true)
-		expect(rules.parse(true).valid).toBe(true)
-		expect(rules.parse(1).valid).toBe(false)
-	})
-
-	test('transform', () => {
-		const rules = v
-			.string()
-			.transform((val) => val.split(''))
-			.transform((val) => val.length)
-			.custom((val) => val > 3)
-		expect(rules.parse('1').valid).toBe(false)
-		expect(rules.parse(4).valid).toBe(false)
-		expect(rules.parse(true).valid).toBe(false)
-		expect(rules.parse('1234').valid).toBe(true)
+		const rules = v.nin([1, 2, 3])
+		expect(rules.validate('1').valid).toBe(true)
+		expect(rules.validate(4).valid).toBe(true)
+		expect(rules.validate(true).valid).toBe(true)
+		expect(rules.validate(1).valid).toBe(false)
 	})
 })

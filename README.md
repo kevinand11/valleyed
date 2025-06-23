@@ -1,244 +1,318 @@
 # Valleyed
 
+Valleyed is a powerful, type-safe, and lightweight validation library for TypeScript and JavaScript. It provides a fluent, chainable API to build complex validation pipelines with ease, inspired by libraries like Zod, but with a focus on simplicity and extensibility.
 
-## Installation
+## ✨ Features
 
-This is a [Node.js](https://nodejs.org/en/) module available through the [npm registry](https://www.npmjs.com/package/valleyed).
-Before installing, [download and install Node.js](https://nodejs.org/en/download/). Node.js 4.2.4 or higher is required.
-If this is a brand new project, make sure to create a `package.json` first with the [`npm init` command](https://docs.npmjs.com/creating-a-package-json-file).
-Installation is done using the [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
+-   **Type-Safe**: Full TypeScript support, infer types directly from your schemas.
+-   **Lightweight**: Small bundle size with zero dependencies.
+-   **Chainable API**: Build complex validations by chaining methods.
+-   **Extensible**: Easily add your own custom validation logic.
+-   **Standard Schema Compatible**: Generate JSON Schemas from your validation pipes.
+-   **Isomorphic**: Works in both Node.js and browser environments.
 
-### Using npm:
-    npm install valleyed
+## 📦 Installation
 
-### Using yarn:
-    yarn add valleyed
+You can install Valleyed using your favorite package manager:
 
-### Using CDN:
-[Valleyed jsDelivr CDN](https://www.jsdelivr.com/package/npm/valleyed)
-
-
-## Basic Usage
-
-```ts
-import { isEmail, isMinOf } from 'valleyed'
-
-// The isEmail function builds and returns a function that checks if the first argument is a valid email
-let validity = isEmail()('johndoe@mail.co')
-console.log(validity)
-// Output should be : { valid: true, error: null, value: 'johndoe@mail.co' }
-
-// The isMinOf function builds a function that checks if the first argument is of minimum length of the length passed into the builder function
-validity = isMinOf(5)('abcd')
-console.log(validity)
-// Output should be : { valid: false, error: 'must contain 5 or more characters', value: 'abcd' }
+```bash
+npm install valleyed
+# or
+yarn add valleyed
+# or
+pnpm add valleyed
 ```
 
+## 🚀 Quick Start
 
-## Common Rule Builders
+Here's a quick example to get you started with Valleyed:
 
-### Errors
+```typescript
+import { v } from 'valleyed';
 
-All rule builders accept an optional string as the last argument used to customize the error message
+// 1. Define a schema for your data
+const userSchema = v.object({
+  name: v.string().pipe(v.min(3)),
+  email: v.string().pipe(v.email()),
+  age: v.optional(v.number().pipe(v.gte(18))),
+});
 
-```ts
-const res = isEmail('is missing specific characters')('')
-console.log(res) // { valid: false, error: 'is missing specific characters', value: '' }
+// 2. Some data to validate
+const userData = {
+  name: 'John Doe',
+  email: 'john.doe@example.com',
+};
+
+// 3. Validate the data
+const validationResult = userSchema.validate(userData);
+
+if (validationResult.valid) {
+  // Type-safe access to the validated data
+  console.log('Validation successful:', validationResult.value);
+} else {
+  // Detailed error messages
+  console.error('Validation failed:', validationResult.error.toString());
+}
+
+// 4. You can also parse directly, which throws on error
+try {
+    const user = userSchema.parse(userData);
+    console.log('Parsed user:', user);
+} catch (error) {
+    console.error(error);
+}
 ```
 
-### Equality
+## 📚 API Reference
 
-```ts
-// Checks if the validation value is shallow equal to the compare. Valuable for comparing primitive types
-isShallowEqualTo(compare)
+Valleyed exports a single object `v` which contains all the validation functions.
 
-// Checks if the validation value resolves to true when passed into the compareFunction. The compareFunction passes the validation value and the compare value as the arguments and expects a boolean in return. Valuable for comparing non-primitive types.
-isDeepEqualTo(compare, compareFunction)
-const res = isDeepEqualTo({ id: 1 }, (value, compare) => {
-	return value?.id === compare.id
-})({ id: 1 }) // res.valid is true
+### Primitive Types
 
-// Checks if the validation value is in an array of predefined values
-arrayContains(array, compareFunction)
-const res = arrayContains([{ id: 1 }, { id: 2 }], (value, compare) => {
-	return value?.id === compare.id
-})({ id: 2 }) // res.valid is true
+These are the basic building blocks for any schema.
+
+| Function         | Description                                          |
+| ---------------- | ---------------------------------------------------- |
+| `v.string()`     | Checks if the input is a `string`.                   |
+| `v.number()`     | Checks if the input is a `number` (and not `NaN`).   |
+| `v.boolean()`    | Checks if the input is a `boolean`.                  |
+| `v.null()`       | Checks if the input is `null`.                       |
+| `v.undefined()`  | Checks if the input is `undefined`.                  |
+| `v.any()`        | Allows any value, essentially a pass-through.        |
+| `v.instanceOf()` | Checks if the input is an instance of a given class. |
+
+```typescript
+// Example:
+v.string().validate('hello').valid; // true
+v.number().validate(123).valid; // true
+v.instanceOf(Date).validate(new Date()).valid; // true
 ```
 
-### Strings
+### Core Validators
 
-```ts
-// Checks if the validation value is of type String. This is used internally in all string methods, so no need to use it unless you are making a custom rule
-isString()
+These validators can be piped from any other validator to add more constraints.
 
-// Checks if the length of the validation value is equal to the length
-isLengthOf(length)
+| Function                  | Description                                                              |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `v.custom(fn, msg?)`      | Validates using a custom function that returns a boolean.                |
+| `v.eq(val, msg?)`         | Checks for deep equality with a given value. Alias: `v.is()`.            |
+| `v.ne(val, msg?)`         | Checks for deep inequality with a given value.                           |
+| `v.in(arr, msg?)`         | Checks if the value is present in the provided array.                    |
+| `v.nin(arr, msg?)`        | Checks if the value is **not** present in the provided array.            |
+| `v.has(len, msg?)`        | For strings and arrays, checks for an exact length.                      |
+| `v.min(len, msg?)`        | For strings and arrays, checks for a minimum length.                     |
+| `v.max(len, msg?)`        | For strings and arrays, checks for a maximum length.                     |
 
-// Checks if the length of the validation value is greater than or equal to the length
-isMinOf(length)
-
-// Checks if the length of the validation value is less than or equal to the length
-isMaxOf(length)
-
-// Checks if the validation value is formatted as a valid email
-isEmail()
-
-// Checks if the validation value is formatted as a valid url
-isUrl()
+```typescript
+// Example:
+const schema = v.string().pipe(v.min(5), v.in(['hello', 'world']));
+schema.validate('hello').valid; // true
+schema.validate('hi').valid; // false (fails min(5))
+schema.validate('testing').valid; // false (fails in([...]))
 ```
 
-### Numbers
+### String Validators
 
-```ts
-// Checks if the validation value is of type Number. This is used internally in all number methods, so no need to use it unless you are making a custom rule
-isNumber()
+Specific validators and transformers for strings.
 
-// Checks if the the validation value is greater than the compare
-isMoreThan(compare)
+| Function             | Description                                                              |
+| -------------------- | ------------------------------------------------------------------------ |
+| `v.email(msg?)`      | Validates an email address format.                                       |
+| `v.url(msg?)`        | Validates a URL format.                                                  |
+| `v.asTrimmed()`      | **Transformer**: Trims whitespace from the start and end of a string.    |
+| `v.asLowercased()`   | **Transformer**: Converts the string to lowercase.                       |
+| `v.asUppercased()`   | **Transformer**: Converts the string to uppercase.                       |
+| `v.asCapitalized()`  | **Transformer**: Capitalizes each word in the string.                    |
+| `v.asStrippedHtml()` | **Transformer**: Removes HTML tags from the string.                      |
+| `v.asSliced(len)`    | **Transformer**: Slices the string to a max length, adding `...`.        |
+| `v.withStrippedHtml(pipe)` | Applies a validation pipe to an HTML-stripped version of the string, but returns the original string if valid. |
 
-// Checks if the the validation value is greater than or equal to the compare
-isMoreThanOrEqualTo(compare)
+```typescript
+// Example:
+v.string().pipe(v.email()).validate('test@example.com').valid; // true
 
-// Checks if the the validation value is less than the compare
-isLessThan(compare)
-
-// Checks if the the validation value is less than or equal to the compare
-isLessThanOrEqualTo(compare)
+const trimmedLower = v.string().pipe(v.asTrimmed(), v.asLowercased());
+trimmedLower.parse('  HeLLo  '); // 'hello'
 ```
 
-### Arrays
+### Number Validators
 
-```ts
-// Checks if the validation value is of type Array. This is used internally in all array methods, so no need to use it unless you are making a custom rule
-isArray()
+Specific validators and transformers for numbers.
 
-// Checks if the length of the validation value is equal to the length
-hasLengthOf(length)
+| Function          | Description                                              |
+| ----------------- | -------------------------------------------------------- |
+| `v.gt(num, msg?)` | Checks if the number is greater than the given value.    |
+| `v.gte(num, msg?)`| Checks if the number is greater than or equal to the given value. |
+| `v.lt(num, msg?)` | Checks if the number is less than the given value.       |
+| `v.lte(num, msg?)`| Checks if the number is less than or equal to the given value. |
+| `v.int(msg?)`     | Checks if the number is an integer.                      |
+| `v.asRounded(dp?)`| **Transformer**: Rounds the number to a number of decimal places. |
 
-// Checks if the length of the validation value is greater than or equal to the length
-hasMinOf(length)
-
-// Checks if the length of the validation value is less than or equal to the length
-hasMaxOf(length)
-
-// Checks if the validation value is formatted as a valid email
-isEmail()
-
-// Checks if all elements in the valition value passes a requirement. The compare function passes a element and its index as the arguments and expects a boolean in return.
-isArrayOf(compareFunction)
-const res = isArrayOf((element, index) => {
-	return isString(element).valid // This ensures all elements in the array are strings
-})(['a', 'b', 'c']) // res.valid is true
-
-// Used to validate tuples(arrays that can contain different data types). Checks if all elements in the validation values passes a different requirement
-isTuple(compareFunctionsArray)
-const res = isTuple([
-	(element, index) => isString(element).valid,
-	(element, index) => isNumber(element).valid
-])(['hello world', 2]) // res.valid is true because it expects an array that contains a string at index 0 and a number at index 1
+```typescript
+// Example:
+const ageSchema = v.number().pipe(v.int(), v.gte(18));
+ageSchema.validate(25).valid; // true
+ageSchema.validate(17.5).valid; // false
 ```
 
-### Datetime
+### Array Validators
 
-```ts
-// Checks if the validation value can be parsed into a valid javascript date. Validation value can be a Date object, a timestamp number or a datetime string. This is used internally in all datetime methods, so no need to use it unless you are making a custom rule
-isTime()
+Validators for handling arrays.
 
-// Checks if the validation value is later than the compare. Compare can also be a Date object, a timestamp number or a datetime string
-isLaterThan(compare)
+| Function                  | Description                                                              |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `v.array(schema)`         | Validates that every element in an array matches the provided schema.    |
+| `v.tuple([s1, s2])`       | Validates a fixed-length array where each element has a specific type.   |
+| `v.asSet(keyFn?)`         | **Transformer**: Removes duplicates from an array. By default, it uses the value itself for comparison. You can provide a `keyFn` for objects. |
 
-// Checks if the validation value is earlier than the compare. Compare can also be a Date object, a timestamp number or a datetime string
-isEarlierThan(compare)
+```typescript
+// Example:
+const tagsSchema = v.array(v.string().pipe(v.min(2)));
+tagsSchema.validate(['food', 'travel']).valid; // true
+
+const pointSchema = v.tuple([v.number(), v.number()]);
+pointSchema.validate([10, 20]).valid; // true
 ```
 
-### Other Types
+### Object Validators
 
-```ts
-// Checks if the validation value is a boolean
-isBoolean()
+Validators for handling objects.
 
-// Checks if the validation value is null
-isNull()
+| Function                        | Description                                                              |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| `v.object({ k: schema })`       | Validates an object's properties against a schema definition.            |
+| `v.record(keySchema, valSchema)`| Validates objects with dynamic keys (like dictionaries or records).      |
+| `v.objectPick(schema, keys)`    | Creates a new object schema by picking specified keys from an existing one. |
+| `v.objectOmit(schema, keys)`    | Creates a new object schema by omitting specified keys from an existing one. |
+| `v.objectExtends(schema, pipes)`| Extends an object schema with new properties.                            |
+| `v.asMap()`                     | **Transformer**: Converts a record-like object into a `Map`.             |
 
-// Checks if the validation value is undefined
-isUndefined()
+```typescript
+// Example:
+const userSchema = v.object({ name: v.string(), age: v.number() });
 
-// Checks if the validation value is an instance of the Class passed in
-isInstanceOf(classDefinition)
-const res = isInstanceOf(String)('') // res.valid is true
+const publicUserSchema = v.objectOmit(userSchema, ['age']);
+publicUserSchema.validate({ name: 'John' }).valid; // true
+
+const userWithIdSchema = v.objectExtends(userSchema, { id: v.string() });
+userWithIdSchema.validate({ id: 'user-1', name: 'Jane', age: 30 }).valid; // true
 ```
 
-### Records and Maps
+### Optional & Default Values
 
-```ts
-/// Checks if all values in an object passes a comparer function
-isRecord(compareFunction)
-const res = isRecord((currentValue) => {
-	return isNumber(currentValue).valid
-})({ a: 1, b: 2, c: 3 }) // res.valid is true because all the values of the object are numbers
+Functions for handling optional values and providing defaults.
 
-/// Checks if all keys and values in an map passes a comparer function
-isMap(keysCompareFunction, valuesCompareFunction)
-const map = new Map([
-	[1, true],
-	[2, false],
-	[3, true]
-])
-const res = isMap(
-	(key) => isNumber(key).valid,
-	(value) => isBoolean(value).valid
-)(map) // res.valid is true because all the keys of the map are numbers and all the values are booleans
+| Function                       | Description                                                              |
+| ------------------------------ | ------------------------------------------------------------------------ |
+| `v.optional(schema)`           | Allows the value to be `undefined`.                                      |
+| `v.nullable(schema)`           | Allows the value to be `null`.                                           |
+| `v.nullish(schema)`            | Allows the value to be `null` or `undefined`.                            |
+| `v.defaults(schema, val)`      | Provides a default value if the input is `undefined`.                    |
+| `v.defaultsOnFail(schema, val)`| Provides a default value if the initial validation fails.                |
+| `v.conditional(schema, fn)`    | Makes a field optional based on a dynamic boolean condition.             |
+
+```typescript
+// Example:
+const schema = v.object({
+  name: v.string(),
+  nickname: v.optional(v.string()),
+  role: v.defaults(v.string(), 'user'),
+});
+
+schema.parse({ name: 'John' });
+// { name: 'John', role: 'user' }
 ```
 
-### Files
+### Junctions (Unions & Intersections)
 
-```ts
-// Checks if the validation value is an object with a key "type" that contains a supported file mimetypes. All supported file mimetypes can be imported under the name "fileMimeTypes". This is used internally in all file methods, so no need to use it unless you are making a custom rule
-isFile()
+Combine schemas to create complex types.
 
-// Checks if the validation value's type is a valid image mimetype. All supported image mimetypes can be imported under the name "imageMimeTypes".
-isImage()
+| Function                               | Description                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------ |
+| `v.or([s1, s2])`                       | A union type. The value must match at least one of the provided schemas. |
+| `v.and([s1, s2])`                      | An intersection. The value must match all of the provided schemas.       |
+| `v.merge(s1, s2)`                      | Merges two object or array schemas.                                      |
+| `v.discriminate(fn, schemas)`          | Validates against one of several object schemas based on a discriminator field. |
+| `v.fromJson(schema)`                   | **Transformer**: Parses a JSON string before validating against a schema. |
 
-// Checks if the validation value's type is a valid audio mimetype. All supported audio mimetypes can be imported under the name "audioMimeTypes".
-isAudio()
+```typescript
+// Example: Discriminated Union
+const shapeSchema = v.discriminate(v => v.type, {
+  circle: v.object({ type: v.is('circle'), radius: v.number() }),
+  square: v.object({ type: v.is('square'), side: v.number() }),
+});
 
-// Checks if the validation value's type is a valid video mimetype. All supported video mimetypes can be imported under the name "videoMimeTypes".
-isVideo()
+shapeSchema.validate({ type: 'circle', radius: 10 }).valid; // true
+shapeSchema.validate({ type: 'square', side: 5 }).valid; // true
 ```
 
-### Custom Rule
+### Date & Time Validators
 
-```ts
-// If there is a rule for your usecase, you can create a custom one with this. The validityFunction passes the validation value as its argument and expects a boolean in return
-isCustom(validityFunction)
-const res = isCustom((value) => typeof value === 'function')(() => {}) // res.valid is true because the typeof value is function
+Validators and transformers for dates and times.
+
+| Function            | Description                                                              |
+| ------------------- | ------------------------------------------------------------------------ |
+| `v.time(msg?)`      | Validates a date, accepting `Date` objects, timestamps, or date strings. |
+| `v.after(date, msg?)`| Checks if the date is after a specified date.                          |
+| `v.before(date, msg?)`| Checks if the date is before a specified date.                         |
+| `v.asStamp()`       | **Transformer**: Converts a `Date` object into a numeric timestamp.      |
+| `v.asISOString()`   | **Transformer**: Converts a `Date` object into an ISO 8601 string.       |
+
+```typescript
+// Example:
+const eventSchema = v.object({
+  name: v.string(),
+  startsAt: v.time().pipe(v.after(new Date())),
+});
 ```
 
+### File Validators
 
-## Combining Rules
+Validators for file-like objects (e.g., from a file upload). These validators expect an object with a `type` property containing the MIME type.
 
-```ts
-import { Validator, isEmail, isMinOf, isString, isNumber } from 'valleyed'
+| Function                      | Description                                                              |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| `v.file(msg?)`                | Validates a generic file-like object.                                    |
+| `v.image(msg?)`               | Validates if the file is an image (`image/*`).                           |
+| `v.audio(msg?)`               | Validates if the file is an audio file (`audio/*`).                      |
+| `v.video(msg?)`               | Validates if the file is a video file (`video/*`).                       |
+| `v.fileType(types, msg?)`     | Validates if the file's MIME type is in the provided list.               |
 
-// The Validator.and function is used to build up a schema or list of rules to validate a value against
-let res = Validator.and([[isEmail(), isMinOf(1)]])('johndoe@mail.com')
-console.log(res) // { valid: true, errors: [], value: 'johndoe@mail.com' }
-
-// if the value fails validation, it returns a list of all errors in the errors array
-res = Validator.and([[isEmail(), isMinOf(1)]])('')
-console.log(res) // { valid: false, value: '', errors: [ 'is not a valid email', 'must contain 1 or more characters' ] }
-
-// Similar to the And function, Validator has an or function that checks if the value passes validation for any of the list of rules passed in
-let res = Validator.or([[isString(), isMinOf(1)], [isNumber()]])(2)
-console.log(res) // { valid: true, value: 2, errors: [] }
-
-// if the value fails validation, it returns a list of all errors in the errors array
-res = Validator.or([[isString(), isMinOf(1)], [isNumber()]])(false)
-console.log(res) // { valid: false, value: false, errors: [ 'doesn't match any of the schema' ] }
-
-// An optional third paramater can be passed into the And/Or functions to control if null and undefined are allowed to pass validation
-Validator.and([[isEmail()]], {
-	nullable: true, // Boolean: if true, null passed as the first argument passes validation
-	required: () => false // Boolean or Function that returns a boolean: if false, undefined passed as the first argument passes validation
-})('')
+```typescript
+// Example:
+const imageSchema = v.file().pipe(v.image(), v.fileType(['image/jpeg', 'image/png']));
+imageSchema.validate({ type: 'image/png' }).valid; // true
+imageSchema.validate({ type: 'image/gif' }).valid; // false
 ```
+
+### Coercion
+
+These pipes attempt to convert the input to a specific type before validating it.
+
+| Function            | Description                                                              |
+| ------------------- | ------------------------------------------------------------------------ |
+| `v.coerceString()`  | Coerces to `string` using `String()`.                                    |
+| `v.coerceNumber()`  | Coerces to `number` using `Number()`. Fails if the result is `NaN`.      |
+| `v.coerceBoolean()` | Coerces to `boolean` using `Boolean()`.                                  |
+| `v.coerceTime()`    | Coerces to `Date` using `new Date()`.                                    |
+
+```typescript
+// Example:
+const schema = v.coerceNumber().pipe(v.int());
+schema.parse('123'); // 123
+schema.validate('123.45').valid; // false (fails int())
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+### Development Setup
+
+1.  Clone the repository.
+2.  Install dependencies with `pnpm install`.
+3.  Run tests with `pnpm test`.
+
+## 📜 License
+
+This project is licensed under the MIT License.

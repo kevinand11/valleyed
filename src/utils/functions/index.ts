@@ -1,4 +1,4 @@
-import { isNumber } from '../../rules'
+import { v } from '../../api'
 import { urlRegex } from '../regexes'
 import { normalizeUrl } from './urls/normalize'
 
@@ -44,7 +44,9 @@ export const extractUrls = (text: string) => {
 }
 
 export const formatNumber = (num: number, dp?: number) =>
-	Intl.NumberFormat('en', { notation: 'compact', ...(dp ? { maximumFractionDigits: dp } : {}) }).format(isNumber()(num).valid ? num : 0)
+	Intl.NumberFormat('en', { notation: 'compact', ...(dp ? { maximumFractionDigits: dp } : {}) }).format(
+		v.number().validate(num).valid ? num : 0,
+	)
 
 export const pluralize = (count: number, singular: string, plural: string) => (Math.round(count) === 1 ? singular : plural)
 
@@ -142,4 +144,9 @@ export const compareTwoStrings = (first: string, second: string) => {
 	}
 
 	return (2.0 * intersectionSize) / (first.length + second.length - 2)
+}
+
+export type ValueFunction<T> = T | (() => T)
+export function execValueFunction<T>(def: ValueFunction<T>): T {
+	return typeof def === 'function' ? (def as any)() : def
 }

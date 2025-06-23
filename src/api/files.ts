@@ -1,22 +1,44 @@
-import { isAudio, isFile, isImage, isVideo } from '../rules'
-import { VCore } from './core'
-import type { File } from '../utils/types'
+import { pipe, PipeError } from './base'
 
-export class VFile extends VCore<File> {
-	constructor(err?: string) {
-		super()
-		this.addTyping(isFile(err))
-	}
-
-	image(err?: string) {
-		return this.addRule(isImage(err))
-	}
-
-	audio(err?: string) {
-		return this.addRule(isAudio(err))
-	}
-
-	video(err?: string) {
-		return this.addRule(isVideo(err))
-	}
+export interface File {
+	type: string
 }
+
+const isFile = (v: unknown): v is File => typeof v === 'object' && !!v && 'type' in v
+const isMimeType = (str: string) => /^[a-zA-Z0-9!#$&^_.+-]+\/[a-zA-Z0-9!#$&^_.+-]+$/.test(str)
+
+export const file = <T extends File>(err = 'is not a recognized file') =>
+	pipe<T, T, any>(
+		(input) => {
+			if (isFile(input) && isMimeType(input.type)) return input as T
+			throw PipeError.root(err, input)
+		},
+		{ schema: () => ({ type: 'string', format: 'binary' }) },
+	)
+
+export const image = <T extends File>(err = 'is not a recognized image file') =>
+	pipe<T, T, any>((input) => {
+		if (isFile(input) && isMimeType(input.type) && input.type.startsWith('image/')) return input
+		throw PipeError.root(err, input)
+	})
+
+export const audio = <T extends File>(err = 'is not a recognized audio file') =>
+	pipe<T, T, any>((input) => {
+		if (isFile(input) && isMimeType(input.type) && input.type.startsWith('audio/')) return input
+		throw PipeError.root(err, input)
+	})
+
+export const video = <T extends File>(err = 'is not a recognized video file') =>
+	pipe<T, T, any>((input) => {
+		if (isFile(input) && isMimeType(input.type) && input.type.startsWith('video/')) return input
+		throw PipeError.root(err, input)
+	})
+
+export const fileType = <T extends File>(types: string | string[], err = 'is not a supported file') =>
+	pipe<T, T, any>((input) => {
+		if (isFile(input) && isMimeType(input.type)) {
+			const fileTypes = Array.isArray(types) ? types : [types]
+			if (fileTypes.some((type) => input.type === type)) return input
+		}
+		throw PipeError.root(err, input)
+	})

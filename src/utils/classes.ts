@@ -1,6 +1,7 @@
 import util from 'util'
 
-import { DeepOmit, JSONValue } from './types'
+import { wrapInTryCatch } from './functions'
+import { DeepOmit, IsType, JSONValueOf } from './types'
 
 if (util?.inspect?.defaultOptions) {
 	util.inspect.defaultOptions.depth = Number.MAX_SAFE_INTEGER
@@ -10,13 +11,29 @@ if (util?.inspect?.defaultOptions) {
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
-type Accessor<Keys extends Record<string, any>> = {
+type Accessor<Keys extends object> = {
 	get: <Key extends keyof Keys>(key: Key, keysObj: Keys) => Keys[Key]
 	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void
 }
 
-class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never> {
-	public readonly __ignoreInJSON: Ignored[] = []
+type JSONOf<K, I> = JSONValueOf<IsType<K, any> extends true ? Record<string, any> : DeepOmit<K, I>>
+
+function WrapWithProperties(): { new <Keys extends Record<string, unknown>>(): Keys } {
+	return class {
+		[customInspectSymbol](_, options, inspect) {
+			options.getters = true
+			options.numericSeparator = true
+			options.depth = Number.MAX_SAFE_INTEGER
+			return options.stylize(this.constructor.name, options) + ' ' + inspect((this as any).toJSON?.() ?? this, options)
+		}
+	} as any
+}
+
+// @ts-expect-error invalid extends
+class __Root<Keys extends object> extends WrapWithProperties()<Keys> {}
+
+export class DataClass<Keys extends object, Ignored extends string = never> extends __Root<Keys> {
+	public __ignoreInJSON: ReadonlyArray<Ignored> = []
 
 	constructor(
 		keys: Keys,
@@ -27,6 +44,7 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 			},
 		},
 	) {
+		super()
 		Object.keys(keys).forEach((key) => {
 			Object.defineProperty(this, key, {
 				get: () => access.get(key as keyof Keys, keys),
@@ -39,22 +57,13 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 		})
 	}
 
-	[customInspectSymbol](_, options, inspect) {
-		options.getters = true
-		options.numericSeparator = true
-		options.depth = Number.MAX_SAFE_INTEGER
-		return options.stylize(this.constructor.name, options) + ' ' + inspect(this.toJSON(), options)
-	}
-
-	toJSON(includeIgnored = false): JSONValue<DeepOmit<this, Ignored, '__ignoreInJSON'>> {
+	toJSON(includeIgnored = false): JSONOf<Keys, Ignored> {
 		const json: Record<string, any> = {}
-		Object.keys(this)
-			.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))
-			.forEach((key) => {
-				const value = this[key]
-				if (typeof value === 'function' || value === undefined) return
-				json[key] = value?.toJSON?.(includeIgnored) ?? clone(value)
-			})
+		Object.keys(this).forEach((key) => {
+			const value = this[key]
+			if (typeof value === 'function' || value === undefined) return
+			json[key] = (value as any)?.toJSON?.(includeIgnored) ?? wrapInTryCatch(() => structuredClone(value), value)
+		})
 		const keysToDelete = ['__ignoreInJSON'].concat(...(includeIgnored !== true ? this.__ignoreInJSON : []))
 		keysToDelete.forEach((k: string) => deleteKeyFromObject(json, k.split('.')))
 		return json as any
@@ -65,30 +74,7 @@ class __Wrapped<Keys extends Record<string, any>, Ignored extends string = never
 	}
 }
 
-function WrapWithProperties(): {
-	new <Keys extends Record<string, any>, Ignored extends string = never>(
-		keys: Keys,
-		access?: Accessor<Keys>,
-	): __Wrapped<Keys, Ignored> & Keys
-} {
-	return __Wrapped as any
-}
-
-// @ts-expect-error invalid extends
-export class ClassPropertiesWrapper<Keys extends Record<string, any>, Ignored extends string = never> extends WrapWithProperties()<
-	Keys,
-	Ignored
-> {}
-
-function clone<T>(value: T): T {
-	try {
-		return structuredClone(value)
-	} catch {
-		return value
-	}
-}
-
-const deleteKeyFromObject = (obj: Record<string, any>, keys: string[]) => {
+function deleteKeyFromObject(obj: Record<string, any>, keys: string[]) {
 	if (obj === undefined || obj === null) return
 	const isArray = Array.isArray(obj)
 	if (keys.length === 1 && !isArray) return delete obj[keys[0]]

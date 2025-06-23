@@ -1,50 +1,62 @@
-import { hasLengthOf, hasMaxOf, hasMinOf, isArray, isArrayOf } from '../rules'
-import { VCore } from './core'
-import { makeRule } from '../utils/rules'
+import { pipe, PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
 
-export class VArray<I> extends VCore<I[]> {
-	constructor(comparer: VCore<I>, err?: string) {
-		super()
-		this.addTyping(isArray(err))
-		this.addTyping(
-			makeRule<I[]>((value) => {
-				const mapped = ((value as I[]) ?? []).reduce(
-					(acc, cur) => {
-						const comp = comparer.parse(cur)
-						acc[0].push(comp.value)
-						acc[1].push(comp.valid)
-						return acc
-					},
-					[[] as any[], [] as boolean[]] as const,
-				)
-				return isArrayOf<I>((_, i) => mapped[1][i], err)(mapped[0])
-			}),
-		)
-	}
-
-	has(length: number, err?: string) {
-		return this.addRule(hasLengthOf(length, err))
-	}
-
-	min(length: number, err?: string) {
-		return this.addRule(hasMinOf(length, err))
-	}
-
-	max(length: number, err?: string) {
-		return this.addRule(hasMaxOf(length, err))
-	}
-
-	set(keyFn: (v: I) => any = (v) => v) {
-		return this.addSanitizer((val) => {
-			const finalArr: I[] = []
-			const obj: Record<any, boolean> = {}
-			val.forEach((v) => {
-				const key = keyFn(v)
-				if (obj[key]) return
-				obj[key] = true
-				finalArr.push(v)
+export const array = <T extends Pipe<any, any, any>>(pipeSchema: T) =>
+	pipe<PipeInput<T>[], PipeOutput<T>[], any>(
+		(input: unknown) => {
+			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
+			if (input.length === 0) return input
+			const res = input.map((i, idx) => {
+				const validity = pipeSchema.validate(i)
+				if (!validity.valid) return PipeError.path(idx, validity.error, i)
+				return validity.value
 			})
-			return finalArr
-		})
-	}
-}
+			if (res.some((r) => r instanceof PipeError))
+				throw PipeError.rootFrom(
+					res.filter((r) => r instanceof PipeError),
+					input,
+				)
+			return res
+		},
+		{ schema: () => ({ type: 'array', items: pipeSchema.toJsonSchema() }) },
+	)
+
+export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: readonly [...T]) =>
+	pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }, any>(
+		(input: unknown) => {
+			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
+			if (pipes.length !== input.length) throw PipeError.root(`expected ${pipes.length} but got ${input.length} items`, input)
+			if (input.length === 0) return input as any
+			const res = input.map((i, idx) => {
+				const validitity = pipes[idx].validate(i)
+				if ('error' in validitity) return PipeError.path(idx, validitity.error, i)
+				return validitity.value
+			})
+			if (res.some((r) => r instanceof PipeError))
+				throw PipeError.rootFrom(
+					res.filter((r) => r instanceof PipeError),
+					input,
+				)
+			return res
+		},
+		{
+			schema: () => ({
+				type: 'array',
+				items: pipes.map((pipe) => pipe.toJsonSchema()),
+				minItems: pipes.length,
+				maxItems: pipes.length,
+			}),
+		},
+	)
+
+export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
+	pipe<T[], T[], any>((input) => {
+		const obj: Record<PropertyKey, boolean> = {}
+		return input.reduce<T[]>((acc, cur) => {
+			const key = keyFn(cur)
+			if (!obj[key]) {
+				obj[key] = true
+				acc.push(cur)
+			}
+			return acc
+		}, [])
+	})

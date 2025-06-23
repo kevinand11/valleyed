@@ -1,33 +1,53 @@
-import { isInt, isLessThan, isLessThanOrEqualTo, isMoreThan, isMoreThanOrEqualTo, isNumber } from '../rules'
-import { VCore } from './core'
+import { pipe, PipeError } from './base'
+import { execValueFunction, ValueFunction } from '../utils/functions'
 
-export class VNumber extends VCore<number> {
-	constructor(err?: string) {
-		super()
-		this.addTyping(isNumber(err))
-	}
+export const gt = (value: ValueFunction<number>, err?: string) =>
+	pipe<number, number, any>(
+		(input) => {
+			const v = execValueFunction(value)
+			if (input > v) return input
+			throw PipeError.root(err ?? `must be greater than ${v}`, input)
+		},
+		{ schema: () => ({ exclusiveMinimum: execValueFunction(value) }) },
+	)
 
-	gt(value: number, err?: string) {
-		return this.addRule(isMoreThan(value, err))
-	}
+export const gte = (value: ValueFunction<number>, err?: string) =>
+	pipe<number, number, any>(
+		(input) => {
+			const v = execValueFunction(value)
+			if (input >= v) return input
+			throw PipeError.root(err ?? `must be greater than or equal to ${v}`, input)
+		},
+		{ schema: () => ({ minimum: execValueFunction(value) }) },
+	)
 
-	gte(value: number, err?: string) {
-		return this.addRule(isMoreThanOrEqualTo(value, err))
-	}
+export const lt = (value: ValueFunction<number>, err?: string) =>
+	pipe<number, number, any>(
+		(input) => {
+			const v = execValueFunction(value)
+			if (input < v) return input
+			throw PipeError.root(err ?? `must be less than ${v}`, input)
+		},
+		{ schema: () => ({ exclusiveMaximum: execValueFunction(value) }) },
+	)
 
-	lt(value: number, err?: string) {
-		return this.addRule(isLessThan(value, err))
-	}
+export const lte = (value: ValueFunction<number>, err?: string) =>
+	pipe<number, number, any>(
+		(input) => {
+			const v = execValueFunction(value)
+			if (input <= v) return input
+			throw PipeError.root(err ?? `must be less than or equal to ${v}`, input)
+		},
+		{ schema: () => ({ maximum: execValueFunction(value) }) },
+	)
 
-	lte(value: number, err?: string) {
-		return this.addRule(isLessThanOrEqualTo(value, err))
-	}
+export const int = (err = 'is not an integer') =>
+	pipe<number, number, any>(
+		(input) => {
+			if (input === parseInt(input as any)) return input
+			throw PipeError.root(err, input)
+		},
+		{ schema: () => ({ type: 'integer' }) },
+	)
 
-	int(err?: string) {
-		return this.addRule(isInt(err))
-	}
-
-	round(dp = 0) {
-		return this.addSanitizer((val) => Number(val.toFixed(dp)))
-	}
-}
+export const asRounded = (dp = 0) => pipe<number, number, any>((input) => Number(input.toFixed(dp)), {})

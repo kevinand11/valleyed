@@ -1,54 +1,47 @@
-import { isEmail, isLengthOf, isMaxOf, isMinOf, isString, isUrl } from '../rules'
-import { VCore } from './core'
-import { capitalize, stripHTML, trimToLength } from '../utils/functions'
+import { makeBranchPipe, Pipe, pipe, PipeError } from './base'
+import * as fns from '../utils/functions'
+import { emailRegex, urlRegex } from '../utils/regexes'
 
-export class VString extends VCore<string> {
-	constructor(err?: string) {
-		super()
-		this.addTyping(isString(err))
-	}
+export const email = (err = 'is not a valid email') =>
+	pipe<string, string, any>(
+		(input) => {
+			if (emailRegex.test(input)) return input
+			throw PipeError.root(err, input)
+		},
+		{ schema: () => ({ format: 'email' }) },
+	)
 
-	has(length: number, stripHTML = false, err?: string) {
-		return this.addRule(isLengthOf(length, stripHTML, err))
-	}
+export const url = (err = 'is not a valid url') =>
+	pipe<string, string, any>(
+		(input) => {
+			if (urlRegex().test(input)) return input
+			throw PipeError.root(err, input)
+		},
+		{ schema: () => ({ format: 'uri' }) },
+	)
 
-	min(length: number, stripHTML = false, err?: string) {
-		return this.addRule(isMinOf(length, stripHTML, err))
-	}
+export const withStrippedHtml = (pipe: Pipe<string, string, any>) =>
+	makeBranchPipe<Pipe<string, string, any>, string, string, any>(
+		pipe,
+		(input) => {
+			const stripped = fns.stripHTML(input)
+			pipe.parse(stripped)
+			return input
+		},
+		{
+			context: (c) => c,
+			schema: (s) => s,
+		},
+	)
 
-	max(length: number, stripHTML = false, err?: string) {
-		return this.addRule(isMaxOf(length, stripHTML, err))
-	}
+export const asTrimmed = () => pipe<string, string, any>((input) => input.trim(), {})
 
-	email(err?: string) {
-		return this.addRule(isEmail(err))
-	}
+export const asLowercased = () => pipe<string, string, any>((input) => input.toLowerCase(), {})
 
-	url(err?: string) {
-		return this.addRule(isUrl(err))
-	}
+export const asUppercased = () => pipe<string, string, any>((input) => input.toUpperCase(), {})
 
-	trim() {
-		return this.addSanitizer((val) => val.trim())
-	}
+export const asCapitalized = () => pipe<string, string, any>((input) => fns.capitalize(input), {})
 
-	lower() {
-		return this.addSanitizer((val) => val.toLowerCase())
-	}
+export const asStrippedHtml = () => pipe<string, string, any>((input) => fns.stripHTML(input), {})
 
-	upper() {
-		return this.addSanitizer((val) => val.toUpperCase())
-	}
-
-	capitalize() {
-		return this.addSanitizer((val) => capitalize(val))
-	}
-
-	stripHTML() {
-		return this.addSanitizer((val) => stripHTML(val))
-	}
-
-	slice(length: number) {
-		return this.addSanitizer((val) => trimToLength(val, length))
-	}
-}
+export const asSliced = (length: number) => pipe<string, string, any>((input) => fns.trimToLength(input, length), {})

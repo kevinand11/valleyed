@@ -1,32 +1,35 @@
-import type { Timeable } from '../rules'
-import { isEarlierThan, isLaterThan, isTime } from '../rules'
-import { VCore } from './core'
+import { pipe, PipeError } from './base'
+import { execValueFunction, ValueFunction } from '../utils/functions'
 
-export type { Timeable }
+export type Timeable = Date | string | number
 
-export class VTime<T extends Timeable = Timeable> extends VCore<T> {
-	constructor(err?: string) {
-		super()
-		this.addTyping(isTime(err))
-	}
+export const time = (err = 'is not a valid datetime') =>
+	pipe<Timeable, Date, any>(
+		(input) => {
+			if (input instanceof Date) return input
+			if (typeof input === 'number' || typeof input === 'string') {
+				const date = new Date(input)
+				if (!isNaN(date.getTime())) return date
+			}
+			throw PipeError.root(err, input)
+		},
+		{ schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }) },
+	)
 
-	min(compare: Timeable, err?: string) {
-		return this.addRule(isLaterThan(compare, err))
-	}
+export const after = (compare: ValueFunction<Timeable>, err?: string) =>
+	pipe<Date, Date, any>((input) => {
+		const compareDate = new Date(execValueFunction(compare))
+		if (input > compareDate) return input
+		throw PipeError.root(err ?? `is not later than ${compareDate.toString()}`, input)
+	})
 
-	max(compare: Timeable, err?: string) {
-		return this.addRule(isEarlierThan(compare, err))
-	}
+export const before = (compare: ValueFunction<Timeable>, err?: string) =>
+	pipe<Date, Date, any>((input) => {
+		const compareDate = new Date(execValueFunction(compare))
+		if (input < compareDate) return input
+		throw PipeError.root(err ?? `is not earlier than ${compareDate.toString()}`, input)
+	})
 
-	asStamp() {
-		return this.transform((v) => new Date(v).valueOf())
-	}
-
-	asString() {
-		return this.transform((v) => new Date(v).toString())
-	}
-
-	asDate() {
-		return this.transform((v) => new Date(v))
-	}
-}
+export const asStamp = () => pipe<Date, number, any>((input) => input.valueOf(), { schema: () => ({ type: 'integer', oneOf: undefined }) })
+export const asISOString = () =>
+	pipe<Date, string, any>((input) => input.toISOString(), { schema: () => ({ type: 'string', format: 'date-time', oneOf: undefined }) })

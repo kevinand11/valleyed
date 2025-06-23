@@ -1,62 +1,93 @@
-import { arrayContains, isCustom } from '../rules'
-import { Differ } from '../utils/differ'
-import type { Transformer } from '../utils/rules'
-import { arrayNotContains, isEqualTo, isNotEqualTo } from './../rules/equality'
-import type { ExtractI, ExtractO } from './base'
-import { VBase } from './base'
+import { pipe, PipeError } from './base'
+import { equal } from '../utils/differ'
+import { execValueFunction, ValueFunction } from '../utils/functions'
 
-export class VCore<I, O = I> extends VBase<I, O> {
-	constructor() {
-		super()
-	}
+export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass custom rule`) =>
+	pipe<T, T, any>((input) => {
+		if (condition(input)) return input as T
+		throw PipeError.root(err, input)
+	}, {})
 
-	original() {
-		return this._setOption('original', true)
-	}
+export const eq = <T>(compare: ValueFunction<T>, err?: string) =>
+	pipe<T, T, any>(
+		(input) => {
+			const comp = execValueFunction(compare)
+			if (input === comp || equal(input, comp)) return input as T
+			throw PipeError.root(err ?? `is not equal to ${comp}`, input)
+		},
+		{ schema: () => ({ const: execValueFunction(compare) }) },
+	)
 
-	requiredIf(required: () => boolean) {
-		return makePartial<this, undefined>(this)._setOption('required', required)
-	}
+export const is = eq
 
-	optional() {
-		return makePartial<this, undefined>(this)._setOption('required', false)
-	}
+export const ne = <T>(compare: ValueFunction<T>, err?: string) =>
+	pipe<T, T, any>(
+		(input) => {
+			const comp = execValueFunction(compare)
+			if (!equal(input, comp) && input !== comp) return input as T
+			throw PipeError.root(err ?? `is equal to ${comp}`, input)
+		},
+		{ schema: () => ({ not: { const: execValueFunction(compare) } }) },
+	)
 
-	nullable() {
-		return makePartial<this, null>(this)._setOption('nullable', true)
-	}
+const inArray = <T>(array: ValueFunction<Readonly<T[]>>, err?: string) =>
+	pipe<T, T, any>(
+		(input) => {
+			const arr = execValueFunction(array)
+			if (arr.find((x) => equal(input, x))) return input as T
+			throw PipeError.root(err ?? `is not in the list: [${arr.join(',')}]`, input)
+		},
+		{ schema: () => ({ enum: [...execValueFunction(array)] }) },
+	)
 
-	nullish() {
-		return this.optional().nullable()
-	}
+export const nin = <T>(array: ValueFunction<Readonly<T[]>>, err?: string) =>
+	pipe<T, T, any>(
+		(input) => {
+			const arr = execValueFunction(array)
+			if (!arr.find((x) => equal(input, x))) return input as T
+			throw PipeError.root(err ?? `is in the list: [${arr.join(',')}]`, input)
+		},
+		{ schema: () => ({ not: { enum: [...execValueFunction(array)] } }) },
+	)
 
-	default(def: I | (() => I)) {
-		return this._setOption('default', def)
-	}
-
-	custom(fn: (v: I) => boolean, err?: string) {
-		return this.addRule(isCustom(fn, err))
-	}
-
-	eq(compare: I, comparer = Differ.equal as (val: any, compare: I) => boolean, err?: string) {
-		return this.addRule(isEqualTo(compare, comparer, err))
-	}
-
-	ne(compare: I, comparer = Differ.equal as (val: any, compare: I) => boolean, err?: string) {
-		return this.addRule(isNotEqualTo(compare, comparer, err))
-	}
-
-	in(array: Readonly<I[]>, comparer = Differ.equal as (val: any, arrayItem: I) => boolean, err?: string) {
-		return this.addRule(arrayContains(array, comparer, err))
-	}
-
-	nin(array: Readonly<I[]>, comparer = Differ.equal as (val: any, arrayItem: I) => boolean, err?: string) {
-		return this.addRule(arrayNotContains(array, comparer, err))
-	}
-
-	transform<T>(transformer: Transformer<O, T>) {
-		return new VCore<O, T>().clone(this as any)._addTransform(transformer)
-	}
+function itemType(input: unknown) {
+	return input?.constructor?.name === 'String' ? 'characters' : 'items'
 }
 
-const makePartial = <T extends VCore<any>, P>(base: T) => base as VCore<P | ExtractI<T>, P | ExtractO<T>>
+export const has = <T extends { length: number }>(length: ValueFunction<number>, err?: string) =>
+	pipe<T, T, any>(
+		(input) => {
+			if (input.length === execValueFunction(length)) return input
+			throw PipeError.root(err ?? `must contain ${length} ${itemType(input)}`, input)
+		},
+		{
+			schema: () => ({
+				minItems: execValueFunction(length),
+				maxItems: execValueFunction(length),
+				minLength: execValueFunction(length),
+				maxLength: execValueFunction(length),
+			}),
+		},
+	)
+
+export const min = <T extends { length: number }>(length: ValueFunction<number>, err?: string) =>
+	pipe<T, T, any>(
+		(input) => {
+			const len = execValueFunction(length)
+			if (input.length >= len) return input
+			throw PipeError.root(err ?? `must contain ${len} or more ${itemType(input)}`, input)
+		},
+		{ schema: () => ({ minItems: execValueFunction(execValueFunction(length)), minLength: execValueFunction(length) }) },
+	)
+
+export const max = <T extends { length: number }>(length: ValueFunction<number>, err?: string) =>
+	pipe<T, T, any>(
+		(input) => {
+			const len = execValueFunction(length)
+			if (input.length <= len) return input
+			throw PipeError.root(err ?? `must contain ${len} or less ${itemType(input)}`, input)
+		},
+		{ schema: () => ({ maxItems: execValueFunction(length), maxLength: execValueFunction(length) }) },
+	)
+
+export { inArray as in }
