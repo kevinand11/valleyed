@@ -55,19 +55,6 @@ describe('records', () => {
 		expect(rules.validate({ name: '', age: 23, old: false }).valid).toBe(true)
 	})
 
-	test('object trim', () => {
-		const rules = v.object({
-			name: v.string(),
-		})
-		let res = v.objectTrim(rules).validate({ name: '', age: 23 })
-		expect(res.valid).toBe(true)
-		expect((res as any).value).toEqual({ name: '' })
-
-		res = v.object({ name: v.string() }).validate({ name: '', age: 23 })
-		expect(res.valid).toBe(true)
-		expect((res as any).value).toEqual({ name: '', age: 23 })
-	})
-
 	test('record', () => {
 		const rules = v.record(v.string(), v.number())
 		expect(rules.validate([]).valid).toBe(false)

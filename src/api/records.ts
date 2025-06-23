@@ -1,4 +1,4 @@
-import { makeBranchPipe, pipe, PipeContext, PipeError, PipeFn, PipeInput, PipeOutput, type Pipe } from './base'
+import { makeBranchPipe, pipe, PipeError, PipeFn, PipeInput, PipeOutput, type Pipe } from './base'
 
 type ObjectPipe<T extends Record<string, Pipe<any, any, any>>> = Pipe<
 	{ [K in keyof T]: PipeInput<T[K]> },
@@ -7,17 +7,12 @@ type ObjectPipe<T extends Record<string, Pipe<any, any, any>>> = Pipe<
 >
 
 const objectPipeFn: PipeFn<any> = (input, context) => {
-	const pipes = context.objectPipes ?? {}
+	const pipes = (context.objectPipes as Record<string, Pipe<any, any, any>>) ?? {}
 	if (typeof input !== 'object' || input === null || Array.isArray(input)) throw PipeError.root('is not an object', input)
 	const obj = {}
-	const keys = new Set([...Object.keys(pipes ?? {}), ...Object.keys(input)])
 	const errors: PipeError[] = []
-	for (const key of keys) {
+	for (const key of Object.keys(pipes)) {
 		const value = input[key]
-		if (!(key in pipes)) {
-			obj[key] = value
-			continue
-		}
 		const validity = pipes[key].validate(value)
 		if (!validity.valid) errors.push(PipeError.path(key, validity.error, value))
 		else obj[key] = validity.value
@@ -32,7 +27,7 @@ const makeObjectSchema = <T extends Record<string, Pipe<any, any, any>>>(objectP
 	required: Object.entries(objectPipes ?? {})
 		.filter(([, pipe]) => !pipe.context().optional)
 		.map(([key]) => key),
-	additionalProperties: true,
+	additionalProperties: false,
 })
 
 export const object = <T extends Record<string, Pipe<any, any, any>>>(objectPipes: T) =>
@@ -109,20 +104,6 @@ export const objectMerge = <
 		any
 	>
 }
-
-export const objectTrim = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>>(branch: T) =>
-	makeBranchPipe<T, PipeInput<T>, PipeOutput<T>, PipeContext<T>>(
-		branch,
-		(input, context) => {
-			const value = branch.parse(input)
-			const schema = context.objectPipes ?? {}
-			return Object.fromEntries(Object.entries(value).filter(([key]) => !!schema[key])) as any
-		},
-		{
-			schema: (s) => ({ ...s, additionalProperties: false }),
-			context: (c) => c,
-		},
-	)
 
 export const record = <K extends Pipe<any, PropertyKey, any>, V extends Pipe<any, any, any>>(kPipe: K, vPipe: V) =>
 	pipe<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>, any>(
