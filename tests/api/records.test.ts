@@ -40,21 +40,6 @@ describe('records', () => {
 		expect(rules.validate({ name: '', age: '' }).valid).toBe(true)
 	})
 
-	test('object extends', () => {
-		const rules = v.objectExtends(
-			v.object({
-				name: v.string(),
-				age: v.number(),
-			}),
-			{
-				old: v.boolean(),
-			},
-		)
-		expect(rules.validate({}).valid).toBe(false)
-		expect(rules.validate({ name: '', age: 23 }).valid).toBe(false)
-		expect(rules.validate({ name: '', age: 23, old: false }).valid).toBe(true)
-	})
-
 	test('record', () => {
 		const rules = v.record(v.string(), v.number())
 		expect(rules.validate([]).valid).toBe(false)

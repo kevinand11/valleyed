@@ -68,28 +68,6 @@ export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any, an
 		}),
 	})
 
-export const objectExtends = <T extends ObjectPipe<Record<string, Pipe<any, any, any>>>, S extends Record<string, Pipe<any, any, any>>>(
-	branch: T,
-	pipes: S,
-) =>
-	makeBranchPipe<
-		T,
-		Omit<PipeInput<T>, keyof S> & PipeInput<ObjectPipe<S>>,
-		Omit<PipeOutput<T>, keyof S> & PipeOutput<ObjectPipe<S>>,
-		any
-	>(branch, objectPipeFn, {
-		schema: (s) => {
-			const newSchema = makeObjectSchema(pipes)
-			return {
-				...s,
-				properties: { ...s.properties, ...newSchema.properties },
-				required: [...(s.required ?? []), ...(newSchema.required ?? [])],
-				additionalProperties: newSchema.additionalProperties,
-			}
-		},
-		context: (c) => ({ ...c, objectPipes: { ...c.objectPipes, ...pipes } }),
-	})
-
 export const record = <K extends Pipe<any, PropertyKey, any>, V extends Pipe<any, any, any>>(kPipe: K, vPipe: V) =>
 	pipe<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>, any>(
 		(input: unknown) => {
