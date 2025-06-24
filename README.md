@@ -1,15 +1,17 @@
 # Valleyed
 
-Valleyed is a powerful, type-safe, and lightweight validation library for TypeScript and JavaScript. It provides a fluent, chainable API to build complex validation pipelines with ease, inspired by libraries like Zod, but with a focus on simplicity and extensibility.
+Valleyed is a powerful, type-safe, and lightweight validation library for TypeScript and JavaScript. It provides a fluent, chainable API to build complex validation pipelines with ease, inspired by libraries like superstruct, zod, etc but with a focus on simplicity, extensibility, and a functional approach.
 
 ## ✨ Features
 
--   **Type-Safe**: Full TypeScript support, infer types directly from your schemas.
+-   **Type-Safe**: Full TypeScript support with first-class type inference. Infer types directly from your schemas.
 -   **Lightweight**: Small bundle size with zero dependencies.
--   **Chainable API**: Build complex validations by chaining methods.
--   **Extensible**: Easily add your own custom validation logic.
--   **Standard Schema Compatible**: Generate JSON Schemas from your validation pipes.
+-   **Functional & Chainable API**: Build complex validation pipelines by creating and composing pipes.
+-   **Extensible**: Easily add your own custom validation logic by creating new pipes.
+-   **JSON Schema Generation**: Automatically generate JSON Schemas from your validation pipes.
+-   **Standard Schema Compatible**: Implements the [Standard Schema v1](https://github.com/standard-schema/standard-schema) specification for interoperability.
 -   **Isomorphic**: Works in both Node.js and browser environments.
+-   **Utilities**: Includes a set of useful utilities for data manipulation, like a deep diffing utility and geohash functions.
 
 ## 📦 Installation
 
@@ -30,7 +32,7 @@ Here's a quick example to get you started with Valleyed:
 ```typescript
 import { v } from 'valleyed';
 
-// 1. Define a schema for your data
+// 1. Define a schema (a "pipe") for your data
 const userSchema = v.object({
   name: v.string().pipe(v.min(3)),
   email: v.string().pipe(v.email()),
@@ -43,8 +45,8 @@ const userData = {
   email: 'john.doe@example.com',
 };
 
-// 3. Validate the data
-const validationResult = userSchema.validate(userData);
+// 3. Validate the data using v.validate()
+const validationResult = v.validate(userSchema, userData);
 
 if (validationResult.valid) {
   // Type-safe access to the validated data
@@ -54,13 +56,60 @@ if (validationResult.valid) {
   console.error('Validation failed:', validationResult.error.toString());
 }
 
-// 4. You can also parse directly, which throws on error
+// 4. You can also parse directly with v.assert(), which throws on error
 try {
-    const user = userSchema.parse(userData);
+    const user = v.assert(userSchema, userData);
     console.log('Parsed user:', user);
 } catch (error) {
     console.error(error);
 }
+```
+
+## 📚 Core Concepts
+
+### Pipes
+
+The fundamental building block in Valleyed is the **pipe**. A pipe is a function that takes an input, validates or transforms it, and returns the output. Pipes can be chained together to create a validation pipeline.
+
+You can create a base pipe (like `v.string()`) and then chain more validation rules or transformations using the `.pipe()` method.
+
+```typescript
+const usernamePipe = v.string()
+  .pipe(v.asTrimmed())      // Transformer: trims whitespace
+  .pipe(v.min(3))           // Validator: minimum 3 characters
+  .pipe(v.asLowercased());  // Transformer: converts to lowercase
+```
+
+### Execution Functions
+
+Once you have a pipe, you use one of the top-level execution functions to run it:
+
+-   `v.assert(pipe, input)`: Parses the input using the pipe. If validation is successful, it returns the (potentially transformed) output. If it fails, it throws a `PipeError`.
+-   `v.validate(pipe, input)`: Safely validates the input. It returns an object: `{ valid: true, value: ... }` on success, or `{ valid: false, error: ... }` on failure. It never throws.
+-   `v.schema(pipe)`: Generates a JSON Schema from the validation pipe.
+-   `v.meta(pipe, metadata)`: Attaches metadata (like `title`, `description`, `examples`) to a pipe, which will be included in the generated JSON Schema.
+
+```typescript
+const username = v.assert(usernamePipe, '  JohnDoe  '); // 'johndoe'
+
+const result = v.validate(usernamePipe, 'JD');
+if (!result.valid) {
+    console.log(result.error.messages);
+    // [{ message: 'must contain 3 or more characters', path: '' }]
+}
+```
+
+### Type Inference
+
+Valleyed automatically infers TypeScript types from your schemas. You can use `v.PipeInput<T>` and `v.PipeOutput<T>` to extract the input and output types of a pipe.
+
+```typescript
+import { v, PipeInput, PipeOutput } from 'valleyed';
+
+const userSchema = v.object({ /* ... */ });
+
+type UserInput = PipeInput<typeof userSchema>;   // The type of the data before validation
+type UserOutput = PipeOutput<typeof userSchema>; // The type of the data after validation
 ```
 
 ## 📚 API Reference
@@ -79,13 +128,13 @@ These are the basic building blocks for any schema.
 | `v.null()`       | Checks if the input is `null`.                       |
 | `v.undefined()`  | Checks if the input is `undefined`.                  |
 | `v.any()`        | Allows any value, essentially a pass-through.        |
-| `v.instanceOf()` | Checks if the input is an instance of a given class. |
+| `v.instanceOf(class)` | Checks if the input is an instance of a given class. |
 
 ```typescript
 // Example:
-v.string().validate('hello').valid; // true
-v.number().validate(123).valid; // true
-v.instanceOf(Date).validate(new Date()).valid; // true
+v.validate(v.string(), 'hello').valid; // true
+v.validate(v.number(), 123).valid; // true
+v.validate(v.instanceOf(Date), new Date()).valid; // true
 ```
 
 ### Core Validators
@@ -106,9 +155,9 @@ These validators can be piped from any other validator to add more constraints.
 ```typescript
 // Example:
 const schema = v.string().pipe(v.min(5), v.in(['hello', 'world']));
-schema.validate('hello').valid; // true
-schema.validate('hi').valid; // false (fails min(5))
-schema.validate('testing').valid; // false (fails in([...]))
+v.validate(schema, 'hello').valid; // true
+v.validate(schema, 'hi').valid; // false (fails min(5))
+v.validate(schema, 'testing').valid; // false (fails in([...]))
 ```
 
 ### String Validators
@@ -129,10 +178,10 @@ Specific validators and transformers for strings.
 
 ```typescript
 // Example:
-v.string().pipe(v.email()).validate('test@example.com').valid; // true
+v.validate(v.string().pipe(v.email()), 'test@example.com').valid; // true
 
 const trimmedLower = v.string().pipe(v.asTrimmed(), v.asLowercased());
-trimmedLower.parse('  HeLLo  '); // 'hello'
+v.assert(trimmedLower, '  HeLLo  '); // 'hello'
 ```
 
 ### Number Validators
@@ -151,8 +200,8 @@ Specific validators and transformers for numbers.
 ```typescript
 // Example:
 const ageSchema = v.number().pipe(v.int(), v.gte(18));
-ageSchema.validate(25).valid; // true
-ageSchema.validate(17.5).valid; // false
+v.validate(ageSchema, 25).valid; // true
+v.validate(ageSchema, 17.5).valid; // false
 ```
 
 ### Array Validators
@@ -168,10 +217,10 @@ Validators for handling arrays.
 ```typescript
 // Example:
 const tagsSchema = v.array(v.string().pipe(v.min(2)));
-tagsSchema.validate(['food', 'travel']).valid; // true
+v.validate(tagsSchema, ['food', 'travel']).valid; // true
 
 const pointSchema = v.tuple([v.number(), v.number()]);
-pointSchema.validate([10, 20]).valid; // true
+v.validate(pointSchema, [10, 20]).valid; // true
 ```
 
 ### Object Validators
@@ -184,7 +233,6 @@ Validators for handling objects.
 | `v.record(keySchema, valSchema)`| Validates objects with dynamic keys (like dictionaries or records).      |
 | `v.objectPick(schema, keys)`    | Creates a new object schema by picking specified keys from an existing one. |
 | `v.objectOmit(schema, keys)`    | Creates a new object schema by omitting specified keys from an existing one. |
-| `v.objectExtends(schema, pipes)`| Extends an object schema with new properties.                            |
 | `v.asMap()`                     | **Transformer**: Converts a record-like object into a `Map`.             |
 
 ```typescript
@@ -192,7 +240,7 @@ Validators for handling objects.
 const userSchema = v.object({ name: v.string(), age: v.number() });
 
 const publicUserSchema = v.objectOmit(userSchema, ['age']);
-publicUserSchema.validate({ name: 'John' }).valid; // true
+v.validate(publicUserSchema, { name: 'John' }).valid; // true
 ```
 
 ### Optional & Default Values
@@ -205,7 +253,7 @@ Functions for handling optional values and providing defaults.
 | `v.nullable(schema)`           | Allows the value to be `null`.                                           |
 | `v.nullish(schema)`            | Allows the value to be `null` or `undefined`.                            |
 | `v.defaults(schema, val)`      | Provides a default value if the input is `undefined`.                    |
-| `v.defaultsOnFail(schema, val)`| Provides a default value if the initial validation fails.                |
+| `v.catch(schema, val)`| Provides a fallback value if the initial validation fails.                |
 | `v.conditional(schema, fn)`    | Makes a field optional based on a dynamic boolean condition.             |
 
 ```typescript
@@ -216,7 +264,7 @@ const schema = v.object({
   role: v.defaults(v.string(), 'user'),
 });
 
-schema.parse({ name: 'John' });
+v.assert(schema, { name: 'John' });
 // { name: 'John', role: 'user' }
 ```
 
@@ -239,8 +287,8 @@ const shapeSchema = v.discriminate(v => v.type, {
   square: v.object({ type: v.is('square'), side: v.number() }),
 });
 
-shapeSchema.validate({ type: 'circle', radius: 10 }).valid; // true
-shapeSchema.validate({ type: 'square', side: 5 }).valid; // true
+v.validate(shapeSchema, { type: 'circle', radius: 10 }).valid; // true
+v.validate(shapeSchema, { type: 'square', side: 5 }).valid; // true
 ```
 
 ### Date & Time Validators
@@ -278,8 +326,8 @@ Validators for file-like objects (e.g., from a file upload). These validators ex
 ```typescript
 // Example:
 const imageSchema = v.file().pipe(v.image(), v.fileType(['image/jpeg', 'image/png']));
-imageSchema.validate({ type: 'image/png' }).valid; // true
-imageSchema.validate({ type: 'image/gif' }).valid; // false
+v.validate(imageSchema, { type: 'image/png' }).valid; // true
+v.validate(imageSchema, { type: 'image/gif' }).valid; // false
 ```
 
 ### Coercion
@@ -296,8 +344,57 @@ These pipes attempt to convert the input to a specific type before validating it
 ```typescript
 // Example:
 const schema = v.coerceNumber().pipe(v.int());
-schema.parse('123'); // 123
-schema.validate('123.45').valid; // false (fails int())
+v.assert(schema, '123'); // 123
+v.validate(schema, '123.45').valid; // false (fails int())
+```
+
+## 🛠️ Utilities
+
+Valleyed also exports a few standalone utilities.
+
+### DataClass
+
+A simple base class for creating data-centric classes with `toJSON` and custom inspection support.
+
+```typescript
+import { DataClass } from 'valleyed';
+
+class User extends DataClass<{ name: string; email: string }> {
+    constructor(data: { name: string; email: string }) {
+        super(data);
+    }
+}
+
+const user = new User({ name: 'John', email: 'john@example.com' });
+console.log(user.name); // 'John'
+console.log(user.toJSON()); // { name: 'John', email: 'email' }
+```
+
+### Geohash
+
+Utilities for encoding and decoding geohashes.
+
+```typescript
+import { geohash } from 'valleyed';
+
+const hash = geohash.encode([40.7128, -74.0060]); // 'dr5regw3pg'
+const [lat, lon] = geohash.decode(hash); // [40.7128, -74.0060]
+const neighbors = geohash.neighbors(hash);
+```
+
+### Differ
+
+A utility for deep-diffing, checking equality, and merging objects.
+
+```typescript
+import { differ } from 'valleyed';
+
+const obj1 = { a: 1, b: { c: 2 } };
+const obj2 = { a: 1, b: { c: 3 } };
+
+differ.equal(obj1, obj2); // false
+differ.diff(obj1, obj2); // ['b.c']
+differ.merge(obj1, { b: { d: 4 } }); // { a: 1, b: { c: 2, d: 4 } }
 ```
 
 ## 🤝 Contributing
