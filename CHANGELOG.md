@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.2](https://github.com/kevinand11/valleyed/compare/v4.5.1...v4.5.2) (2025-06-24)
+
+
+### Bug Fixes
+
+* differ merge doesnt treat null right ([49e7838](https://github.com/kevinand11/valleyed/commit/49e783830ab8640be2bc546730620cbcff7d9870))
+
 ### [4.5.1](https://github.com/kevinand11/valleyed/compare/v4.5.0...v4.5.1) (2025-06-23)
 
 
