@@ -2,6 +2,86 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.3](https://github.com/kevinand11/valleyed/compare/v4.5.2...v4.5.3) (2025-06-24)
+
+### [4.5.2](https://github.com/kevinand11/valleyed/compare/v4.5.1...v4.5.2) (2025-06-24)
+
+
+### Bug Fixes
+
+* differ merge doesnt treat null right ([49e7838](https://github.com/kevinand11/valleyed/commit/49e783830ab8640be2bc546730620cbcff7d9870))
+
+### [4.5.1](https://github.com/kevinand11/valleyed/compare/v4.5.0...v4.5.1) (2025-06-23)
+
+
+### Bug Fixes
+
+* remove objectExtends for merge ([24ad59f](https://github.com/kevinand11/valleyed/commit/24ad59fb5aed17b99db75577d48d49f1a70b160b))
+
+## [4.5.0](https://github.com/kevinand11/valleyed/compare/v4.4.10...v4.5.0) (2025-06-23)
+
+
+### Features
+
+* accept multiple pipes in .pipe ([7a6ebb2](https://github.com/kevinand11/valleyed/commit/7a6ebb2987449df7092eee26e5293cd3fe71e460))
+* add __update function to allow update after init ([88a2f93](https://github.com/kevinand11/valleyed/commit/88a2f93c5d0403f443678db7ac3e4b17d7588013))
+* add id for json schema ([7499fe5](https://github.com/kevinand11/valleyed/commit/7499fe5fa6305c1c6dcbd679863ae7ff1a6f30b2))
+* allow value functions for all validators that expect a value input ([99276e7](https://github.com/kevinand11/valleyed/commit/99276e79bec45af2ea089474eafe85c01b78279c))
+* better PipeError ([96817b6](https://github.com/kevinand11/valleyed/commit/96817b6c96454cbe8ea3b29ce63ad07b46b67cd3))
+* bubble up config ([b24b8ee](https://github.com/kevinand11/valleyed/commit/b24b8eeb7161a3b9c26c41d2dc4be0ff0d284f6e))
+* coerce and function ([dcd4dc7](https://github.com/kevinand11/valleyed/commit/dcd4dc7a4009ac6e41fdcd8da258d86644c50555))
+* context ([d206e80](https://github.com/kevinand11/valleyed/commit/d206e80d43c5ddcc32504155c8e08cce32c12a92))
+* defaultOnFail sanitizer ([70cbb85](https://github.com/kevinand11/valleyed/commit/70cbb85e26b3f5b39169a43e78586897c1d067f4))
+* files and records pipe apis ([e9cca15](https://github.com/kevinand11/valleyed/commit/e9cca156067ec430b9a805a8b7bf5322247b1d91))
+* forward PipeError cause ([8507e4e](https://github.com/kevinand11/valleyed/commit/8507e4ec1a02b5077c6bf9c71b22e76024cf27a4))
+* fromJson pipe ([df1eafe](https://github.com/kevinand11/valleyed/commit/df1eafe90d739b63c900afdb24e85f293751944e))
+* generate json schema ([848ed78](https://github.com/kevinand11/valleyed/commit/848ed787c795b92879bec7fe8be59be5af8a3110))
+* isType supports any ([8584398](https://github.com/kevinand11/valleyed/commit/858439840f75bc4ebbbb009b0124fbbbeb480c02))
+* merge pipe ([005acb0](https://github.com/kevinand11/valleyed/commit/005acb01501cd5dd630f9c5ccefe7033206102ca))
+* meta on schema ([620143c](https://github.com/kevinand11/valleyed/commit/620143c80033205fe23206066d2a97a953a26c15))
+* more primitives ([f15ce01](https://github.com/kevinand11/valleyed/commit/f15ce0143cb21d2161050a7060ab4dd4367d292f))
+* new type ConditionalObjectKeys ([6829317](https://github.com/kevinand11/valleyed/commit/6829317c42bcf0dcec4f8614adf49171f369b573))
+* numbers pipe api ([9d1a5ab](https://github.com/kevinand11/valleyed/commit/9d1a5ab1a7709fc025d74c58ef5142744f48228d))
+* object extends ([129f32d](https://github.com/kevinand11/valleyed/commit/129f32de7dfe4f553251008ac4b2ffba95e75fd4))
+* objectExtends, objectPick and objectOmit ([6a89dc3](https://github.com/kevinand11/valleyed/commit/6a89dc367a3cb89bd579d600b282b677d395a7d8))
+* objectMerge ([2117fae](https://github.com/kevinand11/valleyed/commit/2117fae7dc2fde1e553657d7f5f47c72de58c038))
+* optionals api ([29a6fdc](https://github.com/kevinand11/valleyed/commit/29a6fdc878fbc0075a6ac285a09706ac075f7b40))
+* pipe api with primitives, junctions, core and arrays ([e9d2a69](https://github.com/kevinand11/valleyed/commit/e9d2a693b655016bd8c3caaaa15b1ae19a3e7954))
+* pipe node and gather when needed ([dc364b2](https://github.com/kevinand11/valleyed/commit/dc364b21992534cc31a107c93afb59d61cba07df))
+* refactor entire src for treeshaking ([254988d](https://github.com/kevinand11/valleyed/commit/254988d0c6fea4b3f15312fdddc9f73655f61b99))
+* remove need for anyOf in nullable schemas ([2bb3d00](https://github.com/kevinand11/valleyed/commit/2bb3d0043ef6f3e9ebf0a4d63c51512cebb4a051))
+* remove need for static list of files ([3d2d622](https://github.com/kevinand11/valleyed/commit/3d2d622067a9b29803e7c34bb3c2fc2cfe1baefb))
+* strings pipe api ([04c6df8](https://github.com/kevinand11/valleyed/commit/04c6df8b4a5d693efcf41c8680a5e7dfcea79ea4))
+* support custom context ([8530f8e](https://github.com/kevinand11/valleyed/commit/8530f8e8e7e423c425656af2c5bcfac61dae5684))
+* support generics for file validations ([e5cb7b4](https://github.com/kevinand11/valleyed/commit/e5cb7b45d8f2097520cc2515b9da85430a47f327))
+* support standard-schema ([e8b2c8f](https://github.com/kevinand11/valleyed/commit/e8b2c8fe115b1995d8a67cbbd20efec126df7345))
+* switch to reverse linked list impl ([831ec48](https://github.com/kevinand11/valleyed/commit/831ec48efcfe19c50c5e459b92fb36572482d045))
+* times pipe api ([1f18b5e](https://github.com/kevinand11/valleyed/commit/1f18b5e470da73de571d276c4a0dbb06e364a49e))
+* withStrippedHtml ([50cfe72](https://github.com/kevinand11/valleyed/commit/50cfe72bc226290345893d33abdb33d697b474b3))
+
+
+### Bug Fixes
+
+* before and after expects fn not plain values ([b40eb85](https://github.com/kevinand11/valleyed/commit/b40eb8549527d9fabd45fad27f00da244751b27a))
+* context and schema must be objects ([4d26247](https://github.com/kevinand11/valleyed/commit/4d26247b4c668fc70b8f16df480bd35455a6d154))
+* dataclass toJSON only returns original keys ([b1a5452](https://github.com/kevinand11/valleyed/commit/b1a54525c57bfc8fb9abef5959a8f0418d94b725))
+* fix JSONValue of DataClass<any, any> ([6a168c1](https://github.com/kevinand11/valleyed/commit/6a168c1f0af94b878c0870758e96b2ad2e858d75))
+* fix Prettify for class instances ([39d79fb](https://github.com/kevinand11/valleyed/commit/39d79fb70cff7d440f514f82d2b35278a58d7b82))
+* fix typings for objectX rules ([885ea27](https://github.com/kevinand11/valleyed/commit/885ea27adbb0d1dc3726454bb250057aaca19279))
+* fix up JSONValueOf ([de97762](https://github.com/kevinand11/valleyed/commit/de977629c8389986613dd3fd6379a68069d719ef))
+* impl for objectPick, objectOmit and objectExtends and add tests ([76a2f6b](https://github.com/kevinand11/valleyed/commit/76a2f6bf674e7e279046e1fb5f24c3424edfaf39))
+* no need to clone for objects ([f1f0f2d](https://github.com/kevinand11/valleyed/commit/f1f0f2d3493d29c359c1d1b1e2d6bffb10260611))
+* objectPick and objectEmit as value ([0f94a9a](https://github.com/kevinand11/valleyed/commit/0f94a9aa7f90e5e2ae6aaba425987a0c01e9b5f1))
+* optionals typing ([4ae6979](https://github.com/kevinand11/valleyed/commit/4ae6979836df939036870ffadd412c903dbc0979))
+* remove need for __update ([11bf277](https://github.com/kevinand11/valleyed/commit/11bf27709645853bbe9dcc0ec8a15dfe3a505996))
+* remove objectTrim ([630f1f0](https://github.com/kevinand11/valleyed/commit/630f1f05cab076344990e61ef5c266453d0f3388))
+* remove Pipe requirement for PipeInput, Output and Context ([0671b1e](https://github.com/kevinand11/valleyed/commit/0671b1e814cdfe6d95911752c13eaa90f1316c27))
+* remove unknown errors ([9d6fd72](https://github.com/kevinand11/valleyed/commit/9d6fd72fcc9067d6263f924f4db18d55c0912595))
+* rename safeParse to validate ([6ce2a75](https://github.com/kevinand11/valleyed/commit/6ce2a756ef728d49b61d94b29b0f779dffb5d828))
+* requiredIf doesnt add undefined to the type ([b8054fb](https://github.com/kevinand11/valleyed/commit/b8054fbe0d17cf1fb3904e766636f2a23be28f3c))
+* return type of DataClass toJSON ([9cd66ac](https://github.com/kevinand11/valleyed/commit/9cd66ac94f514979c59ebf50b6f7ff2e15c20c34))
+* stop Prettify from messing with classes ([2c6ca51](https://github.com/kevinand11/valleyed/commit/2c6ca51624e685e9a67720153711bf2abb200c2e))
+
 ### [4.4.10](https://github.com/kevinand11/valleyed/compare/v4.4.9...v4.4.10) (2025-06-04)
 
 

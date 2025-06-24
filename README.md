@@ -193,9 +193,6 @@ const userSchema = v.object({ name: v.string(), age: v.number() });
 
 const publicUserSchema = v.objectOmit(userSchema, ['age']);
 publicUserSchema.validate({ name: 'John' }).valid; // true
-
-const userWithIdSchema = v.objectExtends(userSchema, { id: v.string() });
-userWithIdSchema.validate({ id: 'user-1', name: 'Jane', age: 30 }).valid; // true
 ```
 
 ### Optional & Default Values

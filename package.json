@@ -1,9 +1,9 @@
 {
 	"name": "valleyed",
-	"version": "4.4.10",
+	"version": "4.5.3",
 	"description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
 	"main": "lib/index.js",
-	"type": "commonjs",
+	"type": "module",
 	"sideEffects": false,
 	"scripts": {
 		"dev": "tsc -watch",
@@ -27,8 +27,8 @@
 		"@commitlint/config-conventional": "^19.8.0",
 		"@k11/eslint-config": "^0.1.6",
 		"@k11/prettier-config": "^0.1.0",
-		"@k11/ts-config": "^0.1.2",
-		"@types/node": "^22.14.0",
+		"@k11/ts-config": "^0.1.5",
+		"@types/node": "^24.0.0",
 		"eslint": "^9.24.0",
 		"husky": "^9.1.7",
 		"standard-version": "^9.5.0",

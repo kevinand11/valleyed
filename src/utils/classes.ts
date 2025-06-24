@@ -1,4 +1,4 @@
-import util from 'util'
+import util from 'node:util'
 
 import { wrapInTryCatch } from './functions'
 import { DeepOmit, IsType, JSONValueOf } from './types'

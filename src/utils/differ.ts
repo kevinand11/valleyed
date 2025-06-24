@@ -95,8 +95,8 @@ export function from(keys: string[]) {
 }
 
 export function merge(v1: unknown, v2: unknown) {
-	if (type.null(v1) || type.undefined(v1)) return v2
-	if (type.null(v2) || type.undefined(v2)) return v1
+	if (type.undefined(v1)) return v2
+	if (type.undefined(v2)) return v1
 	if (type.array(v1) && type.array(v2)) {
 		return Array.from({ length: Math.max(v1.length, v2.length) }, (_, i) => merge(v1[i], v2[i]))
 	}
