@@ -1,5 +1,6 @@
 import { PipeError } from './errors'
-import { PipeFn, Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode } from './types'
+import { PipeFn, Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode, PipeOutput, PipeContext } from './types'
+import { JsonSchema } from '../../utils/types'
 
 export function pipe<I, O, C>(
 	func: PipeFn<I, O, C>,
@@ -17,49 +18,28 @@ export function pipe<I, O, C>(
 	}
 
 	const piper: Pipe<I, O, C> = {
-		prev: undefined,
 		node,
-		pipe: (...entries: Entry<any, any, any>[]) =>
+		pipe: (...entries: Entry<any, any, any>[]) => {
 			entries.reduce<Pipe<any, any, any>>((acc, cur) => {
 				const p = typeof cur === 'function' ? pipe(cur, config) : cur
-				p.prev = acc
-				return p
-			}, piper),
-		parse: (input) => {
-			try {
-				const { nodes, context } = gather(piper)
-				return nodes.reduce((acc, cur) => cur.fn(acc, context), input) as O
-			} catch (error) {
-				if (error instanceof PipeError) {
-					if (error.stopped) return error.value as O
-					throw error
-				}
-				throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
-			}
+				acc.next = p
+				return getLastPipe(p)
+			}, getLastPipe(piper))
+			return piper
 		},
-		validate: (input) => {
-			try {
-				const value = piper.parse(input)
-				return { value, valid: true }
-			} catch (error) {
-				if (error instanceof PipeError) return { error, valid: false }
-				throw error
-			}
-		},
-		context: () => gather(piper).context,
+		parse: (input) => assert(piper, input),
+		validate: (input) => validate(piper, input),
+		toJsonSchema: (scheme = {}) => schema(piper, scheme),
+		context: () => context(piper),
 		meta: (schema) => {
 			meta = { ...meta, ...schema }
 			return piper
-		},
-		toJsonSchema: (schema = {}) => {
-			const { nodes } = gather(piper)
-			return nodes.reduce((acc, cur) => ({ ...acc, ...cur.schema() }), schema)
 		},
 		'~standard': {
 			version: 1,
 			vendor: 'valleyed',
 			validate(value) {
-				const validity = piper.validate(value)
+				const validity = validate(piper, value)
 				if (validity.valid) return { value: validity.value }
 				return {
 					issues: validity.error.messages.map(({ message, path }) => ({
@@ -73,15 +53,55 @@ export function pipe<I, O, C>(
 	return piper
 }
 
+function getLastPipe(pipe: Pipe<any, any, any>) {
+	let last = pipe
+	while (last.next) last = last.next
+	return last
+}
+
 function gather(pipe: Pipe<any, any, any>) {
-	const pipes = [pipe.node]
-	while (pipe.prev) {
-		pipes.push(pipe.prev.node)
-		pipe = pipe.prev
+	const nodes = [pipe.node]
+	while (pipe.next) {
+		nodes.push(pipe.next.node)
+		pipe = pipe.next
 	}
-	const nodes = pipes.reverse()
 	const context = nodes.reduce((acc, cur) => ({ ...acc, ...cur.context() }), {}) as Context<any>
 	return { nodes, context }
+}
+
+export function context<T extends Pipe<any, any, any>>(pipe: T): Context<PipeContext<T>> {
+	return gather(pipe).context
+}
+
+export function assert<T extends Pipe<any, any, any>>(pipe: T, input: unknown): PipeOutput<T> {
+	try {
+		const { nodes, context } = gather(pipe)
+		return nodes.reduce((acc, cur) => cur.fn(acc, context), input) as PipeOutput<T>
+	} catch (error) {
+		if (error instanceof PipeError) {
+			if (error.stopped) return error.value as PipeOutput<T>
+			throw error
+		}
+		throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
+	}
+}
+
+export function validate<T extends Pipe<any, any, any>>(
+	pipe: T,
+	input: unknown,
+): { value: PipeOutput<T>; valid: true } | { error: PipeError; valid: false } {
+	try {
+		const value = assert(pipe, input)
+		return { value, valid: true }
+	} catch (error) {
+		if (error instanceof PipeError) return { error, valid: false }
+		throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
+	}
+}
+
+export function schema<T extends Pipe<any, any, any>>(pipe: T, schema: JsonSchema = {}): JsonSchema {
+	const { nodes } = gather(pipe)
+	return nodes.reduce((acc, cur) => ({ ...acc, ...cur.schema() }), schema)
 }
 
 export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C>(

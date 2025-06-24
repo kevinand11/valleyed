@@ -81,7 +81,7 @@ type PipeChain<I, O, C> = {
 
 export interface Pipe<I, O, C> extends StandardSchemaV1<I, O> {
 	readonly node: PipeNode
-	prev?: Pipe<any, any, any>
+	next?: Pipe<any, any, any>
 	pipe: PipeChain<I, O, C>
 	parse(input: unknown): O
 	validate(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
