@@ -12,7 +12,7 @@ export const or = <T extends Pipe<any, any, any>[]>(pipes: T) =>
 				if (validity.valid) return validity.value
 				errors.push(PipeError.path(idx, validity.error, input))
 			}
-			throw errors[0]
+			throw PipeError.rootFrom(errors, input)
 		},
 		{ schema: () => ({ oneOf: pipes.map((branch) => schema(branch)) }) },
 	)
@@ -32,13 +32,7 @@ export const and = <T extends Pipe<any, any, any>>(pipes: T[]) =>
 
 export const merge = <T1 extends Pipe<any, any, any>, T2 extends Pipe<any, any, any>>(branch1: T1, branch2: T2) =>
 	pipe<PipeInput<T1> & PipeInput<T2>, PipeOutput<T1> & PipeOutput<T2>, PipeContext<T1> & PipeContext<T2>>(
-		(input) => {
-			const validity1 = validate(branch1, input)
-			if (!validity1.valid) throw validity1.error
-			const validity2 = validate(branch2, input)
-			if (!validity2.valid) throw validity2.error
-			return differMerge(validity1.value, validity2.value)
-		},
+		(input) => differMerge(assert(branch1, input), assert(branch2, input)),
 		{ schema: () => ({ allOf: [schema(branch1), schema(branch2)] }) },
 	)
 

@@ -1,9 +1,9 @@
 import { pipe, PipeError, PipeInput, schema, validate, type Pipe, type PipeOutput } from './base'
 
-export const array = <T extends Pipe<any, any, any>>(pipeSchema: T) =>
+export const array = <T extends Pipe<any, any, any>>(pipeSchema: T, err = 'is not an array') =>
 	pipe<PipeInput<T>[], PipeOutput<T>[], any>(
 		(input: unknown) => {
-			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
+			if (!Array.isArray(input)) throw PipeError.root(err, input)
 			if (input.length === 0) return input
 			const res = input.map((i, idx) => {
 				const validity = validate(pipeSchema, i)
@@ -20,15 +20,14 @@ export const array = <T extends Pipe<any, any, any>>(pipeSchema: T) =>
 		{ schema: () => ({ type: 'array', items: schema(pipeSchema) }) },
 	)
 
-export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: readonly [...T]) =>
+export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: readonly [...T], err = 'is not an array') =>
 	pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }, any>(
 		(input: unknown) => {
-			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
-			if (pipes.length !== input.length) throw PipeError.root(`expected ${pipes.length} but got ${input.length} items`, input)
-			if (input.length === 0) return input as any
-			const res = input.map((i, idx) => {
-				const validitity = validate(pipes[idx], i)
-				if ('error' in validitity) return PipeError.path(idx, validitity.error, i)
+			if (!Array.isArray(input)) throw PipeError.root(err, input)
+			if (pipes.length === 0) return input as any
+			const res = pipes.map((pipe, idx) => {
+				const validitity = validate(pipe, input[idx])
+				if ('error' in validitity) return PipeError.path(idx, validitity.error, input[idx])
 				return validitity.value
 			})
 			if (res.some((r) => r instanceof PipeError))

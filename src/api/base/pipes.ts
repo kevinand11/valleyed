@@ -42,7 +42,8 @@ export function validate<T extends Pipe<any, any, any>>(
 }
 
 export function schema<T extends Pipe<any, any, any>>(pipe: T, schema: JsonSchema = {}): JsonSchema {
-	return walk(pipe, schema, (p, acc) => ({ ...acc, ...p.schema() }))
+	const cont = context(pipe)
+	return walk(pipe, schema, (p, acc) => ({ ...acc, ...p.schema(cont) }))
 }
 
 export function meta<T extends Pipe<any, any, any>>(p: T, meta: PipeMeta): T {
@@ -53,13 +54,13 @@ export function pipe<I, O, C>(
 	func: PipeFn<I, O, C>,
 	config: {
 		context?: () => Context<C>
-		schema?: () => JsonSchemaBuilder
+		schema?: (context: Context<C>) => JsonSchemaBuilder
 	} = {},
 ): Pipe<I, O, C> {
 	const piper: Pipe<I, O, C> = {
 		fn: func,
-		context: () => config.context?.() ?? {},
-		schema: () => config.schema?.() ?? {},
+		context: () => config.context?.() ?? ({} as any),
+		schema: (context: Context<C>) => config.schema?.(context) ?? ({} as any),
 		pipe: (...entries: Entry<any, any, any>[]) => {
 			for (const cur of entries) {
 				const p = typeof cur === 'function' ? pipe(cur, config) : cur
@@ -92,12 +93,12 @@ export function branch<P extends Pipe<any, any, any>, I, O, C>(
 	fn: PipeFn<I, O, C>,
 	config: {
 		context: (context: Context<C>) => Context<C>
-		schema: (schema: JsonSchemaBuilder) => JsonSchemaBuilder
+		schema: (schema: JsonSchemaBuilder, context: Context<C>) => JsonSchemaBuilder
 	},
 ) {
 	return pipe(fn, {
 		...config,
 		context: () => config.context(context(branch) as any),
-		schema: () => ({ ...config.schema(schema(branch)) }),
+		schema: (context) => ({ ...config.schema(schema(branch), context) }),
 	})
 }

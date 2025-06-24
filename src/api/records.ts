@@ -12,7 +12,7 @@ export const object = <T extends Record<string, Pipe<any, any, any>>>(pipes: T) 
 			if (typeof input !== 'object' || input === null || Array.isArray(input)) throw PipeError.root('is not an object', input)
 			const obj = {} as any
 			const errors: PipeError[] = []
-			for (const key of context.objectKeys ?? []) {
+			for (const key of context.objectKeys ?? Object.keys(pipes)) {
 				if (!(key in pipes)) continue
 				const value = input[key]
 				const validity = validate(pipes[key], value)
@@ -39,7 +39,7 @@ export const objectPick = <T extends ObjectPipe<Record<string, Pipe<any, any, an
 	pipe: T,
 	keys: S,
 ) =>
-	branch<T, Pick<PipeInput<T>, S[number]>, Pick<PipeOutput<T>, S[number]>, any>(pipe, pipe.fn, {
+	branch<T, Pick<PipeInput<T>, S[number]>, Pick<PipeOutput<T>, S[number]>, any>(pipe, pipe.fn as any, {
 		schema: (s) => ({
 			...s,
 			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => keys.includes(key as S[number]))),
@@ -55,7 +55,7 @@ export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any, an
 	pipe: T,
 	keys: S,
 ) =>
-	branch<T, Omit<PipeInput<T>, S[number]>, Omit<PipeOutput<T>, S[number]>, any>(pipe, pipe.fn, {
+	branch<T, Omit<PipeInput<T>, S[number]>, Omit<PipeOutput<T>, S[number]>, any>(pipe, pipe.fn as any, {
 		schema: (s) => ({
 			...s,
 			properties: Object.fromEntries(Object.entries(s.properties ?? {}).filter(([key]) => !keys.includes(key as S[number]))),

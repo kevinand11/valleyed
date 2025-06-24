@@ -41,9 +41,9 @@ describe('optionals', () => {
 		expect(v.validate(rules, undefined).valid).toBe(true)
 	})
 
-	test('defaultsOnFail', () => {
+	test('catch', () => {
 		const defaultValue = 'default'
-		const rules = v.defaultsOnFail(v.string(), () => defaultValue)
+		const rules = v.catch(v.string(), () => defaultValue)
 		expect(v.validate(rules, 'hi').valid).toBe(true)
 		expect(v.validate(rules, null).valid).toBe(true)
 		expect(v.assert(rules, null)).toBe(defaultValue)

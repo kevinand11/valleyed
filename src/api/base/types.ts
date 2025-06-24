@@ -1,15 +1,30 @@
 import { StandardSchemaV1 } from '@standard-schema/spec'
 
+import { ValueFunction } from '../../utils/functions'
 import { IsInTypeList, JsonSchema } from '../../utils/types'
+import type { Timeable } from '../times'
 
-export type PipeFn<I, O = I, C = any> = (input: I, context: Context<C>) => O
+export type PipeFn<I, O, C> = (input: I, context: Context<C>) => O
 export type PipeInput<T> = T extends Pipe<infer I, any, any> ? I : never
 export type PipeOutput<T> = T extends Pipe<any, infer O, any> ? O : never
 export type PipeContext<T> = T extends Pipe<any, any, infer C> ? C : never
-export type Context<C> = (IsInTypeList<C, [any, unknown, never]> extends true ? {} : C) & {
-	optional?: boolean
-	objectKeys?: string[]
-}
+export type Context<C> = (IsInTypeList<C, [any, unknown, never]> extends true ? {} : C) &
+	Readonly<{
+		optional?: boolean
+		objectKeys?: string[]
+		eq?: ValueFunction<unknown>
+		ne?: ValueFunction<unknown>
+		in?: ValueFunction<Readonly<unknown[]>>
+		nin?: ValueFunction<Readonly<unknown[]>>
+		has?: ValueFunction<number>
+		min?: ValueFunction<number>
+		max?: ValueFunction<number>
+		fileTypes?: ValueFunction<string | string[]>
+		defaults?: ValueFunction<unknown>
+		catch?: ValueFunction<unknown>
+		after?: ValueFunction<Timeable>
+		before?: ValueFunction<Timeable>
+	}>
 export type PipeMeta = Pick<JsonSchema, '$refId' | 'title' | 'description' | 'examples' | 'default'>
 export type JsonSchemaBuilder = JsonSchema
 
@@ -79,9 +94,9 @@ type PipeChain<I, O, C> = {
 }
 
 export interface Pipe<I, O, C> extends StandardSchemaV1<I, O> {
-	readonly fn: PipeFn<any, any, any>
-	readonly context: () => Context<any>
-	readonly schema: () => JsonSchema
+	readonly fn: PipeFn<I, O, C>
+	readonly context: () => Context<C>
+	readonly schema: (context: Context<C>) => JsonSchema
 	readonly pipe: PipeChain<I, O, C>
 	next?: Pipe<any, any, any>
 	last?: Pipe<any, any, any>

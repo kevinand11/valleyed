@@ -17,18 +17,24 @@ export const time = (err = 'is not a valid datetime') =>
 	)
 
 export const after = (compare: ValueFunction<Timeable>, err?: string) =>
-	pipe<Date, Date, any>((input) => {
-		const compareDate = new Date(execValueFunction(compare))
-		if (input > compareDate) return input
-		throw PipeError.root(err ?? `is not later than ${compareDate.toString()}`, input)
-	})
+	pipe<Date, Date, any>(
+		(input, context) => {
+			const compareDate = new Date(execValueFunction(context?.after ?? compare))
+			if (input > compareDate) return input
+			throw PipeError.root(err ?? `is not later than ${compareDate.toString()}`, input)
+		},
+		{ context: () => ({ after: compare }) },
+	)
 
 export const before = (compare: ValueFunction<Timeable>, err?: string) =>
-	pipe<Date, Date, any>((input) => {
-		const compareDate = new Date(execValueFunction(compare))
-		if (input < compareDate) return input
-		throw PipeError.root(err ?? `is not earlier than ${compareDate.toString()}`, input)
-	})
+	pipe<Date, Date, any>(
+		(input, context) => {
+			const compareDate = new Date(execValueFunction(context?.before ?? compare))
+			if (input < compareDate) return input
+			throw PipeError.root(err ?? `is not earlier than ${compareDate.toString()}`, input)
+		},
+		{ context: () => ({ before: compare }) },
+	)
 
 export const asStamp = () => pipe<Date, number, any>((input) => input.valueOf(), { schema: () => ({ type: 'integer', oneOf: undefined }) })
 export const asISOString = () =>
