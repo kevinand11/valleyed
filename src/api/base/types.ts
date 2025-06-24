@@ -79,14 +79,10 @@ type PipeChain<I, O, C> = {
 }
 
 export interface Pipe<I, O, C> extends StandardSchemaV1<I, O> {
-	readonly node: PipeNode
+	readonly fn: PipeFn<any, any, any>
+	readonly context: () => Context<any>
+	readonly schema: () => JsonSchema
 	next?: Pipe<any, any, any>
 	pipe: PipeChain<I, O, C>
 	meta(schema: PipeMeta): Pipe<I, O, C>
-}
-
-export type PipeNode = {
-	fn: PipeFn<any, any, any>
-	context: () => Context<any>
-	schema: () => JsonSchema
 }

@@ -7,11 +7,11 @@ describe('records', () => {
 		const rules = v.object({
 			name: v.string(),
 		})
-		expect(rules.validate([]).valid).toBe(false)
-		expect(rules.validate('').valid).toBe(false)
-		expect(rules.validate({}).valid).toBe(false)
-		expect(rules.validate({ name: 1 }).valid).toBe(false)
-		expect(rules.validate({ name: '' }).valid).toBe(true)
+		expect(v.validate(rules, []).valid).toBe(false)
+		expect(v.validate(rules, '').valid).toBe(false)
+		expect(v.validate(rules, {}).valid).toBe(false)
+		expect(v.validate(rules, { name: 1 }).valid).toBe(false)
+		expect(v.validate(rules, { name: '' }).valid).toBe(true)
 	})
 
 	test('object pick', () => {
@@ -22,9 +22,9 @@ describe('records', () => {
 			}),
 			['name'],
 		)
-		expect(rules.validate({}).valid).toBe(false)
-		expect(rules.validate({ name: '' }).valid).toBe(true)
-		expect(rules.validate({ name: '', age: '' }).valid).toBe(true)
+		expect(v.validate(rules, {}).valid).toBe(false)
+		expect(v.validate(rules, { name: '' }).valid).toBe(true)
+		expect(v.validate(rules, { name: '', age: '' }).valid).toBe(true)
 	})
 
 	test('object omit', () => {
@@ -35,26 +35,26 @@ describe('records', () => {
 			}),
 			['age'],
 		)
-		expect(rules.validate({}).valid).toBe(false)
-		expect(rules.validate({ name: '' }).valid).toBe(true)
-		expect(rules.validate({ name: '', age: '' }).valid).toBe(true)
+		expect(v.validate(rules, {}).valid).toBe(false)
+		expect(v.validate(rules, { name: '' }).valid).toBe(true)
+		expect(v.validate(rules, { name: '', age: '' }).valid).toBe(true)
 	})
 
 	test('record', () => {
 		const rules = v.record(v.string(), v.number())
-		expect(rules.validate([]).valid).toBe(false)
-		expect(rules.validate({}).valid).toBe(true)
-		expect(rules.validate({ a: 'a' }).valid).toBe(false)
-		expect(rules.validate({ a: 1 }).valid).toBe(true)
+		expect(v.validate(rules, []).valid).toBe(false)
+		expect(v.validate(rules, {}).valid).toBe(true)
+		expect(v.validate(rules, { a: 'a' }).valid).toBe(false)
+		expect(v.validate(rules, { a: 1 }).valid).toBe(true)
 	})
 
 	test('asMap', () => {
 		const rules = v.record(v.string(), v.number()).pipe(v.asMap())
-		expect(rules.validate([]).valid).toBe(false)
-		expect(rules.validate({}).valid).toBe(true)
-		expect(rules.validate({ a: 'a' }).valid).toBe(false)
-		expect(rules.validate({ a: 1 }).valid).toBe(true)
-		expect(rules.parse({ a: 1, b: 2 })).toEqual(
+		expect(v.validate(rules, []).valid).toBe(false)
+		expect(v.validate(rules, {}).valid).toBe(true)
+		expect(v.validate(rules, { a: 'a' }).valid).toBe(false)
+		expect(v.validate(rules, { a: 1 }).valid).toBe(true)
+		expect(v.assert(rules, { a: 1, b: 2 })).toEqual(
 			new Map([
 				['a', 1],
 				['b', 2],

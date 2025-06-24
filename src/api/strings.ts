@@ -1,4 +1,4 @@
-import { assert, makeBranchPipe, Pipe, pipe, PipeError } from './base'
+import { assert, branch, Pipe, pipe, PipeError } from './base'
 import * as fns from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
@@ -21,7 +21,7 @@ export const url = (err = 'is not a valid url') =>
 	)
 
 export const withStrippedHtml = (pipe: Pipe<string, string, any>) =>
-	makeBranchPipe<Pipe<string, string, any>, string, string, any>(
+	branch<Pipe<string, string, any>, string, string, any>(
 		pipe,
 		(input) => {
 			const stripped = fns.stripHTML(input)

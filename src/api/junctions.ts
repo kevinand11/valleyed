@@ -1,4 +1,4 @@
-import { assert, makeBranchPipe, pipe, Pipe, PipeContext, PipeError, PipeInput, PipeOutput, schema, validate } from './base'
+import { assert, branch, pipe, Pipe, PipeContext, PipeError, PipeInput, PipeOutput, schema, validate } from './base'
 import { merge as differMerge } from '../utils/differ'
 import { wrapInTryCatch } from '../utils/functions'
 
@@ -58,17 +58,17 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any, any>>>
 		},
 	)
 
-export const fromJson = <T extends Pipe<any, any, any>>(branch: T) =>
-	makeBranchPipe<T, PipeInput<T>, PipeOutput<T>, PipeContext<T>>(
-		branch,
+export const fromJson = <T extends Pipe<any, any, any>>(pipe: T) =>
+	branch<T, PipeInput<T>, PipeOutput<T>, PipeContext<T>>(
+		pipe,
 		(input) => {
-			const validity = validate(branch, input)
+			const validity = validate(pipe, input)
 			if (validity.valid) return validity.value
 			if (input?.constructor?.name !== 'String') throw validity.error
 
 			const parsed = wrapInTryCatch(() => JSON.parse(input), validity.error)
 			if (parsed === validity.error) throw validity.error
-			return assert(branch, parsed)
+			return assert(pipe, parsed)
 		},
 		{
 			context: (c) => c,
