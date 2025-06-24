@@ -59,11 +59,12 @@ export function pipe<I, O, C>(
 		context: () => config.context?.() ?? {},
 		schema: () => ({ ...config.schema?.(), ...meta }),
 		pipe: (...entries: Entry<any, any, any>[]) => {
-			entries.reduce<Pipe<any, any, any>>((acc, cur) => {
+			for (const cur of entries) {
 				const p = typeof cur === 'function' ? pipe(cur, config) : cur
-				acc.next = p
-				return getLastPipe(p)
-			}, getLastPipe(piper))
+				if (!piper.next) piper.next = p
+				if (piper.last) piper.last.next = p
+				piper.last = p.last ?? p
+			}
 			return piper
 		},
 		meta: (schema) => {
@@ -86,11 +87,6 @@ export function pipe<I, O, C>(
 		},
 	}
 	return piper
-}
-
-function getLastPipe(pipe: Pipe<any, any, any>) {
-	while (pipe.next) pipe = pipe.next
-	return pipe
 }
 
 export function branch<P extends Pipe<any, any, any>, I, O, C>(
