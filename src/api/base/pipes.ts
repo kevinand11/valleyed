@@ -45,6 +45,10 @@ export function schema<T extends Pipe<any, any, any>>(pipe: T, schema: JsonSchem
 	return walk(pipe, schema, (p, acc) => ({ ...acc, ...p.schema() }))
 }
 
+export function meta<T extends Pipe<any, any, any>>(p: T, meta: PipeMeta): T {
+	return p.pipe(pipe((i) => i, { schema: () => meta })) as T
+}
+
 export function pipe<I, O, C>(
 	func: PipeFn<I, O, C>,
 	config: {
@@ -52,12 +56,10 @@ export function pipe<I, O, C>(
 		schema?: () => JsonSchemaBuilder
 	} = {},
 ): Pipe<I, O, C> {
-	let meta: PipeMeta = {}
-
 	const piper: Pipe<I, O, C> = {
 		fn: func,
 		context: () => config.context?.() ?? {},
-		schema: () => ({ ...config.schema?.(), ...meta }),
+		schema: () => config.schema?.() ?? {},
 		pipe: (...entries: Entry<any, any, any>[]) => {
 			for (const cur of entries) {
 				const p = typeof cur === 'function' ? pipe(cur, config) : cur
@@ -65,10 +67,6 @@ export function pipe<I, O, C>(
 				if (piper.last) piper.last.next = p
 				piper.last = p.last ?? p
 			}
-			return piper
-		},
-		meta: (schema) => {
-			meta = { ...meta, ...schema }
 			return piper
 		},
 		'~standard': {
