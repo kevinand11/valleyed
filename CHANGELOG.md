@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.6](https://github.com/kevinand11/valleyed/compare/v4.5.5...v4.5.6) (2025-06-24)
+
+
+### Bug Fixes
+
+* typings ([b875b1a](https://github.com/kevinand11/valleyed/commit/b875b1a7872df822c7e1e4105101432358242675))
+
 ### [4.5.5](https://github.com/kevinand11/valleyed/compare/v4.5.4...v4.5.5) (2025-06-24)
 
 
