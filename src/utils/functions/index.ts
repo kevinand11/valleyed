@@ -45,7 +45,7 @@ export const extractUrls = (text: string) => {
 
 export const formatNumber = (num: number, dp?: number) =>
 	Intl.NumberFormat('en', { notation: 'compact', ...(dp ? { maximumFractionDigits: dp } : {}) }).format(
-		v.number().validate(num).valid ? num : 0,
+		v.validate(v.number(), num).valid ? num : 0,
 	)
 
 export const pluralize = (count: number, singular: string, plural: string) => (Math.round(count) === 1 ? singular : plural)

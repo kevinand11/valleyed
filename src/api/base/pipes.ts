@@ -2,6 +2,11 @@ import { PipeError } from './errors'
 import { PipeFn, Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeNode, PipeOutput, PipeContext } from './types'
 import { JsonSchema } from '../../utils/types'
 
+function getLastPipe(pipe: Pipe<any, any, any>) {
+	while (pipe.next) pipe = pipe.next
+	return pipe
+}
+
 export function pipe<I, O, C>(
 	func: PipeFn<I, O, C>,
 	config: {
@@ -27,10 +32,6 @@ export function pipe<I, O, C>(
 			}, getLastPipe(piper))
 			return piper
 		},
-		parse: (input) => assert(piper, input),
-		validate: (input) => validate(piper, input),
-		toJsonSchema: (scheme = {}) => schema(piper, scheme),
-		context: () => context(piper),
 		meta: (schema) => {
 			meta = { ...meta, ...schema }
 			return piper
@@ -53,30 +54,14 @@ export function pipe<I, O, C>(
 	return piper
 }
 
-function getLastPipe(pipe: Pipe<any, any, any>) {
-	let last = pipe
-	while (last.next) last = last.next
-	return last
-}
-
-function gather(pipe: Pipe<any, any, any>) {
-	const nodes = [pipe.node]
-	while (pipe.next) {
-		nodes.push(pipe.next.node)
-		pipe = pipe.next
-	}
-	const context = nodes.reduce((acc, cur) => ({ ...acc, ...cur.context() }), {}) as Context<any>
-	return { nodes, context }
-}
-
 export function context<T extends Pipe<any, any, any>>(pipe: T): Context<PipeContext<T>> {
-	return gather(pipe).context
+	return walk(pipe, {} as Context<PipeContext<T>>, (p, acc) => ({ ...acc, ...p.node.context() }))
 }
 
 export function assert<T extends Pipe<any, any, any>>(pipe: T, input: unknown): PipeOutput<T> {
 	try {
-		const { nodes, context } = gather(pipe)
-		return nodes.reduce((acc, cur) => cur.fn(acc, context), input) as PipeOutput<T>
+		const cont = context(pipe)
+		return walk(pipe, input as PipeOutput<T>, (p, acc) => p.node.fn(acc, cont))
 	} catch (error) {
 		if (error instanceof PipeError) {
 			if (error.stopped) return error.value as PipeOutput<T>
@@ -100,8 +85,17 @@ export function validate<T extends Pipe<any, any, any>>(
 }
 
 export function schema<T extends Pipe<any, any, any>>(pipe: T, schema: JsonSchema = {}): JsonSchema {
-	const { nodes } = gather(pipe)
-	return nodes.reduce((acc, cur) => ({ ...acc, ...cur.schema() }), schema)
+	return walk(pipe, schema, (p, acc) => ({ ...acc, ...p.node.schema() }))
+}
+
+export function walk<T>(pipe: Pipe<any, any, any>, init: T, nodeFn: (cur: Pipe<any, any, any>, acc: T) => T) {
+	let acc: T = init
+	let current: Pipe<any, any, any> | undefined = pipe
+	while (current) {
+		acc = nodeFn(current, acc)
+		current = current.next
+	}
+	return acc
 }
 
 export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C>(
@@ -114,7 +108,7 @@ export function makeBranchPipe<P extends Pipe<any, any, any>, I, O, C>(
 ) {
 	return pipe(fn, {
 		...config,
-		context: () => config.context(branch.context()),
-		schema: () => ({ ...config.schema(branch.toJsonSchema()) }),
+		context: () => config.context(context(branch)),
+		schema: () => ({ ...config.schema(schema(branch)) }),
 	})
 }

@@ -1,6 +1,5 @@
 import { StandardSchemaV1 } from '@standard-schema/spec'
 
-import { PipeError } from './errors'
 import { JsonSchema } from '../../utils/types'
 
 export type PipeFn<I, O = I, C = any> = (input: I, context: Context<C>) => O
@@ -83,11 +82,7 @@ export interface Pipe<I, O, C> extends StandardSchemaV1<I, O> {
 	readonly node: PipeNode
 	next?: Pipe<any, any, any>
 	pipe: PipeChain<I, O, C>
-	parse(input: unknown): O
-	validate(input: unknown): { value: O; valid: true } | { error: PipeError; valid: false }
-	context(): Context<C>
 	meta(schema: PipeMeta): Pipe<I, O, C>
-	toJsonSchema(schema?: JsonSchema): JsonSchema
 }
 
 export type PipeNode = {

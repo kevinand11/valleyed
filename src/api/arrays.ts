@@ -1,4 +1,4 @@
-import { pipe, PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
+import { pipe, PipeError, PipeInput, schema, validate, type Pipe, type PipeOutput } from './base'
 
 export const array = <T extends Pipe<any, any, any>>(pipeSchema: T) =>
 	pipe<PipeInput<T>[], PipeOutput<T>[], any>(
@@ -6,7 +6,7 @@ export const array = <T extends Pipe<any, any, any>>(pipeSchema: T) =>
 			if (!Array.isArray(input)) throw PipeError.root('is not an array', input)
 			if (input.length === 0) return input
 			const res = input.map((i, idx) => {
-				const validity = pipeSchema.validate(i)
+				const validity = validate(pipeSchema, i)
 				if (!validity.valid) return PipeError.path(idx, validity.error, i)
 				return validity.value
 			})
@@ -17,7 +17,7 @@ export const array = <T extends Pipe<any, any, any>>(pipeSchema: T) =>
 				)
 			return res
 		},
-		{ schema: () => ({ type: 'array', items: pipeSchema.toJsonSchema() }) },
+		{ schema: () => ({ type: 'array', items: schema(pipeSchema) }) },
 	)
 
 export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: readonly [...T]) =>
@@ -27,7 +27,7 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: reado
 			if (pipes.length !== input.length) throw PipeError.root(`expected ${pipes.length} but got ${input.length} items`, input)
 			if (input.length === 0) return input as any
 			const res = input.map((i, idx) => {
-				const validitity = pipes[idx].validate(i)
+				const validitity = validate(pipes[idx], i)
 				if ('error' in validitity) return PipeError.path(idx, validitity.error, i)
 				return validitity.value
 			})
@@ -41,7 +41,7 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: reado
 		{
 			schema: () => ({
 				type: 'array',
-				items: pipes.map((pipe) => pipe.toJsonSchema()),
+				items: pipes.map((pipe) => schema(pipe)),
 				minItems: pipes.length,
 				maxItems: pipes.length,
 			}),

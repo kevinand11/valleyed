@@ -1,4 +1,4 @@
-import { makeBranchPipe, pipe, PipeError, PipeFn, PipeInput, PipeOutput, type Pipe } from './base'
+import { context, makeBranchPipe, pipe, PipeError, PipeFn, PipeInput, PipeOutput, schema, validate, type Pipe } from './base'
 
 type ObjectPipe<T extends Record<string, Pipe<any, any, any>>> = Pipe<
 	{ [K in keyof T]: PipeInput<T[K]> },
@@ -13,7 +13,7 @@ const objectPipeFn: PipeFn<any> = (input, context) => {
 	const errors: PipeError[] = []
 	for (const key of Object.keys(pipes)) {
 		const value = input[key]
-		const validity = pipes[key].validate(value)
+		const validity = validate(pipes[key], value)
 		if (!validity.valid) errors.push(PipeError.path(key, validity.error, value))
 		else obj[key] = validity.value
 	}
@@ -23,9 +23,9 @@ const objectPipeFn: PipeFn<any> = (input, context) => {
 
 const makeObjectSchema = <T extends Record<string, Pipe<any, any, any>>>(objectPipes: T) => ({
 	type: 'object',
-	properties: Object.fromEntries(Object.entries(objectPipes ?? {}).map(([key, pipe]) => [key, pipe.toJsonSchema()])),
+	properties: Object.fromEntries(Object.entries(objectPipes ?? {}).map(([key, pipe]) => [key, schema(pipe)])),
 	required: Object.entries(objectPipes ?? {})
-		.filter(([, pipe]) => !pipe.context().optional)
+		.filter(([, pipe]) => !context(pipe).optional)
 		.map(([key]) => key),
 	additionalProperties: false,
 })
@@ -75,13 +75,13 @@ export const record = <K extends Pipe<any, PropertyKey, any>, V extends Pipe<any
 			const obj = {} as object
 			const errors: PipeError[] = []
 			for (const [k, v] of Object.entries(input)) {
-				const kValidity = kPipe.validate(k)
-				const vValidity = vPipe.validate(v)
+				const kValidity = validate(kPipe, k)
+				const vValidity = validate(vPipe, v)
 				if (!kValidity.valid) errors.push(PipeError.path(k, kValidity.error, k))
 				if (!vValidity.valid) errors.push(PipeError.path(k, vValidity.error, v))
 				if (kValidity.valid && vValidity.valid) {
 					if (k !== kValidity.value) delete obj[k]
-					obj[kValidity.value] = vValidity.value
+					obj[kValidity.value as any] = vValidity.value
 				}
 			}
 			if (errors.length) throw PipeError.rootFrom(errors, input)
@@ -90,8 +90,8 @@ export const record = <K extends Pipe<any, PropertyKey, any>, V extends Pipe<any
 		{
 			schema: () => ({
 				type: 'object',
-				propertyNames: kPipe.toJsonSchema(),
-				additionalProperties: vPipe.toJsonSchema(),
+				propertyNames: schema(kPipe),
+				additionalProperties: schema(vPipe),
 			}),
 		},
 	)

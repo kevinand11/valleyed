@@ -57,7 +57,7 @@ function dichotomy(min: number, max: number, bits: string) {
 }
 
 function parseCoords(hash: string) {
-	hash = v.string().pipe(v.min(1)).parse(hash)
+	hash = v.assert(v.string().pipe(v.min(1)), hash)
 	const base10 = baseXToBase10(hash, 32, Base32Chars)
 	const base2 = base10ToBaseX(base10, 2, Base2Chars).padStart(hash.length * 5, '0')
 
@@ -85,7 +85,7 @@ export function decode(hash: string): [number, number] {
 }
 
 export function encode(coords: [number, number]): string {
-	coords = v.tuple([v.number(), v.number()]).parse(coords)
+	coords = v.assert(v.tuple([v.number(), v.number()]), coords)
 
 	let idx = 0,
 		bit = 0,

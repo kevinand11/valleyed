@@ -1,5 +1,5 @@
+export * from './base'
 export * from './arrays'
-export { pipe } from './base'
 export * from './coerce'
 export * from './core'
 export * from './files'
