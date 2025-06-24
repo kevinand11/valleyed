@@ -1,5 +1,5 @@
 {
-	"extends": "@k11/ts-config/lib",
+	"extends": "@k11/configs/tsconfig/lib",
 	"compilerOptions": {
 		"outDir": "lib",
 		"types": ["@types/node"]

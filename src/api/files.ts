@@ -1,4 +1,5 @@
 import { pipe, PipeError } from './base'
+import { execValueFunction, ValueFunction } from '../utils/functions'
 
 export interface File {
 	type: string
@@ -34,9 +35,10 @@ export const video = <T extends File>(err = 'is not a recognized video file') =>
 		throw PipeError.root(err, input)
 	})
 
-export const fileType = <T extends File>(types: string | string[], err = 'is not a supported file') =>
+export const fileType = <T extends File>(typesFn: ValueFunction<string | string[]>, err = 'is not a supported file') =>
 	pipe<T, T, any>((input) => {
 		if (isFile(input) && isMimeType(input.type)) {
+			const types = execValueFunction(typesFn)
 			const fileTypes = Array.isArray(types) ? types : [types]
 			if (fileTypes.some((type) => input.type === type)) return input
 		}

@@ -21,15 +21,9 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^19.8.0
         version: 19.8.0
-      '@k11/eslint-config':
-        specifier: ^0.1.6
-        version: 0.1.6(@typescript-eslint/parser@8.29.0(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.3))(jiti@2.4.2)(typescript@5.8.3)(vue-eslint-parser@10.1.3(eslint@9.24.0(jiti@2.4.2)))
-      '@k11/prettier-config':
+      '@k11/configs':
         specifier: ^0.1.0
-        version: 0.1.0
-      '@k11/ts-config':
-        specifier: ^0.1.5
-        version: 0.1.5
+        version: 0.1.0(@typescript-eslint/parser@8.29.0(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.3))(jiti@2.4.2)(typescript@5.8.3)(vue-eslint-parser@10.1.3(eslint@9.24.0(jiti@2.4.2)))
       '@types/node':
         specifier: ^24.0.0
         version: 24.0.3
@@ -352,14 +346,8 @@ packages:
   '@jridgewell/sourcemap-codec@1.5.0':
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
 
-  '@k11/eslint-config@0.1.6':
-    resolution: {integrity: sha512-LGDwbyZEKZ174+aR1S+RmtvD22kDQankWt4VV4uKAD+UPfosuVZ06J23SGY480UGnQOor2FWxTTYLqIKZqZCZg==}
-
-  '@k11/prettier-config@0.1.0':
-    resolution: {integrity: sha512-AXSN9nTDUy0+SJ9Fcob3FUv9JK/CE1ZhD6VWhPQvQlJPSTM2fPEPH3KHAIKfOMa5vGF8pcJPZeJQCSCuqkbRPg==}
-
-  '@k11/ts-config@0.1.5':
-    resolution: {integrity: sha512-TOqQ2XgaITtLBsNqzylJbW1cGq66/g2TzkVcKeh4oMZZWyZknLmlNHD2CXWP9/oUAuULhUqOde6aHnnq/oTCLQ==}
+  '@k11/configs@0.1.0':
+    resolution: {integrity: sha512-27Kfg7Fay4UgqsXB75P3wHTjZJL7JvAT32AkaPD73jh0pJOrcQGM5a1ZolVNSHZIe0OEw47XG4DHazE1vt+0jw==}
 
   '@napi-rs/wasm-runtime@0.2.8':
     resolution: {integrity: sha512-OBlgKdX7gin7OIq4fadsjpg+cp2ZphvAIKucHsNfTdJiqdOmOEwQd/bHi0VwNrcw5xpBJyUw6cK/QilCqy1BSg==}
@@ -2807,7 +2795,7 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
-  '@k11/eslint-config@0.1.6(@typescript-eslint/parser@8.29.0(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.3))(jiti@2.4.2)(typescript@5.8.3)(vue-eslint-parser@10.1.3(eslint@9.24.0(jiti@2.4.2)))':
+  '@k11/configs@0.1.0(@typescript-eslint/parser@8.29.0(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.3))(jiti@2.4.2)(typescript@5.8.3)(vue-eslint-parser@10.1.3(eslint@9.24.0(jiti@2.4.2)))':
     dependencies:
       '@eslint/js': 9.24.0
       '@stylistic/eslint-plugin': 4.2.0(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.3)
@@ -2831,10 +2819,6 @@ snapshots:
       - supports-color
       - typescript
       - vue-eslint-parser
-
-  '@k11/prettier-config@0.1.0': {}
-
-  '@k11/ts-config@0.1.5': {}
 
   '@napi-rs/wasm-runtime@0.2.8':
     dependencies:
@@ -2998,7 +2982,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.0
+      semver: 7.7.1
       ts-api-utils: 2.1.0(typescript@5.8.3)
       typescript: 5.8.3
     transitivePeerDependencies:
