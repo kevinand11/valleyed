@@ -1,14 +1,14 @@
 import { StandardSchemaV1 } from '@standard-schema/spec'
 
-import { JsonSchema } from '../../utils/types'
+import { IsInTypeList, JsonSchema } from '../../utils/types'
 
 export type PipeFn<I, O = I, C = any> = (input: I, context: Context<C>) => O
 export type PipeInput<T> = T extends Pipe<infer I, any, any> ? I : never
 export type PipeOutput<T> = T extends Pipe<any, infer O, any> ? O : never
 export type PipeContext<T> = T extends Pipe<any, any, infer C> ? C : never
-export type Context<C> = C & {
+export type Context<C> = (IsInTypeList<C, [any, unknown, never]> extends true ? {} : C) & {
 	optional?: boolean
-	objectPipes?: Record<string, Pipe<any, any, any>>
+	objectKeys?: string[]
 }
 export type PipeMeta = Pick<JsonSchema, '$refId' | 'title' | 'description' | 'examples' | 'default'>
 export type JsonSchemaBuilder = JsonSchema

@@ -14,7 +14,7 @@ export const email = (err = 'is not a valid email') =>
 export const url = (err = 'is not a valid url') =>
 	pipe<string, string, any>(
 		(input) => {
-			if (urlRegex().test(input)) return input
+			if (urlRegex.test(input)) return input
 			throw PipeError.root(err, input)
 		},
 		{ schema: () => ({ format: 'uri' }) },

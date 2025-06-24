@@ -97,7 +97,7 @@ export function branch<P extends Pipe<any, any, any>, I, O, C>(
 ) {
 	return pipe(fn, {
 		...config,
-		context: () => config.context(context(branch)),
+		context: () => config.context(context(branch) as any),
 		schema: () => ({ ...config.schema(schema(branch)) }),
 	})
 }

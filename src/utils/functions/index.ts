@@ -31,7 +31,7 @@ export const trimToLength = (body: string, length: number) => {
 }
 
 export const extractUrls = (text: string) => {
-	const urls = text.match(urlRegex()) || ([] as string[])
+	const urls = text.match(urlRegex) || ([] as string[])
 	return urls
 		.filter((url, index) => urls.indexOf(url) === index)
 		.map((url) => {
