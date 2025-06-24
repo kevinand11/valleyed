@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.4](https://github.com/kevinand11/valleyed/compare/v4.5.3...v4.5.4) (2025-06-24)
+
+
+### Features
+
+* add pipe deps into context ([88f5463](https://github.com/kevinand11/valleyed/commit/88f5463a80b9f6bb94bceaa6d3533f9a17d9ec9b))
+* meta api ([9e260e5](https://github.com/kevinand11/valleyed/commit/9e260e52966b198d1393b9202ff5ac9f9a539995))
+* store both next and last for performance ([87ebb6b](https://github.com/kevinand11/valleyed/commit/87ebb6b1e103865c249e727964d596448e84d2f3))
+* use new apis assert, validate, context and schema ([2bd63ce](https://github.com/kevinand11/valleyed/commit/2bd63ce0d7aa3e62483299634e99790bc63ab9bc))
+
+
+### Bug Fixes
+
+* use linked list instead of reversed ([7e3fc25](https://github.com/kevinand11/valleyed/commit/7e3fc25afc0fd6facfe151265756a735a6dc78ac))
+
 ### [4.5.3](https://github.com/kevinand11/valleyed/compare/v4.5.2...v4.5.3) (2025-06-24)
 
 ### [4.5.2](https://github.com/kevinand11/valleyed/compare/v4.5.1...v4.5.2) (2025-06-24)
