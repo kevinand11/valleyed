@@ -25,9 +25,7 @@
 	"devDependencies": {
 		"@commitlint/cli": "^19.8.0",
 		"@commitlint/config-conventional": "^19.8.0",
-		"@k11/eslint-config": "^0.1.6",
-		"@k11/prettier-config": "^0.1.0",
-		"@k11/ts-config": "^0.1.5",
+		"@k11/configs": "^0.1.0",
 		"@types/node": "^24.0.0",
 		"eslint": "^9.24.0",
 		"husky": "^9.1.7",
