@@ -1,4 +1,5 @@
-import { assert, branch, Pipe, pipe, PipeError } from './base'
+import { Pipe, PipeError } from './base'
+import { assert, branch, pipe } from './base/pipes'
 import * as fns from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 

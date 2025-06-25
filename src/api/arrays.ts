@@ -1,4 +1,5 @@
-import { pipe, PipeError, PipeInput, schema, validate, type Pipe, type PipeOutput } from './base'
+import { PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
+import { pipe, schema, validate } from './base/pipes'
 
 export const array = <T extends Pipe<any, any, any>>(pipeSchema: T, err = 'is not an array') =>
 	pipe<PipeInput<T>[], PipeOutput<T>[], any>(

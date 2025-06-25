@@ -1,4 +1,5 @@
-import { pipe, PipeError } from './base'
+import { PipeError } from './base'
+import { pipe } from './base/pipes'
 
 const isString = (err = 'is not a string') =>
 	pipe<string, string, any>(

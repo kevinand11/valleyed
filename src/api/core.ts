@@ -1,4 +1,5 @@
-import { pipe, PipeError } from './base'
+import { PipeError } from './base'
+import { pipe } from './base/pipes'
 import { equal } from '../utils/differ'
 import { execValueFunction, ValueFunction } from '../utils/functions'
 

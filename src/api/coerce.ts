@@ -1,4 +1,4 @@
-import { pipe } from './base'
+import { pipe } from './base/pipes'
 import { time, Timeable } from './times'
 import { boolean, number, string } from './types'
 

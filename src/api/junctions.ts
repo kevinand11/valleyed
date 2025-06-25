@@ -1,6 +1,7 @@
-import { assert, branch, pipe, Pipe, PipeContext, PipeError, PipeInput, PipeOutput, schema, validate } from './base'
+import { Pipe, PipeContext, PipeError, PipeInput, PipeOutput } from './base'
 import { merge as differMerge } from '../utils/differ'
 import { wrapInTryCatch } from '../utils/functions'
+import { assert, branch, pipe, schema, validate } from './base/pipes'
 
 export const or = <T extends Pipe<any, any, any>[]>(pipes: T) =>
 	pipe<PipeInput<T[number]>, PipeOutput<T[number]>, PipeContext<T[number]>>(

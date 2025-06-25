@@ -1,4 +1,5 @@
-import { pipe, PipeError } from './base'
+import { PipeError } from './base'
+import { pipe } from './base/pipes'
 import { execValueFunction, ValueFunction } from '../utils/functions'
 
 export type Timeable = Date | string | number

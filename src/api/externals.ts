@@ -1,4 +1,4 @@
-export * from './base'
+export * from './base/pipes'
 export * from './arrays'
 export * from './coerce'
 export * from './core'

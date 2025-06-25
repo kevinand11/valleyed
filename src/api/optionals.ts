@@ -1,4 +1,5 @@
-import { assert, branch, Pipe, PipeContext, PipeInput, PipeOutput, validate } from './base'
+import { Pipe, PipeContext, PipeInput, PipeOutput } from './base'
+import { assert, branch, validate } from './base/pipes'
 import { execValueFunction, ValueFunction } from '../utils/functions'
 import { DeepPartial } from '../utils/types'
 

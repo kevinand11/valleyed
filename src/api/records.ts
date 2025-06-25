@@ -1,4 +1,5 @@
-import { context, branch, pipe, PipeError, PipeInput, PipeOutput, schema, validate, type Pipe } from './base'
+import { PipeError, PipeInput, PipeOutput, type Pipe } from './base'
+import { context, branch, pipe, schema, validate } from './base/pipes'
 
 type ObjectPipe<T extends Record<string, Pipe<any, any, any>>> = Pipe<
 	{ [K in keyof T]: PipeInput<T[K]> },
