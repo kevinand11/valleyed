@@ -2,12 +2,27 @@
 	"name": "valleyed",
 	"version": "4.5.6",
 	"description": "A lightweight package with definitions for various validation rules, and helper services to consume said rules.",
-	"main": "lib/index.js",
 	"type": "module",
 	"sideEffects": false,
+	"main": "./dist/cjs/index.cjs",
+	"module": "./dist/esm/index.mjs",
+	"types": "./dist/types/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/types/index.d.ts",
+			"require": {
+				"min": "./dist/cjs/index.min.cjs",
+				"default": "./dist/cjs/index.cjs"
+			},
+			"import": {
+				"min": "./dist/esm/index.min.mjs",
+				"default": "./dist/esm/index.mjs"
+			}
+		}
+	},
 	"scripts": {
-		"dev": "tsc -watch",
-		"build": "tsc",
+		"dev": "concurrently -n TYPECHECK,BUILD -c cyan,green \"tsc -watch\" \"tsup ./src/index.ts --watch\"",
+		"build": "concurrently -n TYPECHECK,BUILD -c cyan,green \"tsc\" \"tsup ./src/index.ts\"",
 		"lint": "eslint --fix src tests",
 		"test": "vitest run",
 		"release": "standard-version",
@@ -23,22 +38,24 @@
 	"author": "Kevin Izuchukwu",
 	"license": "ISC",
 	"devDependencies": {
-		"@commitlint/cli": "^19.8.0",
-		"@commitlint/config-conventional": "^19.8.0",
-		"@k11/configs": "^0.1.0",
-		"@types/node": "^24.0.0",
-		"eslint": "^9.24.0",
+		"@commitlint/cli": "^19.8.1",
+		"@commitlint/config-conventional": "^19.8.1",
+		"@k11/configs": "^0.1.1",
+		"@types/node": "^24.0.4",
+		"concurrently": "^9.2.0",
+		"eslint": "^9.29.0",
 		"husky": "^9.1.7",
 		"standard-version": "^9.5.0",
+		"tsup": "^8.5.0",
 		"typescript": "^5.8.3",
-		"vitest": "^3.1.1"
+		"vitest": "^3.2.4"
 	},
 	"files": [
 		"LICENSE",
 		"CHANGELOG.md",
 		"README.md",
 		"bin",
-		"lib"
+		"dist"
 	],
 	"repository": {
 		"url": "git://github.com/kevinand11/valleyed.git"

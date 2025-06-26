@@ -1,9 +1,8 @@
 {
 	"extends": "@k11/configs/tsconfig/lib",
 	"compilerOptions": {
-		"outDir": "lib",
 		"types": ["@types/node"]
 	},
-	"include": ["src"],
-	"exclude": ["node_modules", "lib"]
+	"include": ["src", "tests"],
+	"exclude": ["node_modules", "dist"]
 }
