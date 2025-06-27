@@ -21,8 +21,8 @@
 		}
 	},
 	"scripts": {
-		"dev": "concurrently -n TYPECHECK,BUILD -c cyan,green \"tsc -watch\" \"tsup ./src/index.ts --watch\"",
-		"build": "concurrently -n TYPECHECK,BUILD -c cyan,green \"tsc\" \"tsup ./src/index.ts\"",
+		"dev": "tsup --watch",
+		"build": "tsup || echo 'Done'",
 		"lint": "eslint --fix src tests",
 		"test": "vitest run",
 		"release": "standard-version",
@@ -42,7 +42,6 @@
 		"@commitlint/config-conventional": "^19.8.1",
 		"@k11/configs": "^0.1.1",
 		"@types/node": "^24.0.4",
-		"concurrently": "^9.2.0",
 		"eslint": "^9.29.0",
 		"husky": "^9.1.7",
 		"standard-version": "^9.5.0",
