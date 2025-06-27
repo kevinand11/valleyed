@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.9](https://github.com/kevinand11/valleyed/compare/v4.5.8...v4.5.9) (2025-06-27)
+
+
+### Features
+
+* do not bundle ([bbeff07](https://github.com/kevinand11/valleyed/commit/bbeff07ed071ef316db0172557c7ff59d1336cbe))
+
 ### [4.5.8](https://github.com/kevinand11/valleyed/compare/v4.5.7...v4.5.8) (2025-06-26)
 
 ### [4.5.7](https://github.com/kevinand11/valleyed/compare/v4.5.6...v4.5.7) (2025-06-26)
