@@ -1,12 +1,16 @@
+import { fixImportsPlugin } from 'esbuild-fix-imports-plugin'
 import { defineConfig, Options } from 'tsup'
 
 const commonOptions: Options = {
-	entry: ['src/index.ts'],
+	entry: ['src/**/*'],
 	sourcemap: true,
 	clean: true,
 	dts: false,
 	minify: false,
 	splitting: false,
+	bundle: false,
+	platform: 'neutral',
+	esbuildPlugins: [fixImportsPlugin()],
 	esbuildOptions(options) {
 		options.platform = 'node'
 	},
@@ -34,6 +38,7 @@ export default defineConfig([
 		outExtension: () => ({ js: '.cjs' }),
 	},
 	{
+		...commonOptions,
 		format: 'cjs',
 		outDir: 'dist/cjs',
 		minify: true,
@@ -41,10 +46,10 @@ export default defineConfig([
 		clean: false,
 	},
 	{
-		entry: ['src/index.ts'],
-		dts: true,
+		...commonOptions,
 		format: 'esm',
 		outDir: 'dist/types',
-		clean: false,
+		sourcemap: false,
+		dts: true,
 	},
 ])
