@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.10](https://github.com/kevinand11/valleyed/compare/v4.5.9...v4.5.10) (2025-06-28)
+
+
+### Features
+
+* v lazy ([6cbf1a1](https://github.com/kevinand11/valleyed/commit/6cbf1a1834d4400d599b55043b37d9781b792b37))
+
 ### [4.5.9](https://github.com/kevinand11/valleyed/compare/v4.5.8...v4.5.9) (2025-06-27)
 
 
