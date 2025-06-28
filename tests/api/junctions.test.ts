@@ -62,4 +62,16 @@ describe('junctions', () => {
 		expect(v.validate(rules, '"1"').valid).toBe(false)
 		expect(v.validate(rules, '1').valid).toBe(true)
 	})
+
+	test('lazy', () => {
+		const rules = v.lazy(() => v.string().pipe(v.has(3)))
+		expect(v.validate(rules, 'and').valid).toBe(true)
+		expect(v.validate(rules, 'an').valid).toBe(false)
+		expect(v.validate(rules, 2).valid).toBe(false)
+
+		const treeRules = v.lazy(() => v.object({ value: v.number(), children: v.array(treeRules) }), v.object({ value: v.number() }))
+		expect(v.validate(treeRules, { value: 1, children: [] }).valid).toBe(true)
+		expect(v.validate(treeRules, { value: 1, children: [{ value: 2, children: [] }] }).valid).toBe(true)
+		expect(v.validate(treeRules, { value: 1, children: [{ value: '2', children: [] }] }).valid).toBe(false)
+	})
 })

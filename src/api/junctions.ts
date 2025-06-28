@@ -70,3 +70,8 @@ export const fromJson = <T extends Pipe<any, any, any>>(pipe: T) =>
 			schema: (s) => s,
 		},
 	)
+
+export const lazy = <T extends Pipe<any, any, any>>(pipeFn: () => T, rootSchemaPipe?: Pipe<any, any, any>) =>
+	pipe<PipeInput<T>, PipeOutput<T>, PipeContext<T>>((input) => assert(pipeFn(), input), {
+		schema: () => schema(rootSchemaPipe ?? pipeFn()),
+	})
