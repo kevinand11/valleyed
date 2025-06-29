@@ -1,5 +1,5 @@
 import { Pipe, PipeError } from './base'
-import { assert, branch, pipe } from './base/pipes'
+import { assert, pipe } from './base/pipes'
 import * as fns from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
@@ -31,22 +31,21 @@ export const url = (err = 'is not a valid url') =>
 		},
 	)
 
-export const withStrippedHtml = (pipe: Pipe<string, string, any>) =>
-	branch<Pipe<string, string, any>, string, string, any>(
-		pipe,
+export const withStrippedHtml = (branch: Pipe<string, string, any>) =>
+	pipe<string, string, any>(
 		(input) => {
 			const stripped = fns.stripHTML(input)
-			assert(pipe, stripped)
+			assert(branch, stripped)
 			return input
 		},
 		{
 			compile: ({ input, context }) =>
 				`(() => {
 					const stripped = ${context}.stripHTML(${input});
-					${context}.assert(${context}.pipe, stripped);
+					${context}.assert(${context}.branch, stripped);
 					return ${input};
 				})()`,
-			context: (c) => ({ ...c, stripHTML: fns.stripHTML, assert, PipeError, pipe }),
+			context: () => ({ ...branch.context(), stripHTML: fns.stripHTML, assert, PipeError, branch }),
 			schema: (s) => s,
 		},
 	)
