@@ -68,10 +68,15 @@ describe('junctions', () => {
 		expect(v.validate(rules, 'and').valid).toBe(true)
 		expect(v.validate(rules, 'an').valid).toBe(false)
 		expect(v.validate(rules, 2).valid).toBe(false)
+	})
 
-		const treeRules = v.lazy(() => v.object({ value: v.number(), children: v.array(treeRules) }), v.object({ value: v.number() }))
-		expect(v.validate(treeRules, { value: 1, children: [] }).valid).toBe(true)
-		expect(v.validate(treeRules, { value: 1, children: [{ value: 2, children: [] }] }).valid).toBe(true)
-		expect(v.validate(treeRules, { value: 1, children: [{ value: '2', children: [] }] }).valid).toBe(false)
+	test('recursive', () => {
+		const rules = v.recursive((p) => v.object({ value: v.number(), children: v.array(p) }), 'Node')
+		expect(v.validate(rules, { value: 1, children: [] }).valid).toBe(true)
+		expect(v.validate(rules, { value: 1, children: [{ value: 2, children: [] }] }).valid).toBe(true)
+		expect(v.validate(rules, { value: 1, children: [{ value: '2', children: [] }] }).valid).toBe(false)
+
+		const schema = v.schema(rules)
+		expect(schema).toBeDefined()
 	})
 })

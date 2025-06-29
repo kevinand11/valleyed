@@ -71,7 +71,16 @@ export const fromJson = <T extends Pipe<any, any, any>>(pipe: T) =>
 		},
 	)
 
-export const lazy = <T extends Pipe<any, any, any>>(pipeFn: () => T, rootSchemaPipe?: Pipe<any, any, any>) =>
+export const lazy = <T extends Pipe<any, any, any>>(pipeFn: () => T) =>
 	pipe<PipeInput<T>, PipeOutput<T>, PipeContext<T>>((input) => assert(pipeFn(), input), {
-		schema: () => schema(rootSchemaPipe ?? pipeFn()),
+		schema: () => schema(pipeFn()),
 	})
+
+export const recursive = <T extends Pipe<any, any, any>, R = T>(pipeFn: (root: R) => T, id: string) => {
+	const root = pipe((input) => assert(pipeFn(root), input), {
+		schema: () => ({ $refId: id }),
+	})
+	return pipe<PipeInput<T>, PipeOutput<T>, PipeContext<T>>(root.fn, {
+		schema: () => schema(pipeFn(root), { $refId: id }),
+	})
+}
