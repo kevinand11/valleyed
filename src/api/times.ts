@@ -14,7 +14,12 @@ export const time = (err = 'is not a valid datetime') =>
 			}
 			throw PipeError.root(err, input)
 		},
-		{ schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }) },
+		{
+			compile: ({ input, context }) =>
+				`!isNaN(new Date(${input}).getTime()) ? new Date(${input}) : ${context}.PipeError.root('${err}', ${input})`,
+			context: () => ({ PipeError }),
+			schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }),
+		},
 	)
 
 export const after = (compare: ValueFunction<Timeable>, err?: string) =>
@@ -24,7 +29,15 @@ export const after = (compare: ValueFunction<Timeable>, err?: string) =>
 			if (input > compareDate) return input
 			throw PipeError.root(err ?? `is not later than ${compareDate.toString()}`, input)
 		},
-		{ context: () => ({ after: compare }) },
+		{
+			compile: ({ input, context }) =>
+				`(() => {
+					const compareDate = new Date(${context}.execValueFunction(${context}.after));
+					if (${input} > compareDate) return ${input};
+					return ${context}.PipeError.root(\`${err ?? 'is not later than ${compareDate.toString()}'}\`, ${input});
+				})()`,
+			context: () => ({ after: compare, PipeError, execValueFunction }),
+		},
 	)
 
 export const before = (compare: ValueFunction<Timeable>, err?: string) =>
@@ -34,7 +47,15 @@ export const before = (compare: ValueFunction<Timeable>, err?: string) =>
 			if (input < compareDate) return input
 			throw PipeError.root(err ?? `is not earlier than ${compareDate.toString()}`, input)
 		},
-		{ context: () => ({ before: compare }) },
+		{
+			compile: ({ input, context }) =>
+				`(() => {
+					const compareDate = new Date(${context}.execValueFunction(${context}.before));
+					if (${input} < compareDate) return ${input};
+					return ${context}.PipeError.root(\`${err ?? 'is not earlier than ${compareDate.toString()}'}\`, ${input});
+				})()`,
+			context: () => ({ before: compare, PipeError, execValueFunction }),
+		},
 	)
 
 export const asStamp = () => pipe<Date, number, any>((input) => input.valueOf(), { schema: () => ({ type: 'integer', oneOf: undefined }) })

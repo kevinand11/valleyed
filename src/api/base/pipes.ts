@@ -1,5 +1,5 @@
 import { PipeError } from './errors'
-import { PipeFn, Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeOutput, PipeContext } from './types'
+import { PipeFn, Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeOutput, PipeContext, PipeInput } from './types'
 import { JsonSchema } from '../../utils/types'
 
 export function walk<T>(pipe: Pipe<any, any, any>, init: T, nodeFn: (cur: Pipe<any, any, any>, acc: T) => T) {
@@ -50,9 +50,31 @@ export function meta<T extends Pipe<any, any, any>>(p: T, meta: PipeMeta): T {
 	return p.pipe(pipe((i) => i, { schema: () => meta })) as T
 }
 
+export function compile<T extends Pipe<any, any, any>>(pipe: T) {
+	const input = 'input'
+	const context = 'context'
+	const compiledStrings = <string[]>[]
+	walk(pipe, undefined, (p, acc) => {
+		if (p.compile)
+			compiledStrings.push(`input = ${p.compile({ input, context })};\n if (${input} instanceof ${context}.PipeError) throw input;\n`)
+		return acc
+	})
+	const fullFn = `
+		${compiledStrings.join('')}
+		return input
+	`
+	return new Function(input, context, fullFn) as PipeFn<PipeInput<T>, PipeOutput<T>, PipeContext<T>>
+}
+
+export function execCompiled<T extends Pipe<any, any, any>>(pipe: T, input: unknown) {
+	const cont = context(pipe)
+	return compile(pipe)(input as any, cont)
+}
+
 export function pipe<I, O, C>(
 	func: PipeFn<I, O, C>,
 	config: {
+		compile?: Pipe<I, O, C>['compile']
 		context?: () => Context<C>
 		schema?: (context: Context<C>) => JsonSchemaBuilder
 	} = {},
@@ -70,6 +92,7 @@ export function pipe<I, O, C>(
 			}
 			return piper
 		},
+		compile: config.compile,
 		'~standard': {
 			version: 1,
 			vendor: 'valleyed',
@@ -92,6 +115,7 @@ export function branch<P extends Pipe<any, any, any>, I, O, C>(
 	branch: P,
 	fn: PipeFn<I, O, C>,
 	config: {
+		compile?: Pipe<I, O, C>['compile']
 		context: (context: Context<C>) => Context<C>
 		schema: (schema: JsonSchemaBuilder, context: Context<C>) => JsonSchemaBuilder
 	},

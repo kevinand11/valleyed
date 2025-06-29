@@ -12,6 +12,7 @@ export type Context<C> = C &
 	Readonly<{
 		optional?: boolean
 		objectKeys?: string[]
+		custom?: (value: any) => boolean
 		eq?: ValueFunction<unknown>
 		ne?: ValueFunction<unknown>
 		in?: ValueFunction<Readonly<unknown[]>>
@@ -98,6 +99,7 @@ export interface Pipe<I, O, C> extends StandardSchemaV1<I, O> {
 	readonly context: () => Context<any>
 	readonly schema: (context: Context<any>) => JsonSchema
 	readonly pipe: PipeChain<I, O, C>
+	readonly compile?: (names: { input: string; context: string }) => string
 	next?: Pipe<any, any, any>
 	last?: Pipe<any, any, any>
 }
