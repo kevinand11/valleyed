@@ -1,5 +1,5 @@
 import { Pipe, PipeContext, PipeInput, PipeOutput } from './base'
-import { assert, pipe, validate } from './base/pipes'
+import { assert, compileToAssert, pipe, validate, compileToValidate } from './base/pipes'
 import { execValueFunction, ValueFunction } from '../utils/functions'
 import { DeepPartial } from '../utils/types'
 
@@ -16,9 +16,9 @@ const partial = <T extends Pipe<any, any, any>, P>(
 		},
 		{
 			...config,
-			context: () => ({ ...config?.context?.(), partialCondition, assert, branch }),
-			compile: ({ input, context }) =>
-				`${context}.partialCondition(${input}) ? ${input} : ${context}.assert(${context}.branch, ${input})`,
+			context: () => ({ ...config?.context?.(), partialCondition }),
+			compile: ({ input, context }, rootContext) =>
+				`${context}.partialCondition(${input}) ? ${input} : ${compileToAssert(branch, rootContext, input, context)}`,
 		},
 	)
 
@@ -50,8 +50,8 @@ export const defaults = <T extends Pipe<any, any, any>>(branch: T, def: DefaultV
 	pipe<PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>, any>(
 		(input, context) => assert(branch, input !== undefined ? input : execValueFunction(context?.defaults ?? def)) as any,
 		{
-			compile: ({ input, context }) =>
-				`${context}.assert(${context}.branch, ${input} !== undefined ? ${input} : ${context}.execValueFunction(${context}.defaults)})`,
+			compile: ({ input, context }, rootContext) =>
+				`${compileToAssert(branch, rootContext, `${input} !== undefined ? ${input} : ${context}.execValueFunction(${context}.defaults)`, context)}`,
 			schema: (c) => ({ ...branch.schema(c), default: execValueFunction(c.defaults ?? def) }),
 			context: () => ({ ...branch.context(), defaults: def, optional: true, assert, branch, execValueFunction }),
 		},
@@ -65,12 +65,11 @@ const onCatch = <T extends Pipe<any, any, any>>(branch: T, def: DefaultValue<Pip
 			return execValueFunction(context?.catch ?? def) as any
 		},
 		{
-			compile: ({ input, context }) =>
-				`(() => {
-					const validity = ${context}.validate(${context}.branch, ${input});
-					if (validity.valid) return validity.value;
-					return ${context}.execValueFunction(${context}.catch);
-				})()`,
+			compile: ({ input, context }, rootContext) => `(() => {
+	const validity = ${compileToValidate(branch, rootContext, input, context)};
+	if (validity.valid) return validity.value;
+	return ${context}.execValueFunction(${context}.catch);
+})()`,
 			schema: (c) => ({ ...branch.schema(c), default: execValueFunction(c.catch ?? def) }),
 			context: () => ({ ...branch.context(), catch: def, execValueFunction, validate, branch }),
 		},

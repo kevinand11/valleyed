@@ -1,5 +1,5 @@
 import { Pipe, PipeError } from './base'
-import { assert, pipe } from './base/pipes'
+import { assert, compileToAssert, pipe } from './base/pipes'
 import * as fns from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
@@ -39,13 +39,12 @@ export const withStrippedHtml = (branch: Pipe<string, string, any>) =>
 			return input
 		},
 		{
-			compile: ({ input, context }) =>
-				`(() => {
-					const stripped = ${context}.stripHTML(${input});
-					${context}.assert(${context}.branch, stripped);
-					return ${input};
-				})()`,
-			context: () => ({ ...branch.context(), stripHTML: fns.stripHTML, assert, PipeError, branch }),
+			compile: ({ input, context }, rootContext) => `(() => {
+	const stripped = ${context}.stripHTML(${input});
+	${compileToAssert(branch, rootContext, 'stripped', context)};
+	return ${input};
+})()`,
+			context: () => ({ ...branch.context(), stripHTML: fns.stripHTML }),
 			schema: (s) => s,
 		},
 	)

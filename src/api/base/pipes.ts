@@ -17,6 +17,7 @@ export function context<T extends Pipe<any, any, any>>(pipe: T): Context<PipeCon
 
 export function assert<T extends Pipe<any, any, any>>(pipe: T, input: unknown): PipeOutput<T> {
 	try {
+		if (pipe.__compiled) return pipe.__compiled.fn(input, pipe.__compiled.context) as PipeOutput<T>
 		const cont = context(pipe)
 		return walk(pipe, input as PipeOutput<T>, (p, acc) => p.fn(acc, cont))
 	} catch (error) {
@@ -26,6 +27,24 @@ export function assert<T extends Pipe<any, any, any>>(pipe: T, input: unknown): 
 		}
 		throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
 	}
+}
+
+export function compileToAssert(pipe: Pipe<any, any, any>, rootContext: Context<any>, inputStr: string, contextStr: string) {
+	const random = Math.random().toString(36).substring(2, 15)
+	const { compiled, context } = compilePipeToString(pipe, inputStr, `${contextStr}.${random}`)
+	rootContext[random] = context
+	return `(() => {
+	try {
+		${compiled.join('\n')}
+		return ${inputStr}
+	catch (error) {
+		if (error instanceof ${contextStr}.PipeError) {
+			if (error.stopped) return error.value
+			throw error
+		}
+		throw ${contextStr}.PipeError.root(error instanceof Error ? error.message : \`\${error}\`, ${inputStr}, error)
+	}
+})()`
 }
 
 export function validate<T extends Pipe<any, any, any>>(
@@ -41,6 +60,22 @@ export function validate<T extends Pipe<any, any, any>>(
 	}
 }
 
+export function compileToValidate(pipe: Pipe<any, any, any>, rootContext: Context<any>, inputStr: string, contextStr: string) {
+	const random = Math.random().toString(36).substring(2, 15)
+	const { compiled, context } = compilePipeToString(pipe, inputStr, `${contextStr}.${random}`)
+	rootContext[random] = context
+	return `(() => {
+	try {
+		${compiled.join('\n')}
+		return { value: ${inputStr}, valid: true }
+	}
+	catch (error) {
+		if (error instanceof ${contextStr}.PipeError) return { error, valid: false }
+		throw ${contextStr}.PipeError.root(error instanceof Error ? error.message : \`\${error}\`, ${inputStr}, error)
+	}
+})()`
+}
+
 export function schema<T extends Pipe<any, any, any>>(pipe: T, schema: JsonSchema = {}): JsonSchema {
 	const cont = context(pipe)
 	return walk(pipe, schema, (p, acc) => ({ ...acc, ...p.schema(cont) }))
@@ -50,25 +85,26 @@ export function meta<T extends Pipe<any, any, any>>(p: T, meta: PipeMeta): T {
 	return p.pipe(pipe((i) => i, { schema: () => meta })) as T
 }
 
-export function compile<T extends Pipe<any, any, any>>(pipe: T) {
-	const input = 'input'
-	const context = 'context'
-	const compiledStrings = <string[]>[]
-	walk(pipe, undefined, (p, acc) => {
+function compilePipeToString(pipe: Pipe<any, any, any>, inputStr: string, contextStr: string) {
+	const fullContext = context(pipe)
+	const compiled = walk(pipe, <string[]>[], (p, acc) => {
 		if (p.compile)
-			compiledStrings.push(`input = ${p.compile({ input, context })};\n if (${input} instanceof ${context}.PipeError) throw input;\n`)
+			acc.push(
+				`${inputStr} = ${p.compile({ input: inputStr, context: contextStr }, fullContext)};`,
+				`if (${inputStr} instanceof ${contextStr}.PipeError) throw input;`,
+			)
 		return acc
 	})
-	const fullFn = `
-		${compiledStrings.join('')}
-		return input
-	`
-	return new Function(input, context, fullFn) as PipeFn<PipeInput<T>, PipeOutput<T>, PipeContext<T>>
+	return { compiled, context: fullContext }
 }
 
-export function execCompiled<T extends Pipe<any, any, any>>(pipe: T, input: unknown) {
-	const cont = context(pipe)
-	return compile(pipe)(input as any, cont)
+export function compile<T extends Pipe<any, any, any>>(pipe: T) {
+	const { compiled: compiledArr, context } = compilePipeToString(pipe, 'input', 'context')
+	const compiled = compiledArr.concat('return input;').join('\n')
+	console.log(compiled, context)
+	const fn = new Function('input', 'context', compiled) as PipeFn<PipeInput<T>, PipeOutput<T>, PipeContext<T>>
+	pipe.__compiled = { fn, compiled, context }
+	return pipe
 }
 
 export function pipe<I, O, C>(

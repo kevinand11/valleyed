@@ -25,8 +25,9 @@ describe('base', () => {
 	})
 
 	test('compile', () => {
-		const pipe = v.string().pipe(v.is('kevinfizu@gmail.com'), v.email(), v.min(2), v.max(100))
+		const pipe = v.array(v.string().pipe(v.is('kevinfizu@gmail.com'), v.email(), v.min(2), v.max(100)))
 		expect(true).toBe(true)
-		v.execCompiled(pipe, 'kevinfizu@gmail.com')
+		v.compile(pipe)
+		v.assert(pipe, ['kevinfizu@gmail.com'])
 	})
 })

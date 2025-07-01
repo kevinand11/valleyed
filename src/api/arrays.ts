@@ -1,14 +1,14 @@
 import { PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
-import { pipe, schema, validate } from './base/pipes'
+import { pipe, schema, validate, compileToValidate } from './base/pipes'
 
-export const array = <T extends Pipe<any, any, any>>(pipeSchema: T, err = 'is not an array') =>
+export const array = <T extends Pipe<any, any, any>>(branch: T, err = 'is not an array') =>
 	pipe<PipeInput<T>[], PipeOutput<T>[], any>(
 		(input: unknown) => {
 			if (!Array.isArray(input)) throw PipeError.root(err, input)
 			if (input.length === 0) return input
 			let hasError = false
 			const res = input.map((i, idx) => {
-				const validity = validate(pipeSchema, i)
+				const validity = validate(branch, i)
 				if (validity.valid) return validity.value
 				hasError = true
 				return PipeError.path(idx, validity.error, i)
@@ -21,33 +21,32 @@ export const array = <T extends Pipe<any, any, any>>(pipeSchema: T, err = 'is no
 			return res
 		},
 		{
-			compile: ({ input, context }) => `(() => {
-				const { PipeError, validate, pipeSchema } = ${context}
+			compile: ({ input, context }, rootContext) => `(() => {
+				const { PipeError, validate } = ${context}
 				if (!Array.isArray(${input})) return PipeError.root('${err}', ${input})
 				if (${input}.length === 0) return ${input}
 				let hasError = false
 				const res = ${input}.map((i, idx) => {
-					const validity = validate(pipeSchema, i)
+					const validity = ${compileToValidate(branch, rootContext, 'i', context)}
 					if (validity.valid) return validity.value
 					hasError = true
 					return PipeError.path(idx, validity.error, i)
 				})
-				if (hasError))
-					throw PipeError.rootFrom(res.filter((r) => r instanceof PipeError), ${input})
+				if (hasError) throw PipeError.rootFrom(res.filter((r) => r instanceof PipeError), ${input})
 				return res
 			})()`,
-			context: () => ({ PipeError, validate, pipeSchema }),
-			schema: () => ({ type: 'array', items: schema(pipeSchema) }),
+			context: () => ({ PipeError }),
+			schema: () => ({ type: 'array', items: schema(branch) }),
 		},
 	)
 
-export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: readonly [...T], err = 'is not an array') =>
+export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(branches: readonly [...T], err = 'is not an array') =>
 	pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }, any>(
 		(input: unknown) => {
 			if (!Array.isArray(input)) throw PipeError.root(err, input)
-			if (pipes.length === 0) return input as any
+			if (branches.length === 0) return input as any
 			let hasError = false
-			const res = pipes.map((pipe, idx) => {
+			const res = branches.map((pipe, idx) => {
 				const validity = validate(pipe, input[idx])
 				if (validity.valid) return validity.value
 				hasError = true
@@ -61,26 +60,34 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: reado
 			return res
 		},
 		{
-			compile: ({ input, context }) => `(() => {
-				const { PipeError, validate, pipes } = ${context}
-				if (!Array.isArray(${input})) return PipeError.root('${err}', ${input})
-				if (pipes.length === 0) return ${input}
-				let hasError = false
-				const res = pipes.map((pipe, idx) => {
-					const validity = validate(pipe, ${input}[idx])
-					if (validity.valid) return validity.value
-					hasError = true
-					return PipeError.path(idx, validity.error, ${input}[idx])
-				})
-				if (hasError) throw PipeError.rootFrom(res.filter((r) => r instanceof PipeError), ${input})
-				return res
-			})()`,
-			context: () => ({ PipeError, validate, pipes }),
+			compile: ({ input, context }, rootContext) =>
+				branches.length === 0
+					? input
+					: `(() => {
+	const { PipeError, validate } = ${context}
+	if (!Array.isArray(${input})) return PipeError.root('${err}', ${input})
+	if (pipes.length === 0) return ${input}
+	const res = []
+	let hasError = false
+	${branches
+		.map(
+			(_, idx) => `(() => {
+		const validity = ${compileToValidate(branches[idx], rootContext, `${input}[${idx}]`, context)}
+		if (validity.valid) return res.push(validity.value)
+		hasError = true
+		return PipeError.path(idx, validity.error, ${input}[${idx}])
+	})();`,
+		)
+		.join('\n')}
+	if (hasError) throw PipeError.rootFrom(res.filter((r) => r instanceof PipeError), ${input})
+	return res
+})()`,
+			context: () => ({ PipeError, validate }),
 			schema: () => ({
 				type: 'array',
-				items: pipes.map((pipe) => schema(pipe)),
-				minItems: pipes.length,
-				maxItems: pipes.length,
+				items: branches.map((pipe) => schema(pipe)),
+				minItems: branches.length,
+				maxItems: branches.length,
 			}),
 		},
 	)
