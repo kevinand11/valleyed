@@ -1,12 +1,18 @@
 import { PipeError } from './base'
-import { standard } from './base/pipes'
+import { define, standard } from './base/pipes'
 import { equal } from '../utils/differ'
 import { execValueFunction, ValueFunction } from '../utils/functions'
 
 export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass custom rule`) =>
-	standard<T, T>(({ input, context }) => `${context}.custom(${input}) ? ${input} : ${context}.PipeError.root('${err}', ${input})`, {
-		context: () => ({ custom: condition, PipeError }),
-	})
+	define<T, T>(
+		(input) => {
+			if (condition(input)) return input
+			throw PipeError.root(err, input)
+		},
+		{
+			context: () => ({ custom: condition, PipeError }),
+		},
+	)
 
 export const eq = <T>(compare: ValueFunction<T>, err?: string) =>
 	standard<T, T>(

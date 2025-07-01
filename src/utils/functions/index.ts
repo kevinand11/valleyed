@@ -50,7 +50,7 @@ export const formatNumber = (num: number, dp?: number) =>
 
 export const pluralize = (count: number, singular: string, plural: string) => (Math.round(count) === 1 ? singular : plural)
 
-export const getRandomValue = () => Date.now() + Math.random().toString(36)
+export const getRandomValue = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
 export const groupBy = <Type, Unique extends string | number>(array: Array<Type>, func: (item: Type) => Unique) =>
 	array.reduce(

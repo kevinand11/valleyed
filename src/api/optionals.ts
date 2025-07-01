@@ -43,8 +43,10 @@ type DefaultValue<T> = ValueFunction<T extends object ? DeepPartial<T> : T>
 
 export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) =>
 	standard<PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>>(
-		({ input, context }, rootContext) =>
-			`${compileToAssert(branch, rootContext, `${input} !== undefined ? ${input} : ${context}.execValueFunction(${context}.defaults)`, context)}`,
+		({ input, context }, rootContext) => `(() => {
+	if (${input} === undefined) input = ${context}.execValueFunction(${context}.defaults);
+	${compileToAssert(branch, rootContext, input, context)}
+})()`,
 		{
 			schema: (c) => ({ ...branch.schema(c), default: execValueFunction(c.defaults ?? def) }),
 			context: () => ({ ...branch.context(), defaults: def, optional: true, assert, branch, execValueFunction }),

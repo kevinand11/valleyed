@@ -6,7 +6,8 @@ export type Timeable = Date | string | number
 
 export const time = (err = 'is not a valid datetime') =>
 	standard<Timeable, Date>(
-		({ input, context }) => `!isNaN(new Date(${input}).getTime()) ? new Date(${input}) : ${context}.PipeError.root('${err}', ${input})`,
+		({ input, context }) =>
+			`(${input} instanceof Date || typeof ${input} === 'number' || typeof ${input} === 'string') && !isNaN(new Date(${input}).getTime()) ? new Date(${input}) : ${context}.PipeError.root('${err}', ${input})`,
 		{
 			context: () => ({ PipeError }),
 			schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }),

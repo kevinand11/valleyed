@@ -9,17 +9,17 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) =>
 			branches.length === 0
 				? input
 				: `(() => {
-	const errors = []
+	const errors = [];
+	let val, validity;
 	${branches
 		.map(
-			(branch, idx) => `(() => {
-		const validity = ${compileToValidate(branch, rootContext, input, context)}
-		if (validity.valid) return validity.value
-		errors.push(${context}.PipeError.path(${idx}, validity.error, ${input}))
-	})()`,
+			(branch, idx) => `val = input
+	validity = ${compileToValidate(branch, rootContext, 'val', context)}
+	if (validity.valid) return validity.value
+	errors.push(${context}.PipeError.path(${idx}, validity.error, ${input}))`,
 		)
-		.join(' || ')}
-	throw ${context}.PipeError.rootFrom(errors, ${input})
+		.join('\n\t')}
+	return ${context}.PipeError.rootFrom(errors, ${input})
 })()`,
 		{
 			context: () => ({ PipeError }),
@@ -33,13 +33,12 @@ export const and = <T extends Pipe<any, any>>(branches: T[]) =>
 			branches.length === 0
 				? input
 				: `(() => {
+	let validity;
 	${branches
 		.map(
-			(branch, idx) => `(() => {
-		const validity = ${compileToValidate(branch, rootContext, input, context)}
+			(branch, idx) => `validity = ${compileToValidate(branch, rootContext, input, context)}
 		if (!validity.valid) throw ${context}.PipeError.path(${idx}, validity.error, ${input})
-		${input} = validity.value
-	})()`,
+		${input} = validity.value`,
 		)
 		.join('\n')}
 	return ${input}
@@ -52,10 +51,14 @@ export const and = <T extends Pipe<any, any>>(branches: T[]) =>
 
 export const merge = <T1 extends Pipe<any, any>, T2 extends Pipe<any, any>>(branch1: T1, branch2: T2) =>
 	standard<PipeInput<T1> & PipeInput<T2>, PipeOutput<T1> & PipeOutput<T2>>(
-		({ input, context }, rootContext) => `${context}.differMerge(
-	${compileToAssert(branch1, rootContext, input, context)},
-	${compileToAssert(branch2, rootContext, input, context)},
-)`,
+		({ input, context }, rootContext) => `(() => {
+	let inputA = ${input}
+	let inputB = ${input}
+	return ${context}.differMerge(
+		${compileToAssert(branch1, rootContext, 'inputA', context)},
+		${compileToAssert(branch2, rootContext, 'inputB', context)},
+	);
+})()`,
 		{
 			context: () => ({ differMerge }),
 			schema: () => ({ allOf: [schema(branch1), schema(branch2)] }),
@@ -69,11 +72,12 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 ) =>
 	standard<PipeInput<T[keyof T]>, PipeOutput<T[keyof T]>>(
 		({ input, context }, rootContext) => `(() => {
-	const accessor = ${context}.wrapInTryCatch(() => ${context}.discriminator(${input}))
-	if (!${context}.branches[accessor]) return ${context}.PipeError.root("${err}", ${input})
-	${Object.entries(branches)
-		.map(([key, branch]) => `if (accessor === '${key}') return ${compileToAssert(branch, rootContext, input, context)}`)
-		.join('\n')}
+	switch (${context}.wrapInTryCatch(() => ${context}.discriminator(${input}))) {
+		${Object.entries(branches)
+			.map(([key, branch]) => `case ('${key}'): return ${compileToAssert(branch, rootContext, input, context)};`)
+			.join('\n\t\t')}
+		default: return ${context}.PipeError.root("${err}", ${input});
+	}
 })()`,
 		{
 			context: () => ({ wrapInTryCatch, discriminator, branches }),
@@ -84,12 +88,13 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 export const fromJson = <T extends Pipe<any, any>>(branch: T) =>
 	standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => `(() => {
-	const validity = ${compileToValidate(branch, rootContext, input, context)}
+	let inputCopy = ${input}
+	const validity = ${compileToValidate(branch, rootContext, 'inputCopy', context)}
 	if (validity.valid) return validity.value
 	if (${input}?.constructor?.name !== 'String') throw validity.error
-	const parsed = ${context}.wrapInTryCatch(() => JSON.parse(${input}), validity.error)
+	let parsed = ${context}.wrapInTryCatch(() => JSON.parse(${input}), validity.error)
 	if (parsed === validity.error) throw validity.error
-	return ${compileToAssert(branch, rootContext, input, context)}
+	return ${compileToAssert(branch, rootContext, 'parsed', context)}
 })()`,
 		{
 			context: () => ({ ...branch.context(), wrapInTryCatch }),

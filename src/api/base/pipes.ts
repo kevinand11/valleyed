@@ -31,13 +31,13 @@ export function assert<T extends Pipe<any, any>>(pipe: T, input: unknown): PipeO
 
 export function compileToAssert(pipe: Pipe<any, any>, rootContext: Context, inputStr: string, contextStr: string) {
 	const random = getRandomValue()
-	const { compiled, context } = compilePipeToString(pipe, inputStr, `${contextStr}.${random}`)
+	const { compiled, context } = compilePipeToString(pipe, inputStr, `${contextStr}[\`${random}\`]`)
 	rootContext[random] = context
 	return `(() => {
 	try {
 		${compiled.join('\n')}
 		return ${inputStr}
-	catch (error) {
+	} catch (error) {
 		if (error instanceof ${contextStr}.PipeError) {
 			if (error.stopped) return error.value
 			throw error
@@ -62,7 +62,7 @@ export function validate<T extends Pipe<any, any>>(
 
 export function compileToValidate(pipe: Pipe<any, any>, rootContext: Context, inputStr: string, contextStr: string) {
 	const random = getRandomValue()
-	const { compiled, context } = compilePipeToString(pipe, inputStr, `${contextStr}.${random}`)
+	const { compiled, context } = compilePipeToString(pipe, inputStr, `${contextStr}[\`${random}\`]`)
 	rootContext[random] = context
 	return `(() => {
 	try {
@@ -87,11 +87,12 @@ export function meta<T extends Pipe<any, any>>(p: T, meta: PipeMeta): T {
 
 function compilePipeToString(pipe: Pipe<any, any>, inputStr: string, contextStr: string) {
 	const fullContext = context(pipe)
+	fullContext.PipeError = PipeError
 	const compiled = walk(pipe, <string[]>[], (p, acc) => {
 		if (p.compile)
 			acc.push(
 				`${inputStr} = ${p.compile({ input: inputStr, context: contextStr }, fullContext)};`,
-				`if (${inputStr} instanceof ${contextStr}.PipeError) throw input;`,
+				`if (${inputStr} instanceof ${contextStr}.PipeError) throw ${inputStr};`,
 			)
 		return acc
 	})
@@ -101,6 +102,7 @@ function compilePipeToString(pipe: Pipe<any, any>, inputStr: string, contextStr:
 export function compile<T extends Pipe<any, any>>(pipe: T) {
 	const { compiled: compiledArr, context } = compilePipeToString(pipe, 'input', 'context')
 	const compiled = compiledArr.concat('return input;').join('\n')
+	console.log(`return (input) =>{\n${compiled}\n}`)
 	pipe.__compiled = new Function('context', `return (input) =>{\n${compiled}\n}`)(context)
 	return pipe
 }
@@ -116,8 +118,9 @@ export function standard<I, O>(
 		context: () => config.context?.() ?? ({} as any),
 		schema: (context: Context) => config.schema?.(context) ?? ({} as any),
 		pipe: (...entries: Entry<any, any>[]) => {
+			delete piper.__compiled
 			for (const cur of entries) {
-				const p = typeof cur === 'function' ? standard(cur, config) : cur
+				const p = typeof cur === 'function' ? define(cur, config) : cur
 				if (!piper.next) piper.next = p
 				if (piper.last) piper.last.next = p
 				piper.last = p.last ?? p
@@ -151,7 +154,7 @@ export function define<I, O>(
 	} = {},
 ): Pipe<I, O> {
 	const key = `define-${getRandomValue()}`
-	return standard<I, O>(({ input, context }) => `${context}.['${key}'](${input})`, {
+	return standard<I, O>(({ input, context }) => `${context}['${key}'](${input})`, {
 		context: () => ({ ...config?.context?.(), [key]: fn, PipeError }),
 		schema: config?.schema,
 	})

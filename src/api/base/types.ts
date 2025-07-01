@@ -75,5 +75,5 @@ export interface Pipe<I, O> extends StandardSchemaV1<I, O> {
 	readonly compile: (names: { input: string; context: string }, rootContext: Context) => string
 	next?: Pipe<any, any>
 	last?: Pipe<any, any>
-	__compiled?: PipeFn<I, O>
+	__compiled?: PipeFn<any, any>
 }

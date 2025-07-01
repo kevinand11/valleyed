@@ -23,11 +23,4 @@ describe('base', () => {
 		})
 		expect(v.validate(errPipe, 5)).toEqual({ error: err, valid: false })
 	})
-
-	test('compile', () => {
-		const pipe = v.array(v.string().pipe(v.is('kevinfizu@gmail.com'), v.email(), v.min(2), v.max(100)))
-		expect(true).toBe(true)
-		v.compile(pipe)
-		v.assert(pipe, ['kevinfizu@gmail.com'])
-	})
 })

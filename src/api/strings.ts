@@ -24,7 +24,7 @@ export const url = (err = 'is not a valid url') =>
 export const withStrippedHtml = (branch: Pipe<string, string>) =>
 	standard<string, string>(
 		({ input, context }, rootContext) => `(() => {
-	const stripped = ${context}.stripHTML(${input});
+	let stripped = ${context}.stripHTML(${input});
 	${compileToAssert(branch, rootContext, 'stripped', context)};
 	return ${input};
 })()`,
