@@ -35,7 +35,7 @@ describe('optionals', () => {
 	})
 
 	test('defaults', () => {
-		const rules = v.defaults(v.string(), () => '')
+		const rules = v.defaults(v.string(), '')
 		expect(v.validate(rules, 'hi').valid).toBe(true)
 		expect(v.validate(rules, null).valid).toBe(false)
 		expect(v.validate(rules, undefined).valid).toBe(true)
@@ -43,7 +43,7 @@ describe('optionals', () => {
 
 	test('catch', () => {
 		const defaultValue = 'default'
-		const rules = v.catch(v.string(), () => defaultValue)
+		const rules = v.catch(v.string(), defaultValue)
 		expect(v.validate(rules, 'hi').valid).toBe(true)
 		expect(v.validate(rules, null).valid).toBe(true)
 		expect(v.assert(rules, null)).toBe(defaultValue)

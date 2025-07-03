@@ -56,6 +56,13 @@ describe('junctions', () => {
 		expect(v.validate(rules, '1').valid).toBe(true)
 	})
 
+	test('lazy', () => {
+		const rules = v.lazy(() => v.number().pipe(v.gt(5)))
+		expect(v.validate(rules, '').valid).toBe(false)
+		expect(v.validate(rules, 5).valid).toBe(false)
+		expect(v.validate(rules, 6).valid).toBe(true)
+	})
+
 	test('recursive', () => {
 		const rules = v.recursive(() => v.object({ value: v.number(), left: v.optional(rules) }), 'Node')
 		expect(v.validate(rules, { value: 1 }).valid).toBe(true)

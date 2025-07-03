@@ -1,6 +1,6 @@
 import { PipeError } from './base'
 import { standard } from './base/pipes'
-import { execValueFunction, getRandomValue, ValueFunction } from '../utils/functions'
+import { getRandomValue } from '../utils/functions'
 
 export type Timeable = Date | string | number
 
@@ -19,28 +19,28 @@ export const time = (err = 'is not a valid datetime') => {
 	)
 }
 
-export const after = (compare: ValueFunction<Timeable>, err?: string) => {
+export const after = (compare: Timeable, err?: string) => {
 	const varName = `compare_${getRandomValue()}`
 	return standard<Date, Date>(
 		({ input, context }) => [
-			`const ${varName} = new Date(${context}.execValueFunction(${context}.after))`,
+			`const ${varName} = new Date(${context}.after)`,
 			`if (${input} <= ${varName}) throw ${context}.PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
 		],
 		{
-			context: { after: compare, PipeError, execValueFunction },
+			context: { after: compare, PipeError },
 		},
 	)
 }
 
-export const before = (compare: ValueFunction<Timeable>, err?: string) => {
+export const before = (compare: Timeable, err?: string) => {
 	const varName = `compare_${getRandomValue()}`
 	return standard<Date, Date>(
 		({ input, context }) => [
-			`const ${varName} = new Date(${context}.execValueFunction(${context}.after))`,
+			`const ${varName} = new Date(${context}.after)`,
 			`if (${input} >= ${varName}) throw ${context}.PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
 		],
 		{
-			context: { after: compare, PipeError, execValueFunction },
+			context: { after: compare, PipeError },
 		},
 	)
 }

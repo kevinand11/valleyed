@@ -1,6 +1,6 @@
 import { Pipe, PipeInput, PipeOutput } from './base'
 import { assert, compileToAssert, standard, validate, compileToValidate, context, schema } from './base/pipes'
-import { execValueFunction, getRandomValue, ValueFunction } from '../utils/functions'
+import { getRandomValue } from '../utils/functions'
 import { DeepPartial } from '../utils/types'
 
 const partial = <T extends Pipe<any, any>, P>(
@@ -45,17 +45,17 @@ export const conditional = <T extends Pipe<any, any>>(branch: T, condition: () =
 		context: { ...context(branch), optional: true },
 	})
 
-type DefaultValue<T> = ValueFunction<T extends object ? DeepPartial<T> : T>
+type DefaultValue<T> = T extends object ? DeepPartial<T> : T
 
 export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) =>
 	standard<PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>>(
 		({ input, context }, rootContext) => [
-			`if (${input} === undefined) ${input} = ${context}.execValueFunction(${context}.defaults)`,
+			`if (${input} === undefined) ${input} = ${context}.defaults`,
 			...compileToAssert({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }),
 		],
 		{
-			schema: (c) => ({ ...schema(branch), default: execValueFunction(c.defaults ?? def) }),
-			context: { ...context(branch), defaults: def, optional: true, assert, branch, execValueFunction },
+			schema: (c) => ({ ...schema(branch), default: c.defaults ?? def }),
+			context: { ...context(branch), defaults: def, optional: true, assert, branch },
 		},
 	)
 
@@ -64,11 +64,11 @@ const onCatch = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInpu
 	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => [
 			...compileToValidate({ pipe: branch, rootContext, input, context, prefix: `const ${varname} = ` }),
-			`${input} = ${varname}.valid ? ${varname}.value : ${context}.execValueFunction(${context}.catch)`,
+			`${input} = ${varname}.valid ? ${varname}.value : ${context}.catch`,
 		],
 		{
-			schema: (c) => ({ ...schema(branch), default: execValueFunction(c.catch ?? def) }),
-			context: { ...context(branch), catch: def, execValueFunction, validate, branch },
+			schema: (c) => ({ ...schema(branch), default: c.catch ?? def }),
+			context: { ...context(branch), catch: def, validate, branch },
 		},
 	)
 }

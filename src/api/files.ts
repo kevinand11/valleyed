@@ -1,6 +1,5 @@
 import { PipeError } from './base'
 import { standard } from './base/pipes'
-import { execValueFunction, ValueFunction } from '../utils/functions'
 
 export interface File {
 	type: string
@@ -50,17 +49,16 @@ export const video = <T extends File>(err = 'is not a recognized video file') =>
 		},
 	)
 
-export const fileType = <T extends File>(typesFn: ValueFunction<string | string[]>, err = 'is not a supported file') =>
+export const fileType = <T extends File>(typesFn: string | string[], err = 'is not a supported file') =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${context}.makeArray(${context}.execValueFunction(${context}.typesFn)).some((type) => ${input}.type === type)) throw ${context}.PipeError.root('${err}', ${input})`,
+			`if (!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${context}.makeArray(${context}.typesFn).some((type) => ${input}.type === type)) throw ${context}.PipeError.root('${err}', ${input})`,
 		],
 		{
 			context: {
 				isFile,
 				isMimeType,
 				typesFn,
-				execValueFunction,
 				PipeError,
 				makeArray: (x: any) => (Array.isArray(x) ? x : [x]),
 			},
