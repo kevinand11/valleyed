@@ -4,9 +4,7 @@ import { PipeError, v } from '../../src'
 
 describe('base', () => {
 	test('assert', () => {
-		const pipe = v
-			.standard<number, number>(({ input }) => [`${input} = ${input} +  1`], { context: () => ({ PipeError }) })
-			.pipe((x) => x * 2)
+		const pipe = v.define<number, number>((input) => input + 1).pipe((x) => x * 2)
 		expect(v.assert(pipe, 5)).toEqual(12)
 		const errPipe = pipe.pipe((i) => {
 			if (i < 1000) throw PipeError.root('pipe error', 0)
@@ -16,9 +14,7 @@ describe('base', () => {
 	})
 
 	test('validate', () => {
-		const pipe = v
-			.standard<number, number>(({ input }) => [`${input} = ${input} +  1`], { context: () => ({ PipeError }) })
-			.pipe((x) => x * 2)
+		const pipe = v.define<number, number>((input) => input + 1).pipe((x) => x * 2)
 		expect(v.validate(pipe, 5)).toEqual({ value: 12, valid: true })
 		const err = PipeError.root('pipe error', 0)
 		const errPipe = pipe.pipe((i) => {
