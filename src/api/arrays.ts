@@ -3,19 +3,18 @@ import { standard, schema, validate, compileToValidate } from './base/pipes'
 import { getRandomValue } from '../utils/functions'
 
 export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an array') => {
-	const hasErrorVarname = `hasError_${getRandomValue()}`
+	const errorsVarname = `errors_${getRandomValue()}`
 	const resVarname = `res_${getRandomValue()}`
 	return standard<PipeInput<T>[], PipeOutput<T>[]>(
 		({ input, context }, rootContext) => [
 			`if (!Array.isArray(${input})) throw ${context}.PipeError.root('${err}', ${input})`,
-			`let ${hasErrorVarname} = false`,
+			`const ${errorsVarname} = []`,
 			`const ${resVarname} = ${input}.map((i, idx) => {`,
 			...compileToValidate(branch, rootContext, 'i', context, `const validity = `).map((l) => `\t${l}`),
 			`	if (validity.valid) return validity.value`,
-			`	${hasErrorVarname} = true`,
-			`	return ${context}.PipeError.path(idx, validity.error, i)`,
+			`	${errorsVarname}.push(${context}.PipeError.path(idx, validity.error, i))`,
 			`})`,
-			`if (${hasErrorVarname}) throw ${context}.PipeError.rootFrom(${resVarname}.filter((r) => r instanceof ${context}.PipeError), ${input})`,
+			`if (${errorsVarname}.length) throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 			`${input} = ${resVarname}`,
 		],
 		{
@@ -26,7 +25,7 @@ export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an arra
 }
 
 export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonly [...T], err = 'is not an array') => {
-	const hasErrorVarname = `hasError_${getRandomValue()}`
+	const errorsVarname = `errors_${getRandomValue()}`
 	const resVarname = `res_${getRandomValue()}`
 	const validityVarname = `validity_${getRandomValue()}`
 	return standard<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>(
@@ -36,16 +35,13 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonl
 				? []
 				: [
 						`const ${resVarname} = []`,
-						`let ${hasErrorVarname} = false`,
+						`const ${errorsVarname} = []`,
 						...branches.flatMap((branch, idx) => [
 							...compileToValidate(branch, rootContext, `${input}[${idx}]`, context, `const ${validityVarname}${idx} = `),
 							`if (${validityVarname}${idx}.valid) ${resVarname}.push(${validityVarname}${idx}.value)`,
-							`else {`,
-							`	${hasErrorVarname} = true`,
-							`	${resVarname}.push(${context}.PipeError.path(${idx}, ${validityVarname}${idx}.error, ${input}[${idx}]))`,
-							`}`,
+							`else ${errorsVarname}.push(${context}.PipeError.path(${idx}, ${validityVarname}${idx}.error, ${input}[${idx}]))`,
 						]),
-						`if (${hasErrorVarname}) throw ${context}.PipeError.rootFrom(${resVarname}.filter((r) => r instanceof ${context}.PipeError), ${input})`,
+						`if (${errorsVarname}.length) throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 						`${input} = ${resVarname}`,
 					]),
 		],

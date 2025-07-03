@@ -21,10 +21,7 @@ export function assert<T extends Pipe<any, any>>(pipe: T, input: unknown): PipeO
 		if (!pipe.__compiled) pipe = compile(pipe)
 		return pipe.__compiled!(input) as PipeOutput<T>
 	} catch (error) {
-		if (error instanceof PipeError) {
-			if (error.stopped) return error.value as PipeOutput<T>
-			throw error
-		}
+		if (error instanceof PipeError) throw error
 		throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
 	}
 }
@@ -39,10 +36,7 @@ export function compileToAssert(pipe: Pipe<any, any>, rootContext: Context, inpu
 		...compiled.map((line) => `		${line}`),
 		`		return ${inputStr}`,
 		`	} catch (error) {`,
-		`		if (error instanceof ${contextStr}.PipeError) {`,
-		`			if (error.stopped) return error.value`,
-		`			throw error`,
-		`		}`,
+		`		if (error instanceof ${contextStr}.PipeError) throw error`,
 		`		throw ${contextStr}.PipeError.root(error instanceof Error ? error.message : String(error), ${inputStr}, error)`,
 		`	}`,
 		`})()`,

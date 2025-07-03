@@ -21,7 +21,7 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 							`	if (${validityVarname}.valid) return ${validityVarname}.value`,
 							`	${errorsVarname}.push(${context}.PipeError.path(${idx}, ${validityVarname}.error, ${input}))`,
 						]),
-						`	throw ${context}.PipeError.rootFrom(errors, ${input})`,
+						`	throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 						`})()`,
 					],
 		{
