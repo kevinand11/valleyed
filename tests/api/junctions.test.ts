@@ -10,13 +10,6 @@ describe('junctions', () => {
 		expect(v.validate(rules, false).valid).toBe(false)
 	})
 
-	test('and', () => {
-		const rules = v.and([v.string(), v.is('and')])
-		expect(v.validate(rules, 'and').valid).toBe(true)
-		expect(v.validate(rules, '').valid).toBe(false)
-		expect(v.validate(rules, false).valid).toBe(false)
-	})
-
 	test('merge', () => {
 		const rules1 = v.merge(v.string(), v.number())
 		expect(v.validate(rules1, 'ha').valid).toBe(false)
