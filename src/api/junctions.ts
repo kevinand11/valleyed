@@ -23,6 +23,7 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 								input: valVarname,
 								context,
 								prefix: `${validityVarname} = `,
+								failEarly: true,
 							}).map((l) => `	${l}`),
 							`	if (${validityVarname}.valid) return ${validityVarname}.value`,
 							`	${errorsVarname}.push(${context}.PipeError.path(${idx}, ${validityVarname}.error, ${input}))`,

@@ -72,7 +72,7 @@ export interface Pipe<I, O> extends StandardSchemaV1<I, O> {
 	readonly context: () => Context
 	readonly schema: (context: Context) => JsonSchema
 	readonly pipe: PipeChain<I, O>
-	readonly compile: (names: { input: string; context: string }, rootContext: Context) => string[]
+	readonly compile: (names: { input: string; context: string }, rootContext: Context, failEarly: boolean) => string[]
 	next?: Pipe<any, any>
 	last?: Pipe<any, any>
 	__compiled?: PipeFn<any, any>

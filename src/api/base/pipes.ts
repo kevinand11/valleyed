@@ -32,12 +32,13 @@ export function compileToAssert({
 	input,
 	context: contextStr,
 	prefix = '',
+	failEarly,
 }: Parameters<typeof compilePipeToString>[0] & {
 	rootContext: Context
 	prefix?: string
 }) {
 	const random = getRandomValue()
-	const { compiled, context } = compilePipeToString({ pipe, input, context: `${contextStr}[\`${random}\`]` })
+	const { compiled, context } = compilePipeToString({ pipe, input, context: `${contextStr}[\`${random}\`]`, failEarly })
 	rootContext[random] = context
 	return [
 		`${prefix}(() => {`,
@@ -71,12 +72,13 @@ export function compileToValidate({
 	input,
 	context: contextStr,
 	prefix = '',
+	failEarly,
 }: Parameters<typeof compilePipeToString>[0] & {
 	rootContext: Context
 	prefix?: string
 }) {
 	const random = getRandomValue()
-	const { compiled, context } = compilePipeToString({ pipe, input, context: `${contextStr}[\`${random}\`]` })
+	const { compiled, context } = compilePipeToString({ pipe, input, context: `${contextStr}[\`${random}\`]`, failEarly })
 	rootContext[random] = context
 	return [
 		`${prefix}(() => {`,
@@ -100,11 +102,21 @@ export function meta<T extends Pipe<any, any>>(p: T, meta: PipeMeta): T {
 	return p.pipe(standard(() => [], { schema: () => meta })) as T
 }
 
-function compilePipeToString({ pipe, input, context: contextStr }: { pipe: Pipe<any, any>; input: string; context: string }) {
+function compilePipeToString({
+	pipe,
+	input,
+	context: contextStr,
+	failEarly,
+}: {
+	pipe: Pipe<any, any>
+	input: string
+	context: string
+	failEarly?: boolean
+}) {
 	const fullContext = context(pipe)
 	fullContext.PipeError = PipeError
 	const compiled = walk(pipe, <string[]>[], (p, acc) => {
-		acc.push(...p.compile({ input, context: contextStr }, fullContext))
+		acc.push(...p.compile({ input, context: contextStr }, fullContext, failEarly ?? false))
 		return acc
 	})
 	return { compiled, context: fullContext }
@@ -113,6 +125,7 @@ function compilePipeToString({ pipe, input, context: contextStr }: { pipe: Pipe<
 export function compile<T extends Pipe<any, any>>(pipe: T) {
 	const { compiled: compiledArr, context } = compilePipeToString({ pipe, input: 'input', context: 'context' })
 	const compiled = compiledArr
+		.filter((l) => l.trim() !== '')
 		.concat('return input')
 		.map((l) => `\t${l}`)
 		.join('\n')
