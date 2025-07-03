@@ -1,7 +1,7 @@
 import { Pipe, PipeError, PipeInput, PipeOutput } from './base'
 import { merge as differMerge } from '../utils/differ'
 import { getRandomValue, wrapInTryCatch } from '../utils/functions'
-import { assert, compileToAssert, compileToValidate, context, standard, schema } from './base/pipes'
+import { compileToAssert, compileToValidate, context, standard, schema } from './base/pipes'
 
 export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 	const errorsVarname = `errors_${getRandomValue()}`
@@ -95,17 +95,28 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 	)
 }
 
-export const lazy = <T extends Pipe<any, any>>(pipeFn: () => T) =>
-	standard<PipeInput<T>, PipeOutput<T>>(({ input, context }, rootContext) => compileToAssert(pipeFn(), rootContext, input, context), {
-		schema: () => schema(pipeFn()),
-	})
-
-export const recursive = <T extends Pipe<any, any>, R = T>(pipeFn: (root: R) => T, id: string) => {
-	const root = standard((input) => assert(pipeFn(root), input), {
-		schema: () => ({ $refId: id }),
-	})
-	// TODO: will probably cause recursive errors
-	return standard<PipeInput<T>, PipeOutput<T>>(({ input, context }, rootContext) => compileToAssert(root, rootContext, input, context), {
-		schema: () => schema(pipeFn(root), { $refId: id }),
-	})
+export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: string) => {
+	const recursiveFnVarname = `recursiveFn_${getRandomValue()}`
+	let compiledBefore = false
+	let schemedBefore = false
+	return standard<PipeInput<T>, PipeOutput<T>>(
+		({ input, context }, rootContext) => {
+			const common = [`${input} = ${recursiveFnVarname}(${input})`]
+			if (compiledBefore) return common
+			compiledBefore = true
+			return [
+				`const ${recursiveFnVarname} = (node) => {`,
+				...compileToAssert(pipeFn(), rootContext, 'node', context, `return `).map((l) => `	${l}`),
+				`}`,
+				...common,
+			]
+		},
+		{
+			schema: () => {
+				if (schemedBefore) return { $refId }
+				schemedBefore = true
+				return schema(pipeFn(), { $refId })
+			},
+		},
+	)
 }

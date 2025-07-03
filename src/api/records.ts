@@ -13,7 +13,8 @@ const objCompile: (branches: Record<string, Pipe<any, any>>) => Parameters<typeo
 		return [
 			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) throw ${context}.PipeError.root('is not an object', ${input})`,
 			`const ${resVarname} = {}`,
-			`const ${errorsVarname} = [];`,
+			`const ${errorsVarname} = []`,
+			`let ${validityVarname}`,
 			...Object.entries(branches).flatMap(([k, branch]) => [
 				...compileToValidate(branch, rootContext, `${input}['${k}']`, context, `${validityVarname} = `),
 				`if (!${validityVarname}.valid) ${errorsVarname}.push(${context}.PipeError.path('${k}', ${validityVarname}.error, ${input}['${k}']))`,

@@ -30,7 +30,6 @@ export function assert<T extends Pipe<any, any>>(pipe: T, input: unknown): PipeO
 }
 
 export function compileToAssert(pipe: Pipe<any, any>, rootContext: Context, inputStr: string, contextStr: string, prefix = '') {
-	// TODO: error in root context logic
 	const random = getRandomValue()
 	const { compiled, context } = compilePipeToString(pipe, inputStr, `${contextStr}[\`${random}\`]`)
 	rootContext[random] = context

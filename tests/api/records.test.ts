@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { v } from '../../src'
 
 describe('records', () => {
-	test('object', () => {
+	test('object plain', () => {
 		const rules = v.object({
 			name: v.string(),
 		})
@@ -12,6 +12,18 @@ describe('records', () => {
 		expect(v.validate(rules, {}).valid).toBe(false)
 		expect(v.validate(rules, { name: 1 }).valid).toBe(false)
 		expect(v.validate(rules, { name: '' }).valid).toBe(true)
+
+		const deepRules = v.object({
+			name: v.string(),
+			address: v.object({
+				city: v.string().pipe(v.min(1)),
+				zip: v.string().pipe(v.min(1)),
+			}),
+		})
+		expect(v.validate(deepRules, {}).valid).toBe(false)
+		expect(v.validate(deepRules, { name: '', address: {} }).valid).toBe(false)
+		expect(v.validate(deepRules, { name: '', address: { city: '', zip: '' } }).valid).toBe(false)
+		expect(v.validate(deepRules, { name: '', address: { city: 'c', zip: 'z' } }).valid).toBe(true)
 	})
 
 	test('object pick', () => {
