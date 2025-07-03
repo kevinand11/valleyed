@@ -26,7 +26,7 @@ export const withStrippedHtml = (branch: Pipe<string, string>) => {
 	return standard<string, string>(
 		({ input, context }, rootContext) => [
 			`let ${varname} = ${context}.stripHTML(${input});`,
-			...compileToAssert(branch, rootContext, varname, context),
+			...compileToAssert({ pipe: branch, rootContext, input: varname, context }),
 		],
 		{
 			context: { ...context(branch), stripHTML },

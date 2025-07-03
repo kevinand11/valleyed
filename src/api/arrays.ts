@@ -10,7 +10,7 @@ export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an arra
 			`if (!Array.isArray(${input})) throw ${context}.PipeError.root('${err}', ${input})`,
 			`const ${errorsVarname} = []`,
 			`const ${resVarname} = ${input}.map((i, idx) => {`,
-			...compileToValidate(branch, rootContext, 'i', context, `const validity = `).map((l) => `\t${l}`),
+			...compileToValidate({ pipe: branch, rootContext, input: 'i', context, prefix: `const validity = ` }).map((l) => `\t${l}`),
 			`	if (validity.valid) return validity.value`,
 			`	${errorsVarname}.push(${context}.PipeError.path(idx, validity.error, i))`,
 			`})`,
@@ -37,7 +37,13 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonl
 						`const ${resVarname} = []`,
 						`const ${errorsVarname} = []`,
 						...branches.flatMap((branch, idx) => [
-							...compileToValidate(branch, rootContext, `${input}[${idx}]`, context, `const ${validityVarname}${idx} = `),
+							...compileToValidate({
+								pipe: branch,
+								rootContext,
+								input: `${input}[${idx}]`,
+								context,
+								prefix: `const ${validityVarname}${idx} = `,
+							}),
 							`if (${validityVarname}${idx}.valid) ${resVarname}.push(${validityVarname}${idx}.value)`,
 							`else ${errorsVarname}.push(${context}.PipeError.path(${idx}, ${validityVarname}${idx}.error, ${input}[${idx}]))`,
 						]),

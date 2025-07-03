@@ -17,7 +17,13 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 						`${input} = (() => {`,
 						...branches.flatMap((branch, idx) => [
 							`	${valVarname} = ${input}`,
-							...compileToValidate(branch, rootContext, valVarname, context, `${validityVarname} = `).map((l) => `	${l}`),
+							...compileToValidate({
+								pipe: branch,
+								rootContext,
+								input: valVarname,
+								context,
+								prefix: `${validityVarname} = `,
+							}).map((l) => `	${l}`),
 							`	if (${validityVarname}.valid) return ${validityVarname}.value`,
 							`	${errorsVarname}.push(${context}.PipeError.path(${idx}, ${validityVarname}.error, ${input}))`,
 						]),
@@ -38,9 +44,9 @@ export const merge = <T1 extends Pipe<any, any>, T2 extends Pipe<any, any>>(bran
 			`let ${inputVarname}A = ${input}`,
 			`let ${inputVarname}B = ${input}`,
 			`${input} = ${context}.differMerge(`,
-			...compileToAssert(branch1, rootContext, `${inputVarname}A`, context).map((l) => `	${l}`),
+			...compileToAssert({ pipe: branch1, rootContext, input: `${inputVarname}A`, context }).map((l) => `	${l}`),
 			`	, `,
-			...compileToAssert(branch2, rootContext, `${inputVarname}B`, context).map((l) => `	${l}`),
+			...compileToAssert({ pipe: branch2, rootContext, input: `${inputVarname}B`, context }).map((l) => `	${l}`),
 			`)`,
 		],
 		{
@@ -60,7 +66,7 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 			`switch (${context}.wrapInTryCatch(() => ${context}.discriminator(${input}))) {`,
 			...Object.entries(branches).flatMap(([key, branch]) => [
 				`	case ('${key}'): {`,
-				...compileToAssert(branch, rootContext, input, context, `${input} = `).map((l) => `		${l}`),
+				...compileToAssert({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }).map((l) => `		${l}`),
 				`		break`,
 				`	}`,
 			]),
@@ -79,13 +85,13 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => [
 			`let ${inputVarname} = ${input}`,
-			...compileToValidate(branch, rootContext, inputVarname, context, `const ${validityVarname} = `),
+			...compileToValidate({ pipe: branch, rootContext, input: inputVarname, context, prefix: `const ${validityVarname} = ` }),
 			`if (${validityVarname}.valid) ${input} = ${validityVarname}.value`,
 			`else {`,
 			`	if (${input}?.constructor?.name !== 'String') throw ${validityVarname}.error`,
 			`	${inputVarname} = ${context}.wrapInTryCatch(() => JSON.parse(${input}), ${validityVarname}.error)`,
 			`	if (${inputVarname} === ${validityVarname}.error) throw ${validityVarname}.error`,
-			...compileToAssert(branch, rootContext, inputVarname, context, `${input} = `).map((l) => `	${l}`),
+			...compileToAssert({ pipe: branch, rootContext, input: inputVarname, context, prefix: `${input} = ` }).map((l) => `	${l}`),
 			`}`,
 		],
 		{
@@ -106,7 +112,7 @@ export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: str
 			compiledBefore = true
 			return [
 				`const ${recursiveFnVarname} = (node) => {`,
-				...compileToAssert(pipeFn(), rootContext, 'node', context, `return `).map((l) => `	${l}`),
+				...compileToAssert({ pipe: pipeFn(), rootContext, input: 'node', context, prefix: `return ` }).map((l) => `	${l}`),
 				`}`,
 				...common,
 			]

@@ -10,7 +10,13 @@ const partial = <T extends Pipe<any, any>, P>(
 ) =>
 	standard<PipeInput<T> | P, PipeOutput<T> | P>(
 		({ input, context }, rootContext) =>
-			compileToAssert(branch, rootContext, input, context, `${input} = ${context}.partialCondition(${input}) ? ${input} :`),
+			compileToAssert({
+				pipe: branch,
+				rootContext,
+				input,
+				context,
+				prefix: `${input} = ${context}.partialCondition(${input}) ? ${input} :`,
+			}),
 		{
 			...config,
 			context: { ...config?.context, partialCondition },
@@ -45,7 +51,7 @@ export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<
 	standard<PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>>(
 		({ input, context }, rootContext) => [
 			`if (${input} === undefined) ${input} = ${context}.execValueFunction(${context}.defaults)`,
-			...compileToAssert(branch, rootContext, input, context, `${input} = `),
+			...compileToAssert({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }),
 		],
 		{
 			schema: (c) => ({ ...schema(branch), default: execValueFunction(c.defaults ?? def) }),
@@ -57,7 +63,7 @@ const onCatch = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInpu
 	const varname = `validity_${getRandomValue()}`
 	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => [
-			...compileToValidate(branch, rootContext, input, context, `const ${varname} = `),
+			...compileToValidate({ pipe: branch, rootContext, input, context, prefix: `const ${varname} = ` }),
 			`${input} = ${varname}.valid ? ${varname}.value : ${context}.execValueFunction(${context}.catch)`,
 		],
 		{
