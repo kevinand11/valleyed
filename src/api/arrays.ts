@@ -1,31 +1,34 @@
 import { PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
-import { standard, schema, validate, compileToValidate, compileToAssert } from './base/pipes'
+import { standard, schema, validate, compileToValidate } from './base/pipes'
 import { getRandomValue } from '../utils/functions'
 
 export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an array') => {
 	const errorsVarname = `errors_${getRandomValue()}`
 	const resVarname = `res_${getRandomValue()}`
+	const idxVarname = `i_${getRandomValue()}`
 	return standard<PipeInput<T>[], PipeOutput<T>[]>(
 		({ input, context }, rootContext, failEarly) => [
-			`if (!Array.isArray(${input})) throw ${context}.PipeError.root('${err}', ${input})`,
+			`if (!Array.isArray(${input})) return ${context}.PipeError.root('${err}', ${input})`,
 			failEarly ? '' : `const ${errorsVarname} = []`,
-			`const ${resVarname} = ${input}.map((i, idx) => {`,
-			...(failEarly
-				? compileToAssert({ pipe: branch, rootContext, input: 'i', context, prefix: `return `, failEarly }).map((l) => `\t${l}`)
-				: [
-						...compileToValidate({
-							pipe: branch,
-							rootContext,
-							input: 'i',
-							context,
-							prefix: `const validity = `,
-							failEarly,
-						}).map((l) => `\t${l}`),
-						`	if (validity.valid) return validity.value`,
-						`	${errorsVarname}.push(${context}.PipeError.path(idx, validity.error, i))`,
-					]),
-			`})`,
-			failEarly ? '' : `if (${errorsVarname}.length) throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
+			`const ${resVarname} = []`,
+			`for (const idx in ${input}) {`,
+			`	let ${idxVarname} = ${input}[idx]`,
+			...[
+				...compileToValidate({
+					pipe: branch,
+					rootContext,
+					input: idxVarname,
+					context,
+					prefix: `const validity = `,
+					failEarly,
+				}).map((l) => `\t${l}`),
+				`	if (validity.valid) ${resVarname}.push(validity.value)`,
+				failEarly
+					? `	else return validity.error`
+					: `	else ${errorsVarname}.push(${context}.PipeError.path(idx, validity.error, ${idxVarname}))`,
+			],
+			`}`,
+			failEarly ? '' : `if (${errorsVarname}.length) return ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 			`${input} = ${resVarname}`,
 		],
 		{
@@ -47,30 +50,21 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonl
 				: [
 						`const ${resVarname} = []`,
 						failEarly ? '' : `const ${errorsVarname} = []`,
-						...branches.flatMap((branch, idx) =>
+						...branches.flatMap((branch, idx) => [
+							...compileToValidate({
+								pipe: branch,
+								rootContext,
+								input: `${input}[${idx}]`,
+								context,
+								prefix: `const ${validityVarname}${idx} = `,
+								failEarly,
+							}),
+							`if (${validityVarname}${idx}.valid) ${resVarname}.push(${validityVarname}${idx}.value)`,
 							failEarly
-								? compileToAssert({
-										pipe: branch,
-										rootContext,
-										input: `${input}[${idx}]`,
-										context,
-										prefix: `${resVarname}[${idx}] = `,
-										failEarly,
-									})
-								: [
-										...compileToValidate({
-											pipe: branch,
-											rootContext,
-											input: `${input}[${idx}]`,
-											context,
-											prefix: `const ${validityVarname}${idx} = `,
-											failEarly,
-										}),
-										`if (${validityVarname}${idx}.valid) ${resVarname}.push(${validityVarname}${idx}.value)`,
-										`else ${errorsVarname}.push(${context}.PipeError.path(${idx}, ${validityVarname}${idx}.error, ${input}[${idx}]))`,
-									],
-						),
-						failEarly ? `` : `if (${errorsVarname}.length) throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
+								? `else return ${validityVarname}${idx}.error`
+								: `else ${errorsVarname}.push(${context}.PipeError.path(${idx}, ${validityVarname}${idx}.error, ${input}[${idx}]))`,
+						]),
+						failEarly ? `` : `if (${errorsVarname}.length) return ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 						`${input} = ${resVarname}`,
 					]),
 		],

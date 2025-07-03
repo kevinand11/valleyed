@@ -17,40 +17,9 @@ export function context<T extends Pipe<any, any>>(pipe: T): Context {
 }
 
 export function assert<T extends Pipe<any, any>>(pipe: T, input: unknown): PipeOutput<T> {
-	try {
-		if (!pipe.__compiled) pipe = compile(pipe)
-		return pipe.__compiled!(input) as PipeOutput<T>
-	} catch (error) {
-		if (error instanceof PipeError) throw error
-		throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
-	}
-}
-
-export function compileToAssert({
-	pipe,
-	rootContext,
-	input,
-	context: contextStr,
-	prefix = '',
-	failEarly,
-}: Parameters<typeof compilePipeToString>[0] & {
-	rootContext: Context
-	prefix?: string
-}) {
-	const random = getRandomValue()
-	const { compiled, context } = compilePipeToString({ pipe, input, context: `${contextStr}[\`${random}\`]`, failEarly })
-	rootContext[random] = context
-	return [
-		`${prefix}(() => {`,
-		`	try {`,
-		...compiled.map((line) => `		${line}`),
-		`		return ${input}`,
-		`	} catch (error) {`,
-		`		if (error instanceof ${contextStr}.PipeError) throw error`,
-		`		throw ${contextStr}.PipeError.root(error instanceof Error ? error.message : String(error), ${input}, error)`,
-		`	}`,
-		`})()`,
-	]
+	const result = validate(pipe, input)
+	if (!result.valid) throw result.error
+	return result.value
 }
 
 export function validate<T extends Pipe<any, any>>(
@@ -58,11 +27,12 @@ export function validate<T extends Pipe<any, any>>(
 	input: unknown,
 ): { value: PipeOutput<T>; valid: true } | { error: PipeError; valid: false } {
 	try {
-		const value = assert(pipe, input)
-		return { value, valid: true }
+		if (!pipe.__compiled) pipe = compile(pipe)
+		const result = pipe.__compiled!(input)
+		return result instanceof PipeError ? { error: result, valid: false } : { value: result, valid: true }
 	} catch (error) {
 		if (error instanceof PipeError) return { error, valid: false }
-		throw PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
+		return { error: PipeError.root(error instanceof Error ? error.message : `${error}`, input, error), valid: false }
 	}
 }
 
@@ -83,11 +53,14 @@ export function compileToValidate({
 	return [
 		`${prefix}(() => {`,
 		`	try {`,
-		...compiled.map((line) => `		${line}`),
-		`		return { value: ${input}, valid: true }`,
+		`		const res = (() => {`,
+		...compiled.map((line) => `			${line}`),
+		`			return ${input}`,
+		`		})()`,
+		`		return res instanceof ${contextStr}.PipeError ? { error: res, valid: false } : { value: res, valid: true }`,
 		`	} catch (error) {`,
 		`		if (error instanceof ${contextStr}.PipeError) return { error, valid: false }`,
-		`		throw ${contextStr}.PipeError.root(error instanceof Error ? error.message : String(error), ${input}, error)`,
+		`		return { error: ${contextStr}.PipeError.root(error instanceof Error ? error.message : String(error), ${input}, error), valid: false }`,
 		`	}`,
 		`})()`,
 	]

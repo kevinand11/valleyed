@@ -1,7 +1,7 @@
 import { Pipe, PipeError, PipeInput, PipeOutput } from './base'
 import { merge as differMerge } from '../utils/differ'
 import { getRandomValue, wrapInTryCatch } from '../utils/functions'
-import { compileToAssert, compileToValidate, context, standard, schema, define, assert } from './base/pipes'
+import { compileToValidate, context, standard, schema, define, assert } from './base/pipes'
 
 export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 	const errorsVarname = `errors_${getRandomValue()}`
@@ -28,7 +28,7 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 							`	if (${validityVarname}.valid) return ${validityVarname}.value`,
 							`	${errorsVarname}.push(${context}.PipeError.path(${idx}, ${validityVarname}.error, ${input}))`,
 						]),
-						`	throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
+						`	return ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 						`})()`,
 					],
 		{
@@ -44,11 +44,15 @@ export const merge = <T1 extends Pipe<any, any>, T2 extends Pipe<any, any>>(bran
 		({ input, context }, rootContext) => [
 			`let ${inputVarname}A = ${input}`,
 			`let ${inputVarname}B = ${input}`,
-			`${input} = ${context}.differMerge(`,
-			...compileToAssert({ pipe: branch1, rootContext, input: `${inputVarname}A`, context }).map((l) => `	${l}`),
-			`	, `,
-			...compileToAssert({ pipe: branch2, rootContext, input: `${inputVarname}B`, context }).map((l) => `	${l}`),
-			`)`,
+			...compileToValidate({ pipe: branch1, rootContext, input: `${inputVarname}A`, context, prefix: `${inputVarname}A = ` }).map(
+				(l) => `	${l}`,
+			),
+			`if (!${inputVarname}A.valid) return ${inputVarname}A.error`,
+			...compileToValidate({ pipe: branch2, rootContext, input: `${inputVarname}B`, context, prefix: `${inputVarname}B = ` }).map(
+				(l) => `	${l}`,
+			),
+			`if (!${inputVarname}B.valid) return ${inputVarname}B.error`,
+			`${input} = ${context}.differMerge(${inputVarname}A.value, ${inputVarname}B.value)`,
 		],
 		{
 			context: { differMerge },
@@ -67,11 +71,13 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 			`switch (${context}.wrapInTryCatch(() => ${context}.discriminator(${input}))) {`,
 			...Object.entries(branches).flatMap(([key, branch]) => [
 				`	case ('${key}'): {`,
-				...compileToAssert({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }).map((l) => `		${l}`),
+				...compileToValidate({ pipe: branch, rootContext, input, context, prefix: `const validity = ` }).map((l) => `		${l}`),
+				` 		if (!validity.valid) return validity.error`,
+				`		${input} = validity.value`,
 				`		break`,
 				`	}`,
 			]),
-			`	default: throw ${context}.PipeError.root("${err}", ${input});`,
+			`	default: return ${context}.PipeError.root("${err}", ${input});`,
 			`}`,
 		],
 		{
@@ -91,8 +97,12 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 			`else {`,
 			`	if (${input}?.constructor?.name !== 'String') throw ${validityVarname}.error`,
 			`	${inputVarname} = ${context}.wrapInTryCatch(() => JSON.parse(${input}), ${validityVarname}.error)`,
-			`	if (${inputVarname} === ${validityVarname}.error) throw ${validityVarname}.error`,
-			...compileToAssert({ pipe: branch, rootContext, input: inputVarname, context, prefix: `${input} = ` }).map((l) => `	${l}`),
+			`	if (${inputVarname} === ${validityVarname}.error) return ${validityVarname}.error`,
+			...compileToValidate({ pipe: branch, rootContext, input: inputVarname, context, prefix: `const validity = ` }).map(
+				(l) => `	${l}`,
+			),
+			`	if (!validity.valid) return validity.error`,
+			`	${input} = validity.value`,
 			`}`,
 		],
 		{
@@ -118,7 +128,11 @@ export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: str
 			compiledBefore = true
 			return [
 				`const ${recursiveFnVarname} = (node) => {`,
-				...compileToAssert({ pipe: pipeFn(), rootContext, input: 'node', context, prefix: `return ` }).map((l) => `	${l}`),
+				...compileToValidate({ pipe: pipeFn(), rootContext, input: 'node', context, prefix: `const validity = ` }).map(
+					(l) => `	${l}`,
+				),
+				`	if (!validity.valid) return validity.error`,
+				`	return validity.value`,
 				`}`,
 				...common,
 			]

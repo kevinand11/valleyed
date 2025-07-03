@@ -1,5 +1,5 @@
 import { Pipe, PipeInput, PipeOutput } from './base'
-import { assert, compileToAssert, standard, validate, compileToValidate, context, schema } from './base/pipes'
+import { assert, standard, validate, compileToValidate, context, schema } from './base/pipes'
 import { getRandomValue } from '../utils/functions'
 import { DeepPartial } from '../utils/types'
 
@@ -7,21 +7,27 @@ const partial = <T extends Pipe<any, any>, P>(
 	branch: T,
 	partialCondition: (i: unknown) => boolean,
 	config: Parameters<typeof standard<PipeInput<T> | P, PipeOutput<T> | P>>[1],
-) =>
-	standard<PipeInput<T> | P, PipeOutput<T> | P>(
-		({ input, context }, rootContext) =>
-			compileToAssert({
+) => {
+	const varname = `validity_${getRandomValue()}`
+	return standard<PipeInput<T> | P, PipeOutput<T> | P>(
+		({ input, context }, rootContext) => [
+			`if (!${context}.partialCondition(${input})) {`,
+			...compileToValidate({
 				pipe: branch,
 				rootContext,
 				input,
 				context,
-				prefix: `${input} = ${context}.partialCondition(${input}) ? ${input} :`,
-			}),
+				prefix: `const ${varname} = `,
+			}).map((l) => `  ${l}`),
+			`	if (!${varname}.valid) return ${varname}.error`,
+			`}`,
+		],
 		{
 			...config,
 			context: { ...config?.context, partialCondition },
 		},
 	)
+}
 
 export const nullable = <T extends Pipe<any, any>>(branch: T) =>
 	partial<T, null>(branch, (i) => i === null, {
@@ -47,17 +53,21 @@ export const conditional = <T extends Pipe<any, any>>(branch: T, condition: () =
 
 type DefaultValue<T> = T extends object ? DeepPartial<T> : T
 
-export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) =>
-	standard<PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>>(
+export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) => {
+	const varname = `validity_${getRandomValue()}`
+	return standard<PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>>(
 		({ input, context }, rootContext) => [
 			`if (${input} === undefined) ${input} = ${context}.defaults`,
-			...compileToAssert({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }),
+			...compileToValidate({ pipe: branch, rootContext, input, context, prefix: `${varname} = ` }),
+			`if (!${varname}.valid) return ${varname}.error`,
+			`else ${input} = ${varname}.value`,
 		],
 		{
 			schema: (c) => ({ ...schema(branch), default: c.defaults ?? def }),
 			context: { ...context(branch), defaults: def, optional: true, assert, branch },
 		},
 	)
+}
 
 const onCatch = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) => {
 	const varname = `validity_${getRandomValue()}`

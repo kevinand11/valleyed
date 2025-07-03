@@ -1,8 +1,9 @@
 import { StandardSchemaV1 } from '@standard-schema/spec'
 
+import { PipeError } from './errors'
 import { JsonSchema } from '../../utils/types'
 
-export type PipeFn<I, O> = (input: I) => O
+export type PipeFn<I, O> = (input: I) => O | PipeError
 export type PipeInput<T> = T extends Pipe<infer I, any> ? I : never
 export type PipeOutput<T> = T extends Pipe<any, infer O> ? O : never
 export type PipeMeta = Pick<JsonSchema, '$refId' | 'title' | 'description' | 'examples' | 'default'>

@@ -1,5 +1,5 @@
 import { PipeError, PipeInput, PipeOutput, type Pipe } from './base'
-import { context, standard, schema, compileToValidate, compileToAssert } from './base/pipes'
+import { context, standard, schema, compileToValidate } from './base/pipes'
 import { getRandomValue } from '../utils/functions'
 
 type ObjectPipe<T extends Record<string, Pipe<any, any>>> = Pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>
@@ -15,29 +15,20 @@ const objCompile: (branches: Record<string, Pipe<any, any>>) => Parameters<typeo
 			`const ${resVarname} = {}`,
 			failEarly ? '' : `const ${errorsVarname} = []`,
 			`let ${validityVarname}`,
-			...Object.entries(branches).flatMap(([k, branch]) =>
+			...Object.entries(branches).flatMap(([k, branch]) => [
+				...compileToValidate({
+					pipe: branch,
+					rootContext,
+					input: `${input}['${k}']`,
+					context,
+					prefix: `${validityVarname} = `,
+					failEarly,
+				}),
+				`if (${validityVarname}.valid) ${resVarname}['${k}'] = ${validityVarname}.value`,
 				failEarly
-					? compileToAssert({
-							pipe: branch,
-							rootContext,
-							input: `${input}['${k}']`,
-							context,
-							prefix: `${resVarname}['${k}'] = `,
-							failEarly,
-						})
-					: [
-							...compileToValidate({
-								pipe: branch,
-								rootContext,
-								input: `${input}['${k}']`,
-								context,
-								prefix: `${validityVarname} = `,
-								failEarly,
-							}),
-							`if (!${validityVarname}.valid) ${errorsVarname}.push(${context}.PipeError.path('${k}', ${validityVarname}.error, ${input}['${k}']))`,
-							`else ${resVarname}['${k}'] = ${validityVarname}.value`,
-						],
-			),
+					? `else return ${validityVarname}.error`
+					: `else ${errorsVarname}.push(${context}.PipeError.path('${k}', ${validityVarname}.error, ${input}['${k}']))`,
+			]),
 			failEarly ? '' : `if (${errorsVarname}.length) throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 			`${input} = ${resVarname}`,
 		]
@@ -103,23 +94,17 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 			`const ${resVarname} = {};`,
 			`const ${errorsVarname} = [];`,
 			`for (let [k, v] of Object.entries(${input})) {`,
-			...(failEarly
-				? [
-						...compileToAssert({ pipe: kPipe, rootContext, input: 'k', context, prefix: `const k = ` }).map((l) => `	${l}`),
-						...compileToAssert({ pipe: vPipe, rootContext, input: 'v', context, prefix: `const v = ` }).map((l) => `	${l}`),
-						`	${resVarname}[k] = v;`,
-					]
-				: [
-						...compileToValidate({ pipe: kPipe, rootContext, input: 'k', context, prefix: `const kValidity = ` }).map(
-							(l) => `	${l}`,
-						),
-						...compileToValidate({ pipe: vPipe, rootContext, input: 'v', context, prefix: `const vValidity = ` }).map(
-							(l) => `	${l}`,
-						),
-						`	if (!kValidity.valid) ${errorsVarname}.push(${context}.PipeError.path(k, kValidity.error, k));`,
-						`	if (!vValidity.valid) ${errorsVarname}.push(${context}.PipeError.path(k, vValidity.error, v));`,
-						`	if (kValidity.valid && vValidity.valid) ${resVarname}[kValidity.value] = vValidity.value;`,
-					]),
+			...[
+				...compileToValidate({ pipe: kPipe, rootContext, input: 'k', context, prefix: `const kValidity = ` }).map((l) => `	${l}`),
+				...compileToValidate({ pipe: vPipe, rootContext, input: 'v', context, prefix: `const vValidity = ` }).map((l) => `	${l}`),
+				failEarly
+					? `	if (!kValidity.valid) return kValidity.error`
+					: `	if (!kValidity.valid) ${errorsVarname}.push(${context}.PipeError.path(k, kValidity.error, k));`,
+				failEarly
+					? `	if (!vValidity.valid) return vValidity.error`
+					: `	if (!vValidity.valid) ${errorsVarname}.push(${context}.PipeError.path(k, vValidity.error, v));`,
+				`	if (kValidity.valid && vValidity.valid) ${resVarname}[kValidity.value] = vValidity.value;`,
+			],
 			`}`,
 			failEarly ? '' : `if (${errorsVarname}.length) throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 			`${input} = ${resVarname}`,

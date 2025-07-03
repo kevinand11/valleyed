@@ -10,7 +10,7 @@ export const time = (err = 'is not a valid datetime') => {
 		({ input, context }) => [
 			`const ${varName} = new Date(${input})`,
 			`if ((${input} instanceof Date || typeof ${input} === 'number' || typeof ${input} === 'string') && !isNaN(${varName}.getTime())) ${input} = ${varName}`,
-			`else throw ${context}.PipeError.root('${err}', ${input})`,
+			`else return ${context}.PipeError.root('${err}', ${input})`,
 		],
 		{
 			context: { PipeError },
@@ -24,7 +24,7 @@ export const after = (compare: Timeable, err?: string) => {
 	return standard<Date, Date>(
 		({ input, context }) => [
 			`const ${varName} = new Date(${context}.after)`,
-			`if (${input} <= ${varName}) throw ${context}.PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
+			`if (${input} <= ${varName}) return ${context}.PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
 		],
 		{
 			context: { after: compare, PipeError },
@@ -37,7 +37,7 @@ export const before = (compare: Timeable, err?: string) => {
 	return standard<Date, Date>(
 		({ input, context }) => [
 			`const ${varName} = new Date(${context}.after)`,
-			`if (${input} >= ${varName}) throw ${context}.PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
+			`if (${input} >= ${varName}) return ${context}.PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
 		],
 		{
 			context: { after: compare, PipeError },

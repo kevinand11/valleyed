@@ -1,11 +1,11 @@
 import { Pipe, PipeError } from './base'
-import { compileToAssert, context, schema, standard } from './base/pipes'
+import { compileToValidate, context, schema, standard } from './base/pipes'
 import { capitalize, getRandomValue, stripHTML, trimToLength } from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
 export const email = (err = 'is not a valid email') =>
 	standard<string, string>(
-		({ input, context }) => [`if (!${context}.emailRegex.test(${input})) throw ${context}.PipeError.root('${err}', ${input})`],
+		({ input, context }) => [`if (!${context}.emailRegex.test(${input})) return ${context}.PipeError.root('${err}', ${input})`],
 		{
 			context: { emailRegex, PipeError },
 			schema: () => ({ format: 'email' }),
@@ -14,7 +14,7 @@ export const email = (err = 'is not a valid email') =>
 
 export const url = (err = 'is not a valid url') =>
 	standard<string, string>(
-		({ input, context }) => [`if (!${context}.urlRegex.test(${input})) throw ${context}.PipeError.root('${err}', ${input})`],
+		({ input, context }) => [`if (!${context}.urlRegex.test(${input})) return ${context}.PipeError.root('${err}', ${input})`],
 		{
 			context: { urlRegex, PipeError },
 			schema: () => ({ format: 'uri' }),
@@ -26,7 +26,8 @@ export const withStrippedHtml = (branch: Pipe<string, string>) => {
 	return standard<string, string>(
 		({ input, context }, rootContext) => [
 			`let ${varname} = ${context}.stripHTML(${input});`,
-			...compileToAssert({ pipe: branch, rootContext, input: varname, context }),
+			...compileToValidate({ pipe: branch, rootContext, input: varname, context, prefix: `${varname} =` }),
+			`if (!${varname}.valid) return ${varname}.error`,
 		],
 		{
 			context: { ...context(branch), stripHTML },
