@@ -1,5 +1,5 @@
 import { Pipe, PipeError } from './base'
-import { compileToValidate, context, schema, standard } from './base/pipes'
+import { compileNested, context, schema, standard } from './base/pipes'
 import { capitalize, getRandomValue, stripHTML, trimToLength } from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
@@ -26,8 +26,8 @@ export const withStrippedHtml = (branch: Pipe<string, string>) => {
 	return standard<string, string>(
 		({ input, context }, rootContext) => [
 			`let ${varname} = ${context}.stripHTML(${input});`,
-			...compileToValidate({ pipe: branch, rootContext, input: varname, context, prefix: `${varname} =` }),
-			`if (!${varname}.valid) return ${varname}.error`,
+			...compileNested({ pipe: branch, rootContext, input: varname, context, prefix: `${varname} =` }),
+			`if (${varname} instanceof ${context}.PipeError) return ${varname}`,
 		],
 		{
 			context: { ...context(branch), stripHTML },

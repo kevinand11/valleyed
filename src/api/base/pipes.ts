@@ -36,7 +36,7 @@ export function validate<T extends Pipe<any, any>>(
 	}
 }
 
-export function compileToValidate({
+export function compileNested({
 	pipe,
 	rootContext,
 	input,
@@ -53,14 +53,11 @@ export function compileToValidate({
 	return [
 		`${prefix}(() => {`,
 		`	try {`,
-		`		const res = (() => {`,
-		...compiled.map((line) => `			${line}`),
-		`			return ${input}`,
-		`		})()`,
-		`		return res instanceof ${contextStr}.PipeError ? { error: res, valid: false } : { value: res, valid: true }`,
+		...compiled.map((line) => `		${line}`),
+		`		return ${input}`,
 		`	} catch (error) {`,
-		`		if (error instanceof ${contextStr}.PipeError) return { error, valid: false }`,
-		`		return { error: ${contextStr}.PipeError.root(error instanceof Error ? error.message : String(error), ${input}, error), valid: false }`,
+		`		if (error instanceof ${contextStr}.PipeError) return error`,
+		`		return ${contextStr}.PipeError.root(error instanceof Error ? error.message : String(error), ${input}, error)`,
 		`	}`,
 		`})()`,
 	]
@@ -102,7 +99,7 @@ export function compile<T extends Pipe<any, any>>(pipe: T) {
 		.concat('return input')
 		.map((l) => `\t${l}`)
 		.join('\n')
-	pipe.__compiled = new Function('context', `return (input) =>{\n${compiled}\n}`)(context)
+	pipe.__compiled = new Function('context', `return (input) => {\n${compiled}\n}`)(context)
 	return pipe
 }
 

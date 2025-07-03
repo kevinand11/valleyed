@@ -16,7 +16,7 @@ export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass 
 export const eq = <T>(compare: T, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (!${context}.equal(${input}, ${context}.eq)) return ${context}.PipeError.root(\`${err ?? `is not equal to \${${context}.eq}`}\`, ${input})`,
+			`if (${input} !== ${context}.eq && !${context}.equal(${input}, ${context}.eq)) return ${context}.PipeError.root(\`${err ?? `is not equal to \${${context}.eq}`}\`, ${input})`,
 		],
 		{
 			context: { eq: compare, equal, PipeError },
@@ -29,7 +29,7 @@ export const is = eq
 export const ne = <T>(compare: T, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (${context}.equal(${input}, ${context}.ne)) return ${context}.PipeError.root(\`${err ?? `is equal to \${${context}.ne}`}\`, ${input})`,
+			`if (${input} === ${context}.ne || ${context}.equal(${input}, ${context}.ne)) return ${context}.PipeError.root(\`${err ?? `is equal to \${${context}.ne}`}\`, ${input})`,
 		],
 		{
 			context: { ne: compare, equal, PipeError },
@@ -40,7 +40,7 @@ export const ne = <T>(compare: T, err?: string) =>
 const inArray = <T>(array: Readonly<T[]>, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (!${context}.in.find((x) => ${context}.equal(${input}, x))) return ${context}.PipeError.root(\`${err ?? `is not in the list: [\${${context}.in}]`}\`, ${input})`,
+			`if (!${context}.in.some((x) => ${input} === x || ${context}.equal(${input}, x))) return ${context}.PipeError.root(\`${err ?? `is not in the list: [\${${context}.in}]`}\`, ${input})`,
 		],
 		{
 			context: { in: array, equal, PipeError },
@@ -51,7 +51,7 @@ const inArray = <T>(array: Readonly<T[]>, err?: string) =>
 export const nin = <T>(array: Readonly<T[]>, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (${context}.nin.find((x) => ${context}.equal(${input}, x))) return ${context}.PipeError.root(\`${err ?? `is in the list: [\${${context}.nin}]`}\`, ${input})`,
+			`if (${context}.nin.some((x) => ${input} === x || ${context}.equal(${input}, x))) return ${context}.PipeError.root(\`${err ?? `is in the list: [\${${context}.nin}]`}\`, ${input})`,
 		],
 		{
 			context: { nin: array, equal, PipeError },
