@@ -2,8 +2,8 @@ import { standard } from './base/pipes'
 
 export const gt = (value: number, err?: string) =>
 	standard<number, number>(
-		({ input, context }) => [
-			`if (${input} <= ${context}.gt) return PipeError.root(\`${err ?? `must be greater than \${${context}.gt}`}\`, ${input})`,
+		({ input, context, path }) => [
+			`if (${input} <= ${context}.gt) return PipeError.root(\`${err ?? `must be greater than \${${context}.gt}`}\`, ${input}, ${path})`,
 		],
 		{
 			context: { gt: value },
@@ -13,8 +13,8 @@ export const gt = (value: number, err?: string) =>
 
 export const gte = (value: number, err?: string) =>
 	standard<number, number>(
-		({ input, context }) => [
-			`if (${input} < ${context}.gte) return PipeError.root(\`${err ?? `must be greater than or equal to \${${context}.gte}`}\`, ${input})`,
+		({ input, context, path }) => [
+			`if (${input} < ${context}.gte) return PipeError.root(\`${err ?? `must be greater than or equal to \${${context}.gte}`}\`, ${input}, ${path})`,
 		],
 		{
 			context: { gte: value },
@@ -24,8 +24,8 @@ export const gte = (value: number, err?: string) =>
 
 export const lt = (value: number, err?: string) =>
 	standard<number, number>(
-		({ input, context }) => [
-			`if (${input} >= ${context}.lt) return PipeError.root(\`${err ?? `must be less than \${${context}.lt}`}\`, ${input})`,
+		({ input, context, path }) => [
+			`if (${input} >= ${context}.lt) return PipeError.root(\`${err ?? `must be less than \${${context}.lt}`}\`, ${input}, ${path})`,
 		],
 		{
 			context: { lt: value },
@@ -35,8 +35,8 @@ export const lt = (value: number, err?: string) =>
 
 export const lte = (value: number, err?: string) =>
 	standard<number, number>(
-		({ input, context }) => [
-			`if (${input} > ${context}.lte) return PipeError.root(\`${err ?? `must be less than or equal to \${${context}}.lte}`}\`, ${input})`,
+		({ input, context, path }) => [
+			`if (${input} > ${context}.lte) return PipeError.root(\`${err ?? `must be less than or equal to \${${context}}.lte}`}\`, ${input}, ${path})`,
 		],
 		{
 			context: { lte: value },
@@ -45,9 +45,12 @@ export const lte = (value: number, err?: string) =>
 	)
 
 export const int = (err = 'is not an integer') =>
-	standard<number, number>(({ input }) => [`if (${input} !== parseInt(${input})) return PipeError.root('${err}', ${input})`], {
-		schema: () => ({ type: 'integer' }),
-	})
+	standard<number, number>(
+		({ input, path }) => [`if (${input} !== parseInt(${input})) return PipeError.root('${err}', ${input}, ${path})`],
+		{
+			schema: () => ({ type: 'integer' }),
+		},
+	)
 
 export const asRounded = (dp = 0) =>
 	standard<number, number>(({ input, context }) => [`${input} = Number(${input}.toFixed(${context}.dp))`], { context: { dp } })

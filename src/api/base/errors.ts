@@ -1,11 +1,12 @@
-function formatError(message: { message: string; path?: string }) {
+type PipeErrorMessage = { message: string; path?: string; value: unknown }
+
+function formatError(message: PipeErrorMessage) {
 	return `${message.path ? `${message.path}: ` : ''}${message.message}`
 }
 
 export class PipeError extends Error {
 	constructor(
-		public messages: { message: string; path?: string }[],
-		readonly value: unknown,
+		public messages: PipeErrorMessage[],
 		cause?: unknown,
 	) {
 		const message = messages[0]
@@ -20,23 +21,18 @@ export class PipeError extends Error {
 		return this.messages.map(formatError).join('\n')
 	}
 
-	static root(message: string, value: unknown, cause?: unknown) {
-		return new PipeError([{ message }], value, cause)
+	static root(message: string, value: unknown, path: string | undefined, cause?: unknown) {
+		return new PipeError([{ message, path, value }], cause)
 	}
 
-	static rootFrom(errors: PipeError[], value: unknown, cause?: unknown) {
-		return new PipeError(
-			errors.flatMap((error) => error.messages),
-			value,
-			cause,
-		)
+	static rootFrom(errors: PipeError[]) {
+		return new PipeError(errors.flatMap((error) => error.messages))
 	}
 
-	static path(path: PropertyKey, error: PipeError, value: unknown, cause?: unknown) {
+	static path(path: PropertyKey, error: PipeError) {
 		return new PipeError(
 			error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
-			value,
-			cause,
+			error.cause,
 		)
 	}
 }

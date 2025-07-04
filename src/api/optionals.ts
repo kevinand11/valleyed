@@ -9,14 +9,9 @@ const partial = <T extends Pipe<any, any>, P>(
 	config: Parameters<typeof standard<PipeInput<T> | P, PipeOutput<T> | P>>[1],
 ) =>
 	standard<PipeInput<T> | P, PipeOutput<T> | P>(
-		({ input, context }, rootContext) => [
+		({ input, context }, opts) => [
 			`if (!${context}.partialCondition(${input})) {`,
-			...compileNested({
-				pipe: branch,
-				rootContext,
-				input,
-				context,
-			}).map((l) => `  ${l}`),
+			...compileNested({ ...opts, pipe: branch, input, context }).map((l) => `  ${l}`),
 			`	if (${input} instanceof PipeError) return ${input}`,
 			`}`,
 		],
@@ -52,9 +47,9 @@ type DefaultValue<T> = T extends object ? DeepPartial<T> : T
 
 export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) =>
 	standard<PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>>(
-		({ input, context }, rootContext) => [
+		({ input, context }, opts) => [
 			`if (${input} === undefined) ${input} = ${context}.defaults`,
-			...compileNested({ pipe: branch, rootContext, input, context }),
+			...compileNested({ ...opts, pipe: branch, input, context }),
 			`if (${input} instanceof PipeError) return ${input}`,
 		],
 		{
@@ -66,8 +61,8 @@ export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<
 const onCatch = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) => {
 	const fnVarname = `fn_${getRandomValue()}`
 	return standard<PipeInput<T>, PipeOutput<T>>(
-		({ input, context }, rootContext) => [
-			...compileNested({ pipe: branch, rootContext, context, fn: fnVarname }),
+		({ input, context }, opts) => [
+			...compileNested({ ...opts, pipe: branch, context, fn: fnVarname }),
 			`${input} = ${fnVarname}(${input})`,
 			`if (${input} instanceof PipeError) ${input} = ${context}.catch`,
 		],

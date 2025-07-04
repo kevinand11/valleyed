@@ -28,30 +28,8 @@ export function validate<T extends Pipe<any, any>>(pipe: T, input: unknown): Ret
 		return fn(input) as ReturnType<PipeCompiledFn<T>>
 	} catch (error) {
 		if (error instanceof PipeError) return error
-		return PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
+		return PipeError.root(error instanceof Error ? error.message : `${error}`, input, undefined, error)
 	}
-}
-
-export function compileNested({
-	pipe,
-	rootContext,
-	context: contextStr,
-	failEarly,
-	...rest
-}: Omit<Parameters<typeof compilePipeToString>[0], 'input'> & {
-	rootContext: Context
-} & ({ fn: string } | { input: string })) {
-	const random = getRandomValue()
-	const input = 'fn' in rest ? `arg_${getRandomValue()}` : rest.input
-	const { compiled, context } = compilePipeToString({
-		pipe,
-		input,
-		context: `${contextStr}[\`${random}\`]`,
-		failEarly,
-	})
-	rootContext[random] = context
-	if (!('fn' in rest)) return compiled
-	return [`function ${rest.fn}(${input}) {`, ...compiled.map((line) => `	${line}`), `	return ${input}`, '}']
 }
 
 export function schema<T extends Pipe<any, any>>(pipe: T, schema: JsonSchema = {}): JsonSchema {
@@ -61,25 +39,6 @@ export function schema<T extends Pipe<any, any>>(pipe: T, schema: JsonSchema = {
 
 export function meta<T extends Pipe<any, any>>(p: T, meta: PipeMeta): T {
 	return p.pipe(standard(() => [], { schema: () => meta })) as T
-}
-
-function compilePipeToString({
-	pipe,
-	input,
-	context: contextStr,
-	failEarly = false,
-}: {
-	pipe: Pipe<any, any>
-	input: string
-	context: string
-	failEarly?: boolean
-}) {
-	const fullContext = context(pipe)
-	const compiled = walk(pipe, <string[]>[], (p, acc) => {
-		acc.push(...p.compile({ input, context: contextStr }, fullContext, { failEarly }))
-		return acc
-	})
-	return { compiled, context: fullContext }
 }
 
 export function compile<T extends Pipe<any, any>>(
@@ -151,10 +110,58 @@ export function define<I, O>(
 ): Pipe<I, O> {
 	const key = `define_${getRandomValue()}`
 	return standard<I, O>(
-		({ input, context }) => [`${input} = ${context}['${key}'](${input})`, `if (${input} instanceof PipeError) return ${input}`],
+		({ input, context }, opts) => [
+			`${input} = ${context}['${key}'](${input})`,
+			`if (${input} instanceof PipeError) return ${opts.path ? `PipeError.path('${opts.path}', ${input})` : input}`,
+		],
 		{
 			context: { ...config?.context, [key]: fn },
 			schema: config?.schema,
 		},
 	)
+}
+
+export function compileNested({
+	pipe,
+	rootContext,
+	context: contextStr,
+	failEarly,
+	path,
+	...rest
+}: Omit<Parameters<typeof compilePipeToString>[0], 'input'> & {
+	rootContext: Context
+} & ({ fn: string } | { input: string; key?: string })) {
+	const random = getRandomValue()
+	const input = 'fn' in rest ? `arg_${getRandomValue()}` : rest.input
+	const { compiled, context } = compilePipeToString({
+		pipe,
+		input,
+		context: `${contextStr}[\`${random}\`]`,
+		failEarly,
+		path: ['key' in rest ? rest.key : '', path].filter(Boolean).join('.') || undefined,
+	})
+	rootContext[random] = context
+	if (!('fn' in rest)) return compiled
+	return [`function ${rest.fn}(${input}) {`, ...compiled.map((line) => `	${line}`), `	return ${input}`, '}']
+}
+
+function compilePipeToString({
+	pipe,
+	input,
+	context: contextStr,
+	failEarly = false,
+	path,
+}: {
+	pipe: Pipe<any, any>
+	input: string
+	context: string
+	failEarly?: boolean
+	path?: string
+}) {
+	const rootContext = context(pipe)
+	const compiled = walk(pipe, <string[]>[], (p, acc) => {
+		acc.push(...p.compile({ input, context: contextStr, path: `${path ? `'${path}'` : undefined}` }, { rootContext, failEarly, path }))
+		return acc
+	})
+	return { compiled, context: rootContext }
 }

@@ -7,7 +7,7 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 	const errorsVarname = `errors_${getRandomValue()}`
 	const fnVarname = `fn_${getRandomValue()}`
 	return standard<PipeInput<T[number]>, PipeOutput<T[number]>>(
-		({ input, context }, rootContext) =>
+		({ input, context }, opts) =>
 			branches.length === 0
 				? []
 				: [
@@ -15,7 +15,7 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 						`while (true) {`,
 						`	let validated`,
 						...branches.flatMap((branch, idx) => [
-							...compileNested({ pipe: branch, rootContext, fn: `${fnVarname}${idx}`, context, failEarly: true }).map(
+							...compileNested({ ...opts, pipe: branch, fn: `${fnVarname}${idx}`, context, failEarly: true }).map(
 								(l) => `	${l}`,
 							),
 							`	validated = ${fnVarname}${idx}(${input})`,
@@ -23,9 +23,9 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 							`		${input} = validated`,
 							`		break`,
 							`	}`,
-							`	else ${errorsVarname}.push(PipeError.path(${idx}, validated, ${input}))`,
+							`	else ${errorsVarname}.push(PipeError.path(${idx}, validated))`,
 						]),
-						`	return PipeError.rootFrom(${errorsVarname}, ${input})`,
+						`	return PipeError.rootFrom(${errorsVarname})`,
 						`}`,
 						`if (${input} instanceof PipeError) return ${input}`,
 					],
@@ -60,20 +60,20 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 	err = 'doesnt match any of the schema',
 ) =>
 	standard<PipeInput<T[keyof T]>, PipeOutput<T[keyof T]>>(
-		({ input, context }, rootContext) => [
+		({ input, context, path }, opts) => [
 			`switch (${context}.wrapInTryCatch(() => ${context}.discriminator(${input}))) {`,
 			...Object.entries(branches).flatMap(([key, branch]) => [
 				`	case ('${key}'): {`,
-				...compileNested({ pipe: branch, rootContext, input, context }).map((l) => `		${l}`),
+				...compileNested({ ...opts, pipe: branch, input, context }).map((l) => `		${l}`),
 				` 		if (${input} instanceof PipeError) return ${input}`,
 				`		break`,
 				`	}`,
 			]),
-			`	default: return PipeError.root("${err}", ${input});`,
+			`	default: return PipeError.root("${err}", ${input}, ${path});`,
 			`}`,
 		],
 		{
-			context: { wrapInTryCatch, discriminator, branches },
+			context: { wrapInTryCatch, discriminator },
 			schema: () => ({ oneOf: Object.values(branches).map((s) => schema(s)) }),
 		},
 	)
@@ -117,11 +117,11 @@ export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: str
 	let compiledBefore = false
 	let schemedBefore = false
 	return standard<PipeInput<T>, PipeOutput<T>>(
-		({ input, context }, rootContext) => {
+		({ input, context, path }, opts) => {
 			const common = [`${input} = ${fnVarname}(${input})`, `if (${input} instanceof PipeError) return ${input}`]
 			if (compiledBefore) return common
 			compiledBefore = true
-			return [...compileNested({ pipe: pipeFn(), rootContext, context, fn: fnVarname, failEarly: true }), ...common]
+			return [...compileNested({ ...opts, pipe: pipeFn(), context, fn: fnVarname, failEarly: true, path }), ...common]
 		},
 		{
 			schema: () => {
