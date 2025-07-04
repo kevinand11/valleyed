@@ -86,6 +86,8 @@ export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any>>>,
 }
 
 export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any>>(kPipe: K, vPipe: V) => {
+	const kFnVarname = `kFn_${getRandomValue()}`
+	const vFnVarname = `vFn_${getRandomValue()}`
 	const resVarname = `res_${getRandomValue()}`
 	const errorsVarname = `errors_${getRandomValue()}`
 	return standard<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>>(
@@ -93,10 +95,28 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) return PipeError.root(['is not an object'], ${input})`,
 			`const ${resVarname} = {};`,
 			failEarly ? '' : `const ${errorsVarname} = [];`,
+			...compileNested({
+				pipe: kPipe,
+				rootContext,
+				input: 'k',
+				context,
+				prefix: `const ${kFnVarname} = `,
+				failEarly,
+				fn: { arg: 'k' },
+			}),
+			...compileNested({
+				pipe: vPipe,
+				rootContext,
+				input: 'v',
+				context,
+				prefix: `const ${vFnVarname} = `,
+				failEarly,
+				fn: { arg: 'v' },
+			}),
 			`for (let [k, v] of Object.entries(${input})) {`,
 			...[
-				...compileNested({ pipe: kPipe, rootContext, input: 'k', context, prefix: `const kValidity = ` }).map((l) => `	${l}`),
-				...compileNested({ pipe: vPipe, rootContext, input: 'v', context, prefix: `const vValidity = ` }).map((l) => `	${l}`),
+				`	const kValidity = ${kFnVarname}(k)`,
+				`	const vValidity = ${vFnVarname}(v)`,
 				failEarly
 					? `	if (kValidity instanceof PipeError) return PipeError.path(k, kValidity, k)`
 					: `	if (kValidity instanceof PipeError) ${errorsVarname}.push(PipeError.path(k, kValidity, k));`,
