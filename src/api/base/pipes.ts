@@ -110,9 +110,9 @@ export function define<I, O>(
 ): Pipe<I, O> {
 	const key = `define_${getRandomValue()}`
 	return standard<I, O>(
-		({ input, context }, opts) => [
+		({ input, context, path }) => [
 			`${input} = ${context}['${key}'](${input})`,
-			`if (${input} instanceof PipeError) return ${opts.path ? `PipeError.path('${opts.path}', ${input})` : input}`,
+			`if (${input} instanceof PipeError) return PipeError.path(${path}, ${input})`,
 		],
 		{
 			context: { ...config?.context, [key]: fn },
@@ -124,21 +124,20 @@ export function define<I, O>(
 export function compileNested({
 	pipe,
 	rootContext,
-	context: contextStr,
 	failEarly,
 	path,
 	...rest
-}: Omit<Parameters<typeof compilePipeToString>[0], 'input'> & {
-	rootContext: Context
-} & ({ fn: string } | { input: string; key?: string })) {
+}: Required<Pick<Parameters<typeof compilePipeToString>[0], 'pipe' | 'rootContext' | 'failEarly' | 'path'>> &
+	({ fn: string } | { input: string; key?: string })) {
 	const random = getRandomValue()
 	const input = 'fn' in rest ? `arg_${getRandomValue()}` : rest.input
 	const { compiled, context } = compilePipeToString({
 		pipe,
 		input,
-		context: `${contextStr}[\`${random}\`]`,
+		context: `context[\`${random}\`]`,
 		failEarly,
 		path: ['key' in rest ? rest.key : '', path].filter(Boolean).join('.') || undefined,
+		rootContext,
 	})
 	rootContext[random] = context
 	if (!('fn' in rest)) return compiled
@@ -150,18 +149,21 @@ function compilePipeToString({
 	input,
 	context: contextStr,
 	failEarly = false,
-	path,
+	path = '',
+	rootContext,
 }: {
 	pipe: Pipe<any, any>
 	input: string
 	context: string
 	failEarly?: boolean
 	path?: string
+	rootContext?: Context
 }) {
-	const rootContext = context(pipe)
+	const ctx = context(pipe)
+	rootContext ??= ctx
 	const compiled = walk(pipe, <string[]>[], (p, acc) => {
 		acc.push(...p.compile({ input, context: contextStr, path: `${path ? `'${path}'` : undefined}` }, { rootContext, failEarly, path }))
 		return acc
 	})
-	return { compiled, context: rootContext }
+	return { compiled, context: ctx }
 }

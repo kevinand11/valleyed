@@ -76,7 +76,7 @@ export interface Pipe<I, O> extends StandardSchemaV1<I, O> {
 	readonly pipe: PipeChain<I, O>
 	readonly compile: (
 		names: { input: string; context: string; path: string },
-		opts: { rootContext: Context; failEarly: boolean; path: string | undefined },
+		opts: { rootContext: Context; failEarly: boolean; path: string },
 	) => string[]
 	next?: Pipe<any, any>
 	last?: Pipe<any, any>

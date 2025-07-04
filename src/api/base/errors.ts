@@ -30,6 +30,7 @@ export class PipeError extends Error {
 	}
 
 	static path(path: PropertyKey, error: PipeError) {
+		if (!path) return error
 		return new PipeError(
 			error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
 			error.cause,
