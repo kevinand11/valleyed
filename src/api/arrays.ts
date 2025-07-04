@@ -7,7 +7,7 @@ export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an arra
 	const resVarname = `res_${getRandomValue()}`
 	const idxVarname = `i_${getRandomValue()}`
 	return standard<PipeInput<T>[], PipeOutput<T>[]>(
-		({ input, context }, rootContext, failEarly) => [
+		({ input, context }, rootContext, { failEarly }) => [
 			`if (!Array.isArray(${input})) return PipeError.root('${err}', ${input})`,
 			failEarly ? '' : `const ${errorsVarname} = []`,
 			`const ${resVarname} = []`,
@@ -40,7 +40,7 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonl
 	const resVarname = `res_${getRandomValue()}`
 	const validatedVarname = `validated_${getRandomValue()}`
 	return standard<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>(
-		({ input, context }, rootContext, failEarly) => [
+		({ input, context }, rootContext, { failEarly }) => [
 			`if (!Array.isArray(${input})) return PipeError.root('${err}', ${input})`,
 			...(branches.length === 0
 				? []

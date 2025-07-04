@@ -72,7 +72,7 @@ function compilePipeToString({
 	pipe,
 	input,
 	context: contextStr,
-	failEarly,
+	failEarly = false,
 }: {
 	pipe: Pipe<any, any>
 	input: string
@@ -81,16 +81,23 @@ function compilePipeToString({
 }) {
 	const fullContext = context(pipe)
 	const compiled = walk(pipe, <string[]>[], (p, acc) => {
-		acc.push(...p.compile({ input, context: contextStr }, fullContext, failEarly ?? false))
+		acc.push(...p.compile({ input, context: contextStr }, fullContext, { failEarly }))
 		return acc
 	})
 	return { compiled, context: fullContext }
 }
 
-export function compile<T extends Pipe<any, any>>(pipe: T): PipeCompiledFn<T> {
+export function compile<T extends Pipe<any, any>>(
+	pipe: T,
+	{
+		failEarly = true,
+	}: {
+		failEarly?: boolean
+	} = {},
+): PipeCompiledFn<T> {
 	const inputStr = 'input'
 	const contextStr = 'context'
-	const { compiled: compiledArr, context } = compilePipeToString({ pipe, input: inputStr, context: contextStr })
+	const { compiled: compiledArr, context } = compilePipeToString({ pipe, input: inputStr, context: contextStr, failEarly })
 	const allLines = [
 		`return (${inputStr}) => {`,
 		...compiledArr.filter((l) => l.trim() !== '').map((l) => `\t${l}`),

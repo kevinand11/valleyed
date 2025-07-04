@@ -6,7 +6,7 @@ type ObjectPipe<T extends Record<string, Pipe<any, any>>> = Pipe<{ [K in keyof T
 
 const objCompile: (branches: Record<string, Pipe<any, any>>) => Parameters<typeof standard>[0] =
 	(branches) =>
-	({ input, context }, rootContext, failEarly) => {
+	({ input, context }, rootContext, { failEarly }) => {
 		const resVarname = `res_${getRandomValue()}`
 		const errorsVarname = `errors_${getRandomValue()}`
 		const validatedVarname = `validated_${getRandomValue()}`
@@ -89,10 +89,10 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 	const resVarname = `res_${getRandomValue()}`
 	const errorsVarname = `errors_${getRandomValue()}`
 	return standard<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>>(
-		({ input, context }, rootContext, failEarly) => [
+		({ input, context }, rootContext, { failEarly }) => [
 			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) return PipeError.root(['is not an object'], ${input})`,
 			`const ${resVarname} = {};`,
-			`const ${errorsVarname} = [];`,
+			failEarly ? '' : `const ${errorsVarname} = [];`,
 			`for (let [k, v] of Object.entries(${input})) {`,
 			...[
 				...compileNested({ pipe: kPipe, rootContext, input: 'k', context, prefix: `const kValidity = ` }).map((l) => `	${l}`),
