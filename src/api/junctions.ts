@@ -1,4 +1,4 @@
-import { Pipe, PipeError, PipeInput, PipeOutput } from './base'
+import { Pipe, PipeInput, PipeOutput } from './base'
 import { merge as differMerge } from '../utils/differ'
 import { getRandomValue, wrapInTryCatch } from '../utils/functions'
 import { compileNested, context, standard, schema, define, assert } from './base/pipes'
@@ -25,15 +25,14 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 								prefix: `${validatedVarname} = `,
 								failEarly: true,
 							}).map((l) => `	${l}`),
-							`	if (!(${validatedVarname} instanceof ${context}.PipeError)) return ${validatedVarname}`,
-							`	${errorsVarname}.push(${context}.PipeError.path(${idx}, ${validatedVarname}, ${input}))`,
+							`	if (!(${validatedVarname} instanceof PipeError)) return ${validatedVarname}`,
+							`	${errorsVarname}.push(PipeError.path(${idx}, ${validatedVarname}, ${input}))`,
 						]),
-						`	return ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
+						`	return PipeError.rootFrom(${errorsVarname}, ${input})`,
 						`})()`,
-						`if (${input} instanceof ${context}.PipeError) return ${input}`,
+						`if (${input} instanceof PipeError) return ${input}`,
 					],
 		{
-			context: { PipeError },
 			schema: () => ({ oneOf: branches.map((branch) => schema(branch)) }),
 		},
 	)
@@ -48,11 +47,11 @@ export const merge = <T1 extends Pipe<any, any>, T2 extends Pipe<any, any>>(bran
 			...compileNested({ pipe: branch1, rootContext, input: `${inputVarname}A`, context, prefix: `${inputVarname}A = ` }).map(
 				(l) => `	${l}`,
 			),
-			`if (${inputVarname}A instanceof ${context}.PipeError) return ${inputVarname}A`,
+			`if (${inputVarname}A instanceof PipeError) return ${inputVarname}A`,
 			...compileNested({ pipe: branch2, rootContext, input: `${inputVarname}B`, context, prefix: `${inputVarname}B = ` }).map(
 				(l) => `	${l}`,
 			),
-			`if (${inputVarname}B instanceof ${context}.PipeError) return ${inputVarname}B`,
+			`if (${inputVarname}B instanceof PipeError) return ${inputVarname}B`,
 			`${input} = ${context}.differMerge(${inputVarname}A, ${inputVarname}B)`,
 		],
 		{
@@ -73,11 +72,11 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 			...Object.entries(branches).flatMap(([key, branch]) => [
 				`	case ('${key}'): {`,
 				...compileNested({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }).map((l) => `		${l}`),
-				` 		if (${input} instanceof ${context}.PipeError) return ${input}`,
+				` 		if (${input} instanceof PipeError) return ${input}`,
 				`		break`,
 				`	}`,
 			]),
-			`	default: return ${context}.PipeError.root("${err}", ${input});`,
+			`	default: return PipeError.root("${err}", ${input});`,
 			`}`,
 		],
 		{
@@ -93,13 +92,13 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 		({ input, context }, rootContext) => [
 			`let ${inputVarname} = ${input}`,
 			...compileNested({ pipe: branch, rootContext, input: inputVarname, context, prefix: `const ${validatedVarname} = ` }),
-			`if (!(${validatedVarname} instanceof ${context}.PipeError)) ${input} = ${validatedVarname}`,
+			`if (!(${validatedVarname} instanceof PipeError)) ${input} = ${validatedVarname}`,
 			`else {`,
 			`	if (${input}?.constructor?.name !== 'String') return ${validatedVarname}`,
 			`	${inputVarname} = ${context}.wrapInTryCatch(() => JSON.parse(${input}), ${validatedVarname})`,
 			`	if (${inputVarname} === ${validatedVarname}) return ${validatedVarname}`,
 			...compileNested({ pipe: branch, rootContext, input: inputVarname, context, prefix: `${input} = ` }).map((l) => `	${l}`),
-			`	if (${input} instanceof ${context}.PipeError) return ${input}`,
+			`	if (${input} instanceof PipeError) return ${input}`,
 			`}`,
 		],
 		{
@@ -120,7 +119,7 @@ export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: str
 	let schemedBefore = false
 	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => {
-			const common = [`${input} = ${recursiveFnVarname}(${input})`, `if (${input} instanceof ${context}.PipeError) return ${input}`]
+			const common = [`${input} = ${recursiveFnVarname}(${input})`, `if (${input} instanceof PipeError) return ${input}`]
 			if (compiledBefore) return common
 			compiledBefore = true
 			return [

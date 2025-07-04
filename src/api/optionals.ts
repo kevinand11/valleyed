@@ -19,7 +19,7 @@ const partial = <T extends Pipe<any, any>, P>(
 				context,
 				prefix: `const ${varname} = `,
 			}).map((l) => `  ${l}`),
-			`	if (${varname} instanceof ${context}.PipeError) return ${varname}`,
+			`	if (${varname} instanceof PipeError) return ${varname}`,
 			`	${input} = ${varname}`,
 			`}`,
 		],
@@ -59,7 +59,7 @@ export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<
 		({ input, context }, rootContext) => [
 			`if (${input} === undefined) ${input} = ${context}.defaults`,
 			...compileNested({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }),
-			`if (${input} instanceof ${context}.PipeError) return ${input}`,
+			`if (${input} instanceof PipeError) return ${input}`,
 		],
 		{
 			schema: (c) => ({ ...schema(branch), default: c.defaults ?? def }),
@@ -71,7 +71,7 @@ const onCatch = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInpu
 	standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => [
 			...compileNested({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }),
-			`if (${input} instanceof ${context}.PipeError) ${input} = ${context}.catch`,
+			`if (${input} instanceof PipeError) ${input} = ${context}.catch`,
 		],
 		{
 			schema: (c) => ({ ...schema(branch), default: c.catch ?? def }),

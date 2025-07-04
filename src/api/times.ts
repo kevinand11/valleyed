@@ -1,4 +1,3 @@
-import { PipeError } from './base'
 import { standard } from './base/pipes'
 import { getRandomValue } from '../utils/functions'
 
@@ -7,13 +6,12 @@ export type Timeable = Date | string | number
 export const time = (err = 'is not a valid datetime') => {
 	const varName = `date_${getRandomValue()}`
 	return standard<Timeable, Date>(
-		({ input, context }) => [
+		({ input }) => [
 			`const ${varName} = new Date(${input})`,
 			`if ((${input} instanceof Date || typeof ${input} === 'number' || typeof ${input} === 'string') && !isNaN(${varName}.getTime())) ${input} = ${varName}`,
-			`else return ${context}.PipeError.root('${err}', ${input})`,
+			`else return PipeError.root('${err}', ${input})`,
 		],
 		{
-			context: { PipeError },
 			schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }),
 		},
 	)
@@ -24,10 +22,10 @@ export const after = (compare: Timeable, err?: string) => {
 	return standard<Date, Date>(
 		({ input, context }) => [
 			`const ${varName} = new Date(${context}.after)`,
-			`if (${input} <= ${varName}) return ${context}.PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
+			`if (${input} <= ${varName}) return PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
 		],
 		{
-			context: { after: compare, PipeError },
+			context: { after: compare },
 		},
 	)
 }
@@ -36,11 +34,11 @@ export const before = (compare: Timeable, err?: string) => {
 	const varName = `compare_${getRandomValue()}`
 	return standard<Date, Date>(
 		({ input, context }) => [
-			`const ${varName} = new Date(${context}.after)`,
-			`if (${input} >= ${varName}) return ${context}.PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
+			`const ${varName} = new Date(${context}.before)`,
+			`if (${input} >= ${varName}) return PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input})`,
 		],
 		{
-			context: { after: compare, PipeError },
+			context: { before: compare },
 		},
 	)
 }

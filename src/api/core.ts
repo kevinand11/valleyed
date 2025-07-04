@@ -9,17 +9,17 @@ export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass 
 			return PipeError.root(err, input)
 		},
 		{
-			context: { custom: condition, PipeError },
+			context: { custom: condition },
 		},
 	)
 
 export const eq = <T>(compare: T, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (${input} !== ${context}.eq && !${context}.equal(${input}, ${context}.eq)) return ${context}.PipeError.root(\`${err ?? `is not equal to \${${context}.eq}`}\`, ${input})`,
+			`if (${input} !== ${context}.eq && !${context}.equal(${input}, ${context}.eq)) return PipeError.root(\`${err ?? `is not equal to \${${context}.eq}`}\`, ${input})`,
 		],
 		{
-			context: { eq: compare, equal, PipeError },
+			context: { eq: compare, equal },
 			schema: (context) => ({ const: context.eq ?? compare }),
 		},
 	)
@@ -29,10 +29,10 @@ export const is = eq
 export const ne = <T>(compare: T, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (${input} === ${context}.ne || ${context}.equal(${input}, ${context}.ne)) return ${context}.PipeError.root(\`${err ?? `is equal to \${${context}.ne}`}\`, ${input})`,
+			`if (${input} === ${context}.ne || ${context}.equal(${input}, ${context}.ne)) return PipeError.root(\`${err ?? `is equal to \${${context}.ne}`}\`, ${input})`,
 		],
 		{
-			context: { ne: compare, equal, PipeError },
+			context: { ne: compare, equal },
 			schema: (context) => ({ not: { const: context.eq ?? compare } }),
 		},
 	)
@@ -40,10 +40,10 @@ export const ne = <T>(compare: T, err?: string) =>
 const inArray = <T>(array: Readonly<T[]>, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (!${context}.in.some((x) => ${input} === x || ${context}.equal(${input}, x))) return ${context}.PipeError.root(\`${err ?? `is not in the list: [\${${context}.in}]`}\`, ${input})`,
+			`if (!${context}.in.some((x) => ${input} === x || ${context}.equal(${input}, x))) return PipeError.root(\`${err ?? `is not in the list: [\${${context}.in}]`}\`, ${input})`,
 		],
 		{
-			context: { in: array, equal, PipeError },
+			context: { in: array, equal },
 			schema: (context) => ({ enum: [...(context.in ?? array)] }),
 		},
 	)
@@ -51,10 +51,10 @@ const inArray = <T>(array: Readonly<T[]>, err?: string) =>
 export const nin = <T>(array: Readonly<T[]>, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (${context}.nin.some((x) => ${input} === x || ${context}.equal(${input}, x))) return ${context}.PipeError.root(\`${err ?? `is in the list: [\${${context}.nin}]`}\`, ${input})`,
+			`if (${context}.nin.some((x) => ${input} === x || ${context}.equal(${input}, x))) return PipeError.root(\`${err ?? `is in the list: [\${${context}.nin}]`}\`, ${input})`,
 		],
 		{
-			context: { nin: array, equal, PipeError },
+			context: { nin: array, equal },
 			schema: (context) => ({ not: { enum: [...(context.nin ?? array)] } }),
 		},
 	)
@@ -66,10 +66,10 @@ function itemType(input: unknown) {
 export const has = <T extends { length: number }>(length: number, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (${input}.length !== ${context}.has) return ${context}.PipeError.root(\`${err ?? `must contain \${${context}.has} \${${context}.itemType(${input})}`}\`, ${input})`,
+			`if (${input}.length !== ${context}.has) return PipeError.root(\`${err ?? `must contain \${${context}.has} \${${context}.itemType(${input})}`}\`, ${input})`,
 		],
 		{
-			context: { has: length, itemType, PipeError },
+			context: { has: length, itemType },
 			schema: (context) => {
 				const val = context.has ?? length
 				return {
@@ -85,10 +85,10 @@ export const has = <T extends { length: number }>(length: number, err?: string) 
 export const min = <T extends { length: number }>(length: number, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (${input}.length < ${context}.min) return ${context}.PipeError.root(\`${err ?? `must contain \${${context}.min} or more \${${context}.itemType(${input})}`}\`, ${input})`,
+			`if (${input}.length < ${context}.min) return PipeError.root(\`${err ?? `must contain \${${context}.min} or more \${${context}.itemType(${input})}`}\`, ${input})`,
 		],
 		{
-			context: { min: length, PipeError, itemType },
+			context: { min: length, itemType },
 			schema: (context) => {
 				const val = context.min ?? length
 				return { minItems: val, minLength: val }
@@ -99,10 +99,10 @@ export const min = <T extends { length: number }>(length: number, err?: string) 
 export const max = <T extends { length: number }>(length: number, err?: string) =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (${input}.length > ${context}.max) return ${context}.PipeError.root(\`${err ?? `must contain \${${context}.max} or less \${${context}.itemType(${input})}`}\`, ${input})`,
+			`if (${input}.length > ${context}.max) return PipeError.root(\`${err ?? `must contain \${${context}.max} or less \${${context}.itemType(${input})}`}\`, ${input})`,
 		],
 		{
-			context: { max: length, PipeError, itemType },
+			context: { max: length, itemType },
 			schema: (context) => {
 				const val = context.min ?? length
 				return { maxItems: val, maxLength: val }

@@ -52,8 +52,8 @@ export function compileNested({
 		...compiled.map((line) => `		${line}`),
 		`		return ${input}`,
 		`	} catch (error) {`,
-		`		if (error instanceof ${contextStr}.PipeError) return error`,
-		`		return ${contextStr}.PipeError.root(error instanceof Error ? error.message : String(error), ${input}, error)`,
+		`		if (error instanceof PipeError) return error`,
+		`		return PipeError.root(error instanceof Error ? error.message : String(error), ${input}, error)`,
 		`	}`,
 		`})()`,
 	]
@@ -80,7 +80,6 @@ function compilePipeToString({
 	failEarly?: boolean
 }) {
 	const fullContext = context(pipe)
-	fullContext.PipeError = PipeError
 	const compiled = walk(pipe, <string[]>[], (p, acc) => {
 		acc.push(...p.compile({ input, context: contextStr }, fullContext, failEarly ?? false))
 		return acc
@@ -92,12 +91,13 @@ export function compile<T extends Pipe<any, any>>(pipe: T): PipeCompiledFn<T> {
 	const inputStr = 'input'
 	const contextStr = 'context'
 	const { compiled: compiledArr, context } = compilePipeToString({ pipe, input: inputStr, context: contextStr })
-	const compiled = compiledArr
-		.filter((l) => l.trim() !== '')
-		.concat(`return { value: ${inputStr}, valid: true }`)
-		.map((l) => `\t${l}`)
-		.join('\n')
-	pipe.__compiled = new Function(contextStr, `return (${inputStr}) => {\n${compiled}\n}`)(context)
+	const allLines = [
+		`return (${inputStr}) => {`,
+		...compiledArr.filter((l) => l.trim() !== '').map((l) => `\t${l}`),
+		`	return { value: ${inputStr}, valid: true }`,
+		`}`,
+	]
+	pipe.__compiled = new Function(contextStr, 'PipeError', allLines.join('\n'))(context, PipeError)
 	return pipe.__compiled!
 }
 
@@ -149,12 +149,9 @@ export function define<I, O>(
 ): Pipe<I, O> {
 	const key = `define_${getRandomValue()}`
 	return standard<I, O>(
-		({ input, context }) => [
-			`${input} = ${context}['${key}'](${input})`,
-			`if (${input} instanceof ${context}.PipeError) return ${input}`,
-		],
+		({ input, context }) => [`${input} = ${context}['${key}'](${input})`, `if (${input} instanceof PipeError) return ${input}`],
 		{
-			context: { ...config?.context, [key]: fn, PipeError },
+			context: { ...config?.context, [key]: fn },
 			schema: config?.schema,
 		},
 	)
