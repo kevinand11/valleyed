@@ -39,15 +39,17 @@ export function compileNested({
 	context: contextStr,
 	prefix = '',
 	failEarly,
+	asFn = false,
 }: Parameters<typeof compilePipeToString>[0] & {
 	rootContext: Context
 	prefix?: string
+	asFn?: boolean
 }) {
 	const random = getRandomValue()
 	const { compiled, context } = compilePipeToString({ pipe, input, context: `${contextStr}[\`${random}\`]`, failEarly })
 	rootContext[random] = context
 	return [
-		`${prefix}(() => {`,
+		`${prefix}${asFn ? '' : '('}() => {`,
 		`	try {`,
 		...compiled.map((line) => `		${line}`),
 		`		return ${input}`,
@@ -55,7 +57,7 @@ export function compileNested({
 		`		if (error instanceof PipeError) return error`,
 		`		return PipeError.root(error instanceof Error ? error.message : String(error), ${input}, error)`,
 		`	}`,
-		`})()`,
+		`}${asFn ? '' : ')()'}`,
 	]
 }
 

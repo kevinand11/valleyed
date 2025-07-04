@@ -6,25 +6,29 @@ export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an arra
 	const errorsVarname = `errors_${getRandomValue()}`
 	const resVarname = `res_${getRandomValue()}`
 	const idxVarname = `i_${getRandomValue()}`
+	const fnVarname = `fn_${getRandomValue()}`
 	return standard<PipeInput<T>[], PipeOutput<T>[]>(
 		({ input, context }, rootContext, { failEarly }) => [
 			`if (!Array.isArray(${input})) return PipeError.root('${err}', ${input})`,
 			failEarly ? '' : `const ${errorsVarname} = []`,
 			`const ${resVarname} = []`,
-			`for (const idx in ${input}) {`,
-			`	let ${idxVarname} = ${input}[idx]`,
-			...[
-				...compileNested({
-					pipe: branch,
-					rootContext,
-					input: idxVarname,
-					context,
-					prefix: `const validated = `,
-					failEarly,
-				}).map((l) => `\t${l}`),
-				`	if (!(validated instanceof PipeError)) ${resVarname}.push(validated)`,
-				failEarly ? `	else return validated` : `	else ${errorsVarname}.push(PipeError.path(idx, validated, ${idxVarname}))`,
-			],
+			`let ${idxVarname}`,
+			...compileNested({
+				pipe: branch,
+				rootContext,
+				input: idxVarname,
+				context,
+				prefix: `const ${fnVarname} = `,
+				failEarly,
+				asFn: true,
+			}),
+			`for (let idx = 0; idx < ${input}.length; idx++) {`,
+			`	${idxVarname} = ${input}[idx]`,
+			`	const validated = ${fnVarname}()`,
+			`	if (!(validated instanceof PipeError)) ${resVarname}.push(validated)`,
+			failEarly
+				? `	else return PipeError.path(idx, validated, ${idxVarname})`
+				: `	else ${errorsVarname}.push(PipeError.path(idx, validated, ${idxVarname}))`,
 			`}`,
 			failEarly ? '' : `if (${errorsVarname}.length) return PipeError.rootFrom(${errorsVarname}, ${input})`,
 			`${input} = ${resVarname}`,
