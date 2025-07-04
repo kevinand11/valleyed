@@ -26,7 +26,7 @@ const objCompile: (branches: Record<string, Pipe<any, any>>) => Parameters<typeo
 				}),
 				`if (!(${validatedVarname} instanceof PipeError)) ${resVarname}['${k}'] = ${validatedVarname}`,
 				failEarly
-					? `else return ${validatedVarname}`
+					? `else return PipeError.path('${k}', ${validatedVarname}, ${input}['${k}'])`
 					: `else ${errorsVarname}.push(PipeError.path('${k}', ${validatedVarname}, ${input}['${k}']))`,
 			]),
 			failEarly ? '' : `if (${errorsVarname}.length) return PipeError.rootFrom(${errorsVarname}, ${input})`,
@@ -98,11 +98,11 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 				...compileNested({ pipe: kPipe, rootContext, input: 'k', context, prefix: `const kValidity = ` }).map((l) => `	${l}`),
 				...compileNested({ pipe: vPipe, rootContext, input: 'v', context, prefix: `const vValidity = ` }).map((l) => `	${l}`),
 				failEarly
-					? `	if (kValidity instanceof PipeError) return kValidity`
+					? `	if (kValidity instanceof PipeError) return PipeError.path(k, kValidity, k)`
 					: `	if (kValidity instanceof PipeError) ${errorsVarname}.push(PipeError.path(k, kValidity, k));`,
 				failEarly
-					? `	if (vValidity instanceof PipeError) return vValidity`
-					: `	if (vValidity instanceof PipeError) ${errorsVarname}.push(PipeError.path(k, vValidity, v));`,
+					? `	if (vValidity instanceof PipeError) return PipeError.path(v, vValidity, v)`
+					: `	if (vValidity instanceof PipeError) ${errorsVarname}.push(PipeError.path(v, vValidity, v));`,
 				`	if (!(kValidity instanceof PipeError) && !(vValidity instanceof PipeError)) ${resVarname}[kValidity] = vValidity;`,
 			],
 			`}`,

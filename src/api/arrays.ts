@@ -62,7 +62,7 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonl
 							}),
 							`if (!(${validatedVarname}${idx} instanceof PipeError)) ${resVarname}.push(${validatedVarname}${idx})`,
 							failEarly
-								? `else return ${validatedVarname}${idx}`
+								? `else return PipeError.path(${idx}, ${validatedVarname}${idx}, ${input}[${idx}])`
 								: `else ${errorsVarname}.push(PipeError.path(${idx}, ${validatedVarname}${idx}, ${input}[${idx}]))`,
 						]),
 						failEarly ? `` : `if (${errorsVarname}.length) return PipeError.rootFrom(${errorsVarname}, ${input})`,

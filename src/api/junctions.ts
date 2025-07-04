@@ -14,7 +14,7 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 				: [
 						`const ${errorsVarname} = []`,
 						`let ${valVarname}, ${validatedVarname}`,
-						`${input} = (() => {`,
+						`while (true) {`,
 						...branches.flatMap((branch, idx) => [
 							`	${valVarname} = ${input}`,
 							...compileNested({
@@ -25,11 +25,14 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 								prefix: `${validatedVarname} = `,
 								failEarly: true,
 							}).map((l) => `	${l}`),
-							`	if (!(${validatedVarname} instanceof PipeError)) return ${validatedVarname}`,
-							`	${errorsVarname}.push(PipeError.path(${idx}, ${validatedVarname}, ${input}))`,
+							`	if (!(${validatedVarname} instanceof PipeError)) {`,
+							`		${input} = ${validatedVarname}`,
+							`		break`,
+							`	}`,
+							`	else ${errorsVarname}.push(PipeError.path(${idx}, ${validatedVarname}, ${input}))`,
 						]),
 						`	return PipeError.rootFrom(${errorsVarname}, ${input})`,
-						`})()`,
+						`}`,
 						`if (${input} instanceof PipeError) return ${input}`,
 					],
 		{
