@@ -5,31 +5,25 @@ import { compileNested, context, standard, schema, define, validate } from './ba
 
 export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 	const errorsVarname = `errors_${getRandomValue()}`
-	const valVarname = `val_${getRandomValue()}`
-	const validatedVarname = `validated_${getRandomValue()}`
+	const fnVarname = `fn_${getRandomValue()}`
 	return standard<PipeInput<T[number]>, PipeOutput<T[number]>>(
 		({ input, context }, rootContext) =>
 			branches.length === 0
 				? []
 				: [
 						`const ${errorsVarname} = []`,
-						`let ${valVarname}, ${validatedVarname}`,
 						`while (true) {`,
+						`	let validated`,
 						...branches.flatMap((branch, idx) => [
-							`	${valVarname} = ${input}`,
-							...compileNested({
-								pipe: branch,
-								rootContext,
-								input: valVarname,
-								context,
-								prefix: `${validatedVarname} = `,
-								failEarly: true,
-							}).map((l) => `	${l}`),
-							`	if (!(${validatedVarname} instanceof PipeError)) {`,
-							`		${input} = ${validatedVarname}`,
+							...compileNested({ pipe: branch, rootContext, fn: `${fnVarname}${idx}`, context, failEarly: true }).map(
+								(l) => `	${l}`,
+							),
+							`	validated = ${fnVarname}${idx}(${input})`,
+							`	if (!(validated instanceof PipeError)) {`,
+							`		${input} = validated`,
 							`		break`,
 							`	}`,
-							`	else ${errorsVarname}.push(PipeError.path(${idx}, ${validatedVarname}, ${input}))`,
+							`	else ${errorsVarname}.push(PipeError.path(${idx}, validated, ${input}))`,
 						]),
 						`	return PipeError.rootFrom(${errorsVarname}, ${input})`,
 						`}`,
@@ -47,13 +41,9 @@ export const merge = <T1 extends Pipe<any, any>, T2 extends Pipe<any, any>>(bran
 		({ input, context }, rootContext) => [
 			`let ${inputVarname}A = ${input}`,
 			`let ${inputVarname}B = ${input}`,
-			...compileNested({ pipe: branch1, rootContext, input: `${inputVarname}A`, context, prefix: `${inputVarname}A = ` }).map(
-				(l) => `	${l}`,
-			),
+			...compileNested({ pipe: branch1, rootContext, input: `${inputVarname}A`, context }).map((l) => `	${l}`),
 			`if (${inputVarname}A instanceof PipeError) return ${inputVarname}A`,
-			...compileNested({ pipe: branch2, rootContext, input: `${inputVarname}B`, context, prefix: `${inputVarname}B = ` }).map(
-				(l) => `	${l}`,
-			),
+			...compileNested({ pipe: branch2, rootContext, input: `${inputVarname}B`, context }).map((l) => `	${l}`),
 			`if (${inputVarname}B instanceof PipeError) return ${inputVarname}B`,
 			`${input} = ${context}.differMerge(${inputVarname}A, ${inputVarname}B)`,
 		],
@@ -74,7 +64,7 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 			`switch (${context}.wrapInTryCatch(() => ${context}.discriminator(${input}))) {`,
 			...Object.entries(branches).flatMap(([key, branch]) => [
 				`	case ('${key}'): {`,
-				...compileNested({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }).map((l) => `		${l}`),
+				...compileNested({ pipe: branch, rootContext, input, context }).map((l) => `		${l}`),
 				` 		if (${input} instanceof PipeError) return ${input}`,
 				`		break`,
 				`	}`,
@@ -89,20 +79,20 @@ export const discriminate = <T extends Record<PropertyKey, Pipe<any, any>>>(
 	)
 
 export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
-	const inputVarname = `inputCopy_${getRandomValue()}`
+	const fnVarname = `fn_${getRandomValue()}`
 	const validatedVarname = `validated_${getRandomValue()}`
 	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => [
-			`let ${inputVarname} = ${input}`,
-			...compileNested({ pipe: branch, rootContext, input: inputVarname, context, prefix: `const ${validatedVarname} = ` }),
-			`if (!(${validatedVarname} instanceof PipeError)) ${input} = ${validatedVarname}`,
-			`else {`,
+			...compileNested({ pipe: branch, rootContext, context, fn: fnVarname }),
+			`let ${validatedVarname} = ${fnVarname}(${input})`,
+			`if (${validatedVarname} instanceof PipeError) {`,
 			`	if (${input}?.constructor?.name !== 'String') return ${validatedVarname}`,
-			`	${inputVarname} = ${context}.wrapInTryCatch(() => JSON.parse(${input}), ${validatedVarname})`,
-			`	if (${inputVarname} === ${validatedVarname}) return ${validatedVarname}`,
-			...compileNested({ pipe: branch, rootContext, input: inputVarname, context, prefix: `${input} = ` }).map((l) => `	${l}`),
-			`	if (${input} instanceof PipeError) return ${input}`,
+			`	${validatedVarname} = ${context}.wrapInTryCatch(() => JSON.parse(${input}), ${validatedVarname})`,
+			`	if (${validatedVarname} instanceof PipeError) return ${validatedVarname}`,
+			`	${validatedVarname} = ${fnVarname}(${validatedVarname})`,
+			`	if (${validatedVarname} instanceof PipeError) return ${validatedVarname}`,
 			`}`,
+			`${input} = ${validatedVarname}`,
 		],
 		{
 			context: { ...context(branch), wrapInTryCatch },
@@ -123,22 +113,15 @@ export const lazy = <T extends Pipe<any, any>>(pipeFn: () => T) =>
 	)
 
 export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: string) => {
-	const recursiveFnVarname = `recursiveFn_${getRandomValue()}`
+	const fnVarname = `fn_${getRandomValue()}`
 	let compiledBefore = false
 	let schemedBefore = false
 	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => {
-			const common = [`${input} = ${recursiveFnVarname}(${input})`, `if (${input} instanceof PipeError) return ${input}`]
+			const common = [`${input} = ${fnVarname}(${input})`, `if (${input} instanceof PipeError) return ${input}`]
 			if (compiledBefore) return common
 			compiledBefore = true
-			return [
-				`const ${recursiveFnVarname} = (node) => {`,
-				...compileNested({ pipe: pipeFn(), rootContext, input: 'node', context, prefix: `return `, failEarly: true }).map(
-					(l) => `	${l}`,
-				),
-				`}`,
-				...common,
-			]
+			return [...compileNested({ pipe: pipeFn(), rootContext, context, fn: fnVarname, failEarly: true }), ...common]
 		},
 		{
 			schema: () => {

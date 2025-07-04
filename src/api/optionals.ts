@@ -7,9 +7,8 @@ const partial = <T extends Pipe<any, any>, P>(
 	branch: T,
 	partialCondition: (i: unknown) => boolean,
 	config: Parameters<typeof standard<PipeInput<T> | P, PipeOutput<T> | P>>[1],
-) => {
-	const varname = `validity_${getRandomValue()}`
-	return standard<PipeInput<T> | P, PipeOutput<T> | P>(
+) =>
+	standard<PipeInput<T> | P, PipeOutput<T> | P>(
 		({ input, context }, rootContext) => [
 			`if (!${context}.partialCondition(${input})) {`,
 			...compileNested({
@@ -17,10 +16,8 @@ const partial = <T extends Pipe<any, any>, P>(
 				rootContext,
 				input,
 				context,
-				prefix: `const ${varname} = `,
 			}).map((l) => `  ${l}`),
-			`	if (${varname} instanceof PipeError) return ${varname}`,
-			`	${input} = ${varname}`,
+			`	if (${input} instanceof PipeError) return ${input}`,
 			`}`,
 		],
 		{
@@ -28,7 +25,6 @@ const partial = <T extends Pipe<any, any>, P>(
 			context: { ...config?.context, partialCondition },
 		},
 	)
-}
 
 export const nullable = <T extends Pipe<any, any>>(branch: T) =>
 	partial<T, null>(branch, (i) => i === null, {
@@ -58,7 +54,7 @@ export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<
 	standard<PipeInput<T> | undefined, Exclude<PipeOutput<T>, undefined>>(
 		({ input, context }, rootContext) => [
 			`if (${input} === undefined) ${input} = ${context}.defaults`,
-			...compileNested({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }),
+			...compileNested({ pipe: branch, rootContext, input, context }),
 			`if (${input} instanceof PipeError) return ${input}`,
 		],
 		{
@@ -67,10 +63,12 @@ export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<
 		},
 	)
 
-const onCatch = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) =>
-	standard<PipeInput<T>, PipeOutput<T>>(
+const onCatch = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInput<T>>) => {
+	const fnVarname = `fn_${getRandomValue()}`
+	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => [
-			...compileNested({ pipe: branch, rootContext, input, context, prefix: `${input} = ` }),
+			...compileNested({ pipe: branch, rootContext, context, fn: fnVarname }),
+			`${input} = ${fnVarname}(${input})`,
 			`if (${input} instanceof PipeError) ${input} = ${context}.catch`,
 		],
 		{
@@ -78,5 +76,6 @@ const onCatch = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInpu
 			context: { ...context(branch), catch: def, validate, branch },
 		},
 	)
+}
 
 export { onCatch as catch }

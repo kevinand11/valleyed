@@ -26,7 +26,7 @@ export const withStrippedHtml = (branch: Pipe<string, string>) => {
 	return standard<string, string>(
 		({ input, context }, rootContext) => [
 			`let ${varname} = ${context}.stripHTML(${input});`,
-			...compileNested({ pipe: branch, rootContext, input: varname, context, prefix: `${varname} =` }),
+			...compileNested({ pipe: branch, rootContext, input: varname, context }),
 			`if (${varname} instanceof PipeError) return ${varname}`,
 		],
 		{

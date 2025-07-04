@@ -11,15 +11,7 @@ export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an arra
 			`if (!Array.isArray(${input})) return PipeError.root('${err}', ${input})`,
 			failEarly ? '' : `const ${errorsVarname} = []`,
 			`const ${resVarname} = []`,
-			...compileNested({
-				pipe: branch,
-				rootContext,
-				input: 'i',
-				context,
-				prefix: `const ${fnVarname} = `,
-				failEarly,
-				fn: { arg: 'i' },
-			}),
+			...compileNested({ pipe: branch, rootContext, context, failEarly, fn: fnVarname }),
 			`for (let idx = 0; idx < ${input}.length; idx++) {`,
 			`	const validated = ${fnVarname}(${input}[idx])`,
 			`	if (!(validated instanceof PipeError)) ${resVarname}.push(validated)`,
@@ -49,14 +41,8 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonl
 						`const ${resVarname} = []`,
 						failEarly ? '' : `const ${errorsVarname} = []`,
 						...branches.flatMap((branch, idx) => [
-							...compileNested({
-								pipe: branch,
-								rootContext,
-								input: `${input}[${idx}]`,
-								context,
-								prefix: `const ${validatedVarname}${idx} = `,
-								failEarly,
-							}),
+							`let ${validatedVarname}${idx} = ${input}[${idx}]`,
+							...compileNested({ pipe: branch, rootContext, input: `${validatedVarname}${idx}`, context, failEarly }),
 							`if (!(${validatedVarname}${idx} instanceof PipeError)) ${resVarname}.push(${validatedVarname}${idx})`,
 							failEarly
 								? `else return PipeError.path(${idx}, ${validatedVarname}${idx}, ${input}[${idx}])`
