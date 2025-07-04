@@ -12,6 +12,10 @@ export class PipeError extends Error {
 		super(message ? formatError(message) : 'Pipe validation error', { cause })
 	}
 
+	get valid(): false {
+		return false
+	}
+
 	toString() {
 		return this.messages.map(formatError).join('\n')
 	}

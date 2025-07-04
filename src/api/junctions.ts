@@ -120,7 +120,7 @@ export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: str
 	let schemedBefore = false
 	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, rootContext) => {
-			const common = [`${input} = ${recursiveFnVarname}(${input})`]
+			const common = [`${input} = ${recursiveFnVarname}(${input})`, `if (${input} instanceof ${context}.PipeError) return ${input}`]
 			if (compiledBefore) return common
 			compiledBefore = true
 			return [
