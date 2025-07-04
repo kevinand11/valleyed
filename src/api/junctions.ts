@@ -1,7 +1,7 @@
 import { Pipe, PipeInput, PipeOutput } from './base'
 import { merge as differMerge } from '../utils/differ'
 import { getRandomValue, wrapInTryCatch } from '../utils/functions'
-import { compileNested, context, standard, schema, define, assert } from './base/pipes'
+import { compileNested, context, standard, schema, define, validate } from './base/pipes'
 
 export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 	const errorsVarname = `errors_${getRandomValue()}`
@@ -112,9 +112,15 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 }
 
 export const lazy = <T extends Pipe<any, any>>(pipeFn: () => T) =>
-	define((input) => assert(pipeFn(), input), {
-		schema: () => schema(pipeFn()),
-	})
+	define(
+		(input) => {
+			const result = validate(pipeFn(), input)
+			return result.valid ? result.value : result
+		},
+		{
+			schema: () => schema(pipeFn()),
+		},
+	)
 
 export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: string) => {
 	const recursiveFnVarname = `recursiveFn_${getRandomValue()}`
