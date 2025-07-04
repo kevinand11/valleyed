@@ -95,7 +95,7 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 			...compileNested({ pipe: branch, rootContext, input: inputVarname, context, prefix: `const ${validatedVarname} = ` }),
 			`if (!(${validatedVarname} instanceof ${context}.PipeError)) ${input} = ${validatedVarname}`,
 			`else {`,
-			`	if (${input}?.constructor?.name !== 'String') throw ${validatedVarname}`,
+			`	if (${input}?.constructor?.name !== 'String') return ${validatedVarname}`,
 			`	${inputVarname} = ${context}.wrapInTryCatch(() => JSON.parse(${input}), ${validatedVarname})`,
 			`	if (${inputVarname} === ${validatedVarname}) return ${validatedVarname}`,
 			...compileNested({ pipe: branch, rootContext, input: inputVarname, context, prefix: `${input} = ` }).map((l) => `	${l}`),

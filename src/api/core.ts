@@ -6,7 +6,7 @@ export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass 
 	define<T, T>(
 		(input) => {
 			if (condition(input)) return input
-			throw PipeError.root(err, input)
+			return PipeError.root(err, input)
 		},
 		{
 			context: { custom: condition, PipeError },

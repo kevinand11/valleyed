@@ -44,7 +44,7 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonl
 	const validatedVarname = `validated_${getRandomValue()}`
 	return standard<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>(
 		({ input, context }, rootContext, failEarly) => [
-			`if (!Array.isArray(${input})) throw ${context}.PipeError.root('${err}', ${input})`,
+			`if (!Array.isArray(${input})) return ${context}.PipeError.root('${err}', ${input})`,
 			...(branches.length === 0
 				? []
 				: [

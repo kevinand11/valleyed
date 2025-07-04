@@ -11,7 +11,7 @@ const isMimeType = (str: string) => /^[a-zA-Z0-9!#$&^_.+-]+\/[a-zA-Z0-9!#$&^_.+-
 export const file = <T extends File>(err = 'is not a recognized file') =>
 	standard<T, T>(
 		({ input, context }) => [
-			`if (!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type)) throw ${context}.PipeError.root('${err}', ${input})`,
+			`if (!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type)) return ${context}.PipeError.root('${err}', ${input})`,
 		],
 		{
 			context: { isFile, isMimeType, PipeError },

@@ -11,7 +11,7 @@ const objCompile: (branches: Record<string, Pipe<any, any>>) => Parameters<typeo
 		const errorsVarname = `errors_${getRandomValue()}`
 		const validatedVarname = `validated_${getRandomValue()}`
 		return [
-			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) throw ${context}.PipeError.root('is not an object', ${input})`,
+			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) return ${context}.PipeError.root('is not an object', ${input})`,
 			`const ${resVarname} = {}`,
 			failEarly ? '' : `const ${errorsVarname} = []`,
 			`let ${validatedVarname}`,
@@ -29,7 +29,7 @@ const objCompile: (branches: Record<string, Pipe<any, any>>) => Parameters<typeo
 					? `else return ${validatedVarname}`
 					: `else ${errorsVarname}.push(${context}.PipeError.path('${k}', ${validatedVarname}, ${input}['${k}']))`,
 			]),
-			failEarly ? '' : `if (${errorsVarname}.length) throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
+			failEarly ? '' : `if (${errorsVarname}.length) return ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 			`${input} = ${resVarname}`,
 		]
 	}
@@ -90,7 +90,7 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 	const errorsVarname = `errors_${getRandomValue()}`
 	return standard<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>>(
 		({ input, context }, rootContext, failEarly) => [
-			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) throw ${context}.PipeError.root(['is not an object'], ${input})`,
+			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) return ${context}.PipeError.root(['is not an object'], ${input})`,
 			`const ${resVarname} = {};`,
 			`const ${errorsVarname} = [];`,
 			`for (let [k, v] of Object.entries(${input})) {`,
@@ -106,7 +106,7 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 				`	if (!(kValidity instanceof ${context}.PipeError) && !(vValidity instanceof ${context}.PipeError)) ${resVarname}[kValidity] = vValidity;`,
 			],
 			`}`,
-			failEarly ? '' : `if (${errorsVarname}.length) throw ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
+			failEarly ? '' : `if (${errorsVarname}.length) return ${context}.PipeError.rootFrom(${errorsVarname}, ${input})`,
 			`${input} = ${resVarname}`,
 		],
 		{

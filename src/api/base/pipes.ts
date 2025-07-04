@@ -148,8 +148,14 @@ export function define<I, O>(
 	} = {},
 ): Pipe<I, O> {
 	const key = `define_${getRandomValue()}`
-	return standard<I, O>(({ input, context }) => [`${input} = ${context}['${key}'](${input})`], {
-		context: { ...config?.context, [key]: fn, PipeError },
-		schema: config?.schema,
-	})
+	return standard<I, O>(
+		({ input, context }) => [
+			`${input} = ${context}['${key}'](${input})`,
+			`if (${input} instanceof ${context}.PipeError) return ${input}`,
+		],
+		{
+			context: { ...config?.context, [key]: fn, PipeError },
+			schema: config?.schema,
+		},
+	)
 }
