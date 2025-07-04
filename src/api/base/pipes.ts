@@ -1,5 +1,5 @@
 import { PipeError } from './errors'
-import { Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeOutput, PipeFn, PipeInput, PipeCompiledFn } from './types'
+import { Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeOutput, PipeFn, PipeCompiledFn } from './types'
 import { getRandomValue } from '../../utils/functions'
 import { JsonSchema } from '../../utils/types'
 
@@ -22,10 +22,10 @@ export function assert<T extends Pipe<any, any>>(pipe: T, input: unknown): PipeO
 	return result.value
 }
 
-export function validate<T extends Pipe<any, any>>(pipe: T, input: unknown): ReturnType<PipeCompiledFn<PipeInput<T>, PipeOutput<T>>> {
+export function validate<T extends Pipe<any, any>>(pipe: T, input: unknown): ReturnType<PipeCompiledFn<T>> {
 	try {
 		const fn = pipe.__compiled ?? compile(pipe)
-		return fn(input as any)
+		return fn(input) as ReturnType<PipeCompiledFn<T>>
 	} catch (error) {
 		if (error instanceof PipeError) return error
 		return PipeError.root(error instanceof Error ? error.message : `${error}`, input, error)
@@ -88,7 +88,7 @@ function compilePipeToString({
 	return { compiled, context: fullContext }
 }
 
-export function compile<T extends Pipe<any, any>>(pipe: T): PipeCompiledFn<PipeInput<T>, PipeOutput<T>> {
+export function compile<T extends Pipe<any, any>>(pipe: T): PipeCompiledFn<T> {
 	const inputStr = 'input'
 	const contextStr = 'context'
 	const { compiled: compiledArr, context } = compilePipeToString({ pipe, input: inputStr, context: contextStr })

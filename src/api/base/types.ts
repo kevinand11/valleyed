@@ -4,7 +4,7 @@ import { PipeError } from './errors'
 import { JsonSchema } from '../../utils/types'
 
 export type PipeFn<I, O> = (input: I) => O | PipeError
-export type PipeCompiledFn<I, O> = (input: I) => { value: O; valid: true } | PipeError
+export type PipeCompiledFn<T extends Pipe<any, any>> = (input: unknown) => { value: PipeOutput<T>; valid: true } | PipeError
 export type PipeInput<T> = T extends Pipe<infer I, any> ? I : never
 export type PipeOutput<T> = T extends Pipe<any, infer O> ? O : never
 export type PipeMeta = Pick<JsonSchema, '$refId' | 'title' | 'description' | 'examples' | 'default'>
@@ -77,5 +77,5 @@ export interface Pipe<I, O> extends StandardSchemaV1<I, O> {
 	readonly compile: (names: { input: string; context: string }, rootContext: Context, failEarly: boolean) => string[]
 	next?: Pipe<any, any>
 	last?: Pipe<any, any>
-	__compiled?: PipeCompiledFn<any, any>
+	__compiled?: PipeCompiledFn<any>
 }
