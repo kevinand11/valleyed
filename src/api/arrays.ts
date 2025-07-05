@@ -5,19 +5,23 @@ import { getRandomValue } from '../utils/functions'
 export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an array') => {
 	const errorsVarname = `errors_${getRandomValue()}`
 	const resVarname = `res_${getRandomValue()}`
-	const fnVarname = `fn_${getRandomValue()}`
+	const validatedVarname = `validated_${getRandomValue()}`
 	return standard<PipeInput<T>[], PipeOutput<T>[]>(
 		({ input, path }, opts) => [
-			`if (!Array.isArray(${input})) return PipeError.root('${err}', ${input}, ${path})`,
+			opts.wrapError(`!Array.isArray(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
 			opts.failEarly ? '' : `const ${errorsVarname} = []`,
 			`const ${resVarname} = []`,
-			...compileNested({ opts, pipe: branch, fn: fnVarname }),
+			`let ${validatedVarname}`,
 			`for (let idx = 0; idx < ${input}.length; idx++) {`,
-			`	const validated = ${fnVarname}(${input}[idx])`,
-			`	if (!(validated instanceof PipeError)) ${resVarname}.push(validated)`,
-			opts.failEarly ? `	else return PipeError.path(idx, validated)` : `	else ${errorsVarname}.push(PipeError.path(idx, validated))`,
+			`	${validatedVarname} = ${input}[idx]`,
+			...compileNested({ opts, pipe: branch, input: validatedVarname, errorType: 'assign' }),
+			opts.failEarly
+				? `if (${validatedVarname} instanceof PipeError) ${opts.wrapError.format(`PipeError.path(idx, ${validatedVarname})`)}`
+				: `	if (${validatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(idx, ${validatedVarname}))`,
+			`	else ${resVarname}[idx] = ${validatedVarname}`,
 			`}`,
-			opts.failEarly ? '' : `if (${errorsVarname}.length) return PipeError.rootFrom(${errorsVarname})`,
+			opts.failEarly ? '' : opts.wrapError(`${errorsVarname}.length`, `PipeError.rootFrom(${errorsVarname})`),
+			opts.wrapError(`${input} instanceof PipeError`, `${input}`),
 			`${input} = ${resVarname}`,
 		],
 		{
@@ -32,7 +36,7 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonl
 	const validatedVarname = `validated_${getRandomValue()}`
 	return standard<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>(
 		({ input, path }, opts) => [
-			`if (!Array.isArray(${input})) return PipeError.root('${err}', ${input}, ${path})`,
+			opts.wrapError(`!Array.isArray(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
 			...(branches.length === 0
 				? []
 				: [
@@ -40,13 +44,19 @@ export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonl
 						opts.failEarly ? '' : `const ${errorsVarname} = []`,
 						...branches.flatMap((branch, idx) => [
 							`let ${validatedVarname}${idx} = ${input}[${idx}]`,
-							...compileNested({ opts, pipe: branch, input: `${validatedVarname}${idx}`, key: `${idx}` }),
-							`if (!(${validatedVarname}${idx} instanceof PipeError)) ${resVarname}.push(${validatedVarname}${idx})`,
+							...compileNested({
+								opts,
+								pipe: branch,
+								input: `${validatedVarname}${idx}`,
+								key: `${idx}`,
+								errorType: 'assign',
+							}),
 							opts.failEarly
-								? `else return ${validatedVarname}${idx}`
-								: `else ${errorsVarname}.push(${validatedVarname}${idx})`,
+								? opts.wrapError(`${validatedVarname}${idx} instanceof PipeError`, `${validatedVarname}${idx}`)
+								: `	if (${validatedVarname}${idx} instanceof PipeError) ${errorsVarname}.push(${validatedVarname}${idx})`,
+							`if (!(${validatedVarname}${idx} instanceof PipeError)) ${resVarname}[${idx}] = ${validatedVarname}${idx}`,
 						]),
-						opts.failEarly ? `` : `if (${errorsVarname}.length) return PipeError.rootFrom(${errorsVarname})`,
+						opts.failEarly ? '' : opts.wrapError(`${errorsVarname}.length`, `PipeError.rootFrom(${errorsVarname})`),
 						`${input} = ${resVarname}`,
 					]),
 		],

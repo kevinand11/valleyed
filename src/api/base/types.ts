@@ -5,7 +5,12 @@ import { JsonSchema } from '../../utils/types'
 
 export type PipeFn<I, O> = (input: I) => O | PipeError
 export type PipeCompiledFn<T extends Pipe<any, any>> = (input: unknown) => { value: PipeOutput<T>; valid: true } | PipeError
-export type PipeErrorHandler = (errorCondition: string, error: string, rest?: string[]) => string[]
+export type PipeErrorHandlerType = 'return' | 'throw' | 'assign'
+export type PipeErrorHandler = ((errorCondition: string, error: string) => (lines: string[]) => string[]) & {
+	type: PipeErrorHandlerType
+	format: (error: string) => string
+}
+
 export type PipeInput<T> = T extends Pipe<infer I, any> ? I : never
 export type PipeOutput<T> = T extends Pipe<any, infer O> ? O : never
 export type PipeMeta = Pick<JsonSchema, '$refId' | 'title' | 'description' | 'examples' | 'default'>
@@ -71,6 +76,8 @@ type PipeChain<I, O> = {
 	): Pipe<I, T10>
 }
 
+type Arrayable<T> = T | T[]
+
 export interface Pipe<I, O> extends StandardSchemaV1<I, O> {
 	readonly context: () => Context
 	readonly schema: (context: Context) => JsonSchema
@@ -78,7 +85,7 @@ export interface Pipe<I, O> extends StandardSchemaV1<I, O> {
 	readonly compile: (
 		names: { input: string; context: string; path: string },
 		opts: { rootContext: Context; failEarly: boolean; path: string; wrapError: PipeErrorHandler },
-	) => string[]
+	) => Arrayable<string | ReturnType<PipeErrorHandler>>
 	next?: Pipe<any, any>
 	last?: Pipe<any, any>
 	__compiled?: PipeCompiledFn<any>

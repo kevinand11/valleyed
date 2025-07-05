@@ -51,11 +51,17 @@ export function compile<T extends Pipe<any, any>>(
 ): PipeCompiledFn<T> {
 	const inputStr = 'input'
 	const contextStr = 'context'
-	const { compiled: compiledArr, context } = compilePipeToString({ pipe, input: inputStr, context: contextStr, failEarly })
+	const { lines, context } = compilePipeToString({
+		pipe,
+		input: inputStr,
+		context: contextStr,
+		failEarly,
+		base: [`return { value: ${inputStr}, valid: true }`],
+	})
 	const allLines = [
 		`return (${inputStr}) => {`,
-		...compiledArr.filter((l) => l.trim() !== '').map((l) => `\t${l}`),
-		`	return { value: ${inputStr}, valid: true }`,
+		...lines.filter((l) => l.trim() !== '').map((l) => `\t${l}`),
+		`	throw PipeError.root('unhandled root validation', ${inputStr})`,
 		`}`,
 	]
 	pipe.__compiled = new Function(contextStr, 'PipeError', allLines.join('\n'))(context, PipeError)
@@ -124,21 +130,21 @@ export function define<I, O>(
 export function compileNested(
 	data: {
 		pipe: Pipe<any, any>
+		errorType?: Parameters<typeof createErrorHandler>[1]
 		opts: Required<Pick<Parameters<Pipe<any, any>['compile']>[1], 'rootContext' | 'failEarly' | 'path' | 'wrapError'>>
-	} & ({ fn: string } | { input: string; key?: string }),
+	} & { input: string; key?: string },
 ) {
 	const random = getRandomValue()
-	const input = 'fn' in data ? `arg_${getRandomValue()}` : data.input
-	const { compiled, context } = compilePipeToString({
+	const { lines, context } = compilePipeToString({
 		...data.opts,
+		wrapError: createErrorHandler(data.input, data.errorType ?? data.opts.wrapError.type),
 		pipe: data.pipe,
-		input,
+		input: data.input,
 		context: `context[\`${random}\`]`,
 		path: ['key' in data ? data.key : '', data.opts.path].filter(Boolean).join('.') || undefined,
 	})
 	data.opts.rootContext[random] = context
-	if (!('fn' in data)) return compiled
-	return [`function ${data.fn}(${input}) {`, ...compiled.map((line) => `	${line}`), `	return ${input}`, '}']
+	return lines
 }
 
 function compilePipeToString({
@@ -149,6 +155,7 @@ function compilePipeToString({
 	path = '',
 	rootContext,
 	wrapError = createErrorHandler(input, 'return'),
+	base = [],
 }: {
 	pipe: Pipe<any, any>
 	input: string
@@ -157,17 +164,31 @@ function compilePipeToString({
 	path?: string
 	rootContext?: Context
 	wrapError?: PipeErrorHandler
+	base?: string[]
 }) {
 	const ctx = context(pipe)
 	rootContext ??= ctx
-	const compiled = walk(pipe, <string[]>[], (p, acc) => {
+	const compiled = walk(pipe, <ReturnType<Pipe<any, any>['compile']>[]>[], (p, acc) => {
 		acc.push(
-			...p.compile(
+			p.compile(
 				{ input, context: contextStr, path: `${path ? `'${path}'` : undefined}` },
 				{ rootContext, failEarly, path, wrapError },
 			),
 		)
 		return acc
 	})
-	return { compiled, context: ctx }
+	const lines = mergePipeLines(base, compiled.flat())
+	return { lines, context: ctx }
+}
+
+function mergePipeLines(base: string[], lines: ReturnType<Pipe<any, any>['compile']>) {
+	let total = base
+	if (!Array.isArray(lines)) lines = [lines]
+	let current = lines.pop()
+	while (current !== undefined) {
+		if (typeof current === 'string') total.unshift(current)
+		else if (typeof current === 'function') total = current(total)
+		current = lines.pop()
+	}
+	return total
 }

@@ -11,17 +11,22 @@ const objCompile: (branches: Record<string, Pipe<any, any>>) => Parameters<typeo
 		const errorsVarname = `errors_${getRandomValue()}`
 		const validatedVarname = `validated_${getRandomValue()}`
 		return [
-			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) return PipeError.root('is not an object', ${input}, ${path})`,
+			opts.wrapError(
+				`typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})`,
+				`PipeError.root('is not an object', ${input}, ${path})`,
+			),
 			`const ${resVarname} = {}`,
 			opts.failEarly ? '' : `const ${errorsVarname} = []`,
 			`let ${validatedVarname}`,
 			...Object.entries(branches).flatMap(([k, branch]) => [
 				`${validatedVarname} = ${input}['${k}']`,
-				...compileNested({ opts, pipe: branch, input: validatedVarname, key: k }),
-				`if (!(${validatedVarname} instanceof PipeError)) ${resVarname}['${k}'] = ${validatedVarname}`,
-				opts.failEarly ? `else return ${validatedVarname}` : `else ${errorsVarname}.push(${validatedVarname})`,
+				...compileNested({ opts, pipe: branch, input: validatedVarname, key: k, errorType: 'assign' }),
+				opts.failEarly
+					? opts.wrapError(`${validatedVarname} instanceof PipeError`, validatedVarname)
+					: `if (${validatedVarname} instanceof PipeError) ${errorsVarname}.push(${validatedVarname})`,
+				`${resVarname}['${k}'] = ${validatedVarname}`,
 			]),
-			opts.failEarly ? '' : `if (${errorsVarname}.length) return PipeError.rootFrom(${errorsVarname})`,
+			opts.failEarly ? '' : opts.wrapError(`${errorsVarname}.length`, `PipeError.rootFrom(${errorsVarname})`),
 			`${input} = ${resVarname}`,
 		]
 	}
@@ -78,31 +83,34 @@ export const objectOmit = <T extends ObjectPipe<Record<string, Pipe<any, any>>>,
 }
 
 export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any>>(kPipe: K, vPipe: V) => {
-	const kFnVarname = `kFn_${getRandomValue()}`
-	const vFnVarname = `vFn_${getRandomValue()}`
+	const kValidatedVarname = `kValidated_${getRandomValue()}`
+	const vValidatedVarname = `vValidated_${getRandomValue()}`
 	const resVarname = `res_${getRandomValue()}`
 	const errorsVarname = `errors_${getRandomValue()}`
 	return standard<Record<PipeInput<K>, PipeInput<V>>, Record<PipeOutput<K>, PipeOutput<V>>>(
 		({ input, path }, opts) => [
-			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) return PipeError.root(['is not an object'], ${input}, ${path})`,
-			`const ${resVarname} = {};`,
-			opts.failEarly ? '' : `const ${errorsVarname} = [];`,
-			...compileNested({ opts, pipe: kPipe, fn: kFnVarname }),
-			...compileNested({ opts, pipe: vPipe, fn: vFnVarname }),
+			opts.wrapError(
+				`typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})`,
+				`PipeError.root(['is not an object'], ${input}, ${path})`,
+			),
+			`const ${resVarname} = {}`,
+			opts.failEarly ? '' : `const ${errorsVarname} = []`,
 			`for (let [k, v] of Object.entries(${input})) {`,
 			...[
-				`	const kValidated = ${kFnVarname}(k)`,
-				`	const vValidated = ${vFnVarname}(v)`,
+				`let ${kValidatedVarname} = k`,
+				`let ${vValidatedVarname} = v`,
+				...compileNested({ opts, pipe: kPipe, input: kValidatedVarname, errorType: 'assign' }),
 				opts.failEarly
-					? `	if (kValidated instanceof PipeError) return PipeError.path(k, kValidity)`
-					: `	if (kValidated instanceof PipeError) ${errorsVarname}.push(kValidated, k)`,
+					? opts.wrapError(`${kValidatedVarname} instanceof PipeError`, `PipeError.path(k, ${kValidatedVarname})`)
+					: `	if (${kValidatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(k, ${kValidatedVarname}))`,
+				...compileNested({ opts, pipe: vPipe, input: vValidatedVarname, errorType: 'assign' }),
 				opts.failEarly
-					? `	if (vValidated instanceof PipeError) return PipeError.path(v, vValidity)`
-					: `	if (vValidated instanceof PipeError) ${errorsVarname}.push(vValidated);`,
-				`	if (!(kValidated instanceof PipeError) && !(vValidated instanceof PipeError)) ${resVarname}[kValidated] = vValidated;`,
+					? opts.wrapError(`${vValidatedVarname} instanceof PipeError`, `PipeError.path(v, ${vValidatedVarname})`)
+					: `	if (${vValidatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(v, ${vValidatedVarname}))`,
+				`	if (!(${kValidatedVarname} instanceof PipeError) && !(${vValidatedVarname} instanceof PipeError)) ${resVarname}[${kValidatedVarname}] = ${vValidatedVarname};`,
 			],
 			`}`,
-			opts.failEarly ? '' : `if (${errorsVarname}.length) return PipeError.rootFrom(${errorsVarname})`,
+			opts.failEarly ? '' : opts.wrapError(`${errorsVarname}.length`, `PipeError.rootFrom(${errorsVarname})`),
 			`${input} = ${resVarname}`,
 		],
 		{

@@ -32,6 +32,7 @@ export class PipeError extends Error {
 	}
 
 	static path(path: PropertyKey, error: PipeError) {
+		if (path === 0) path = '0'
 		if (!path) return error
 		return new PipeError(
 			error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
@@ -41,16 +42,38 @@ export class PipeError extends Error {
 }
 
 export function createErrorHandler(input: string, type: 'return' | 'throw' | 'assign'): PipeErrorHandler {
-	return (errorCondition, error, rest = []) => {
-		switch (type) {
-			case 'return':
-				return [`if (${errorCondition}) return ${error}`, ...rest]
-			case 'throw':
-				return [`if (${errorCondition}) throw ${error}`, ...rest]
-			case 'assign':
-				return [`if (${errorCondition}) ${input} = ${error}`, `else {`, ...rest.map((l) => `	${l}`), `}`]
-			default:
-				throw new Error(`Unknown error handling type: ${type satisfies never}`)
-		}
-	}
+	const handler: PipeErrorHandler = Object.assign(
+		(...args: Parameters<PipeErrorHandler>) =>
+			(lines: string[]) => {
+				switch (type) {
+					case 'return':
+					case 'throw':
+						return [`if (${args[0]}) ${handler.format(args[1])}`, ...lines]
+					case 'assign':
+						return [
+							`if (${args[0]}) ${handler.format(args[1])}`,
+							...(lines.length ? [`else {`, ...lines.map((l) => `	${l}`), `}`] : []),
+						]
+					default:
+						throw new Error(`Unknown error handling type: ${type satisfies never}`)
+				}
+			},
+		{
+			type,
+			format: (error: string) => {
+				switch (type) {
+					case 'return':
+						return `return ${error}`
+					case 'throw':
+						return `throw ${error}`
+					case 'assign':
+						return `${input} = ${error}`
+					default:
+						throw new Error(`Unknown error handling type: ${type satisfies never}`)
+				}
+			},
+		},
+	)
+
+	return handler
 }
