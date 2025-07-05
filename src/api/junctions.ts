@@ -103,7 +103,7 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 }
 
 export const lazy = <T extends Pipe<any, any>>(pipeFn: () => T) =>
-	define(
+	define<PipeInput<T>, PipeOutput<T>>(
 		(input) => {
 			const result = validate(pipeFn(), input)
 			return result.valid ? result.value : result.error
