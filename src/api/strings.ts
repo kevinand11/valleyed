@@ -28,7 +28,7 @@ export const withStrippedHtml = (branch: Pipe<string, string>) => {
 	return standard<string, string>(
 		({ input, context }, opts) => [
 			`let ${varname} = ${context}.stripHTML(${input})`,
-			...compileNested({ ...opts, pipe: branch, input: varname }),
+			...compileNested({ opts, pipe: branch, input: varname }),
 		],
 		{
 			context: { ...context(branch), stripHTML },

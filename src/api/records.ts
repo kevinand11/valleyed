@@ -17,7 +17,7 @@ const objCompile: (branches: Record<string, Pipe<any, any>>) => Parameters<typeo
 			`let ${validatedVarname}`,
 			...Object.entries(branches).flatMap(([k, branch]) => [
 				`${validatedVarname} = ${input}['${k}']`,
-				...compileNested({ ...opts, pipe: branch, input: validatedVarname, key: k }),
+				...compileNested({ opts, pipe: branch, input: validatedVarname, key: k }),
 				`if (!(${validatedVarname} instanceof PipeError)) ${resVarname}['${k}'] = ${validatedVarname}`,
 				opts.failEarly ? `else return ${validatedVarname}` : `else ${errorsVarname}.push(${validatedVarname})`,
 			]),
@@ -87,8 +87,8 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 			`if (typeof ${input} !== 'object' || ${input} === null || Array.isArray(${input})) return PipeError.root(['is not an object'], ${input}, ${path})`,
 			`const ${resVarname} = {};`,
 			opts.failEarly ? '' : `const ${errorsVarname} = [];`,
-			...compileNested({ ...opts, pipe: kPipe, fn: kFnVarname }),
-			...compileNested({ ...opts, pipe: vPipe, fn: vFnVarname }),
+			...compileNested({ opts, pipe: kPipe, fn: kFnVarname }),
+			...compileNested({ opts, pipe: vPipe, fn: vFnVarname }),
 			`for (let [k, v] of Object.entries(${input})) {`,
 			...[
 				`	const kValidated = ${kFnVarname}(k)`,
