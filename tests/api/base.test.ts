@@ -21,6 +21,6 @@ describe('base', () => {
 			if (i < 1000) throw err
 			return i
 		})
-		expect(v.validate(errPipe, 5)).toEqual(err)
+		expect(v.validate(errPipe, 5)).toEqual({ error: err, valid: false })
 	})
 })

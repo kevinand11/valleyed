@@ -9,10 +9,6 @@ function formatError(message: PipeErrorMessage) {
 export class PipeError {
 	constructor(public messages: PipeErrorMessage[]) {}
 
-	get valid(): false {
-		return false
-	}
-
 	toString() {
 		return this.messages.map(formatError).join('\n')
 	}

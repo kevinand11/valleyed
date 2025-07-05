@@ -18,17 +18,21 @@ export function context<T extends Pipe<any, any>>(pipe: T): Context {
 
 export function assert<T extends Pipe<any, any>>(pipe: T, input: unknown): PipeOutput<T> {
 	const result = validate(pipe, input)
-	if (!result.valid) throw result
+	if (!result.valid) throw result.error
 	return result.value
 }
 
-export function validate<T extends Pipe<any, any>>(pipe: T, input: unknown): ReturnType<PipeCompiledFn<T>> {
+export function validate<T extends Pipe<any, any>>(
+	pipe: T,
+	input: unknown,
+): { value: PipeOutput<T>; valid: true } | { error: PipeError; valid: false } {
 	try {
 		const fn = pipe.__compiled ?? compile(pipe)
-		return fn(input) as ReturnType<PipeCompiledFn<T>>
+		const res = fn(input) as ReturnType<PipeCompiledFn<T>>
+		return res instanceof PipeError ? { error: res, valid: false } : { value: res, valid: true }
 	} catch (error) {
-		if (error instanceof PipeError) return error
-		return PipeError.root(error instanceof Error ? error.message : `${error}`, input, undefined)
+		if (error instanceof PipeError) return { error, valid: false }
+		return { error: PipeError.root(error instanceof Error ? error.message : `${error}`, input, undefined), valid: false }
 	}
 }
 
@@ -56,7 +60,7 @@ export function compile<T extends Pipe<any, any>>(
 		input: inputStr,
 		context: contextStr,
 		failEarly,
-		base: [`return { value: ${inputStr}, valid: true }`],
+		base: [`return ${inputStr}`],
 	})
 	const allLines = [
 		`return (${inputStr}) => {`,
@@ -96,7 +100,7 @@ export function standard<I, O>(
 				const validity = validate(piper, value)
 				if (validity.valid) return { value: validity.value }
 				return {
-					issues: validity.messages.map(({ message, path }) => ({
+					issues: validity.error.messages.map(({ message, path }) => ({
 						message,
 						path: path ? path.split('.') : undefined,
 					})),

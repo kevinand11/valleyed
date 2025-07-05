@@ -4,7 +4,7 @@ import { PipeError } from './errors'
 import { JsonSchema } from '../../utils/types'
 
 export type PipeFn<I, O> = (input: I) => O | PipeError
-export type PipeCompiledFn<T extends Pipe<any, any>> = (input: unknown) => { value: PipeOutput<T>; valid: true } | PipeError
+export type PipeCompiledFn<T extends Pipe<any, any>> = (input: unknown) => PipeOutput<T> | PipeError
 export type PipeErrorHandlerType = 'return' | 'throw' | 'assign'
 export type PipeErrorHandler = ((errorCondition: string, error: string) => (lines: string[]) => string[]) & {
 	type: PipeErrorHandlerType

@@ -106,7 +106,7 @@ export const lazy = <T extends Pipe<any, any>>(pipeFn: () => T) =>
 	define(
 		(input) => {
 			const result = validate(pipeFn(), input)
-			return result.valid ? result.value : result
+			return result.valid ? result.value : result.error
 		},
 		{
 			schema: () => schema(pipeFn()),
