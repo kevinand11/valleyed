@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.11](https://github.com/kevinand11/valleyed/compare/v4.5.10...v4.5.11) (2025-07-05)
+
+
+### Features
+
+* formatting compiled lines ([d4173db](https://github.com/kevinand11/valleyed/commit/d4173dbf1c05d5a4fa4ce8759689cc042768b8fb))
+* init error handling dynamic ([c14b1a8](https://github.com/kevinand11/valleyed/commit/c14b1a8831e4329f7b9a7c019c43fcf066c283b5))
+* lazy impl ([ff8f515](https://github.com/kevinand11/valleyed/commit/ff8f515ce67e2f841db7e30939653050bd4e34b0))
+* optionals and arrays compile ([5e72d16](https://github.com/kevinand11/valleyed/commit/5e72d16cc2baf6440dc5bc43a8117f302534b9ec))
+* primitive pipes compile ([f9c6b91](https://github.com/kevinand11/valleyed/commit/f9c6b917e8171856198bc7d18f759c9a9016cecf))
+* recursive compile ([022b78d](https://github.com/kevinand11/valleyed/commit/022b78d066b7faaa6b8b7fde000d731e599a7534))
+* refactor pipes with branches ([be10784](https://github.com/kevinand11/valleyed/commit/be107848b15a101237bb875f03b89d5f2cc8964a))
+* v recursive ([63ab9d0](https://github.com/kevinand11/valleyed/commit/63ab9d0d3e0ff2fb1df384a704dd195757de94fb))
+
+
+### Bug Fixes
+
+* fixing with tests ([d99a628](https://github.com/kevinand11/valleyed/commit/d99a62839e76216a16de2f9efe9200267358ce73))
+* for array only create validator fn once ([e350cb6](https://github.com/kevinand11/valleyed/commit/e350cb6094baf1168f3a22b932c570328866d811))
+* for array only create validator fn once ([5ff78d9](https://github.com/kevinand11/valleyed/commit/5ff78d949943f8e7762b8ac7990cb63fa3885a04))
+* make failEarly default ([67c01cd](https://github.com/kevinand11/valleyed/commit/67c01cd47a795bca1aa8d1ebd36d63336629b01a))
+* run or in while loop instead of fn ([8fb9f77](https://github.com/kevinand11/valleyed/commit/8fb9f77e2a23737ab7833a300ec9555ac637c0e9))
+* stray throws ([8536b16](https://github.com/kevinand11/valleyed/commit/8536b16bbeb9858fafd2e71060da5f208927b6cc))
+* v.lazy catches error properly ([c31a5f1](https://github.com/kevinand11/valleyed/commit/c31a5f188319382daf9f6b59d55593dde359c18e))
+
 ### [4.5.10](https://github.com/kevinand11/valleyed/compare/v4.5.9...v4.5.10) (2025-06-28)
 
 
