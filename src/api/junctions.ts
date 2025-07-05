@@ -11,25 +11,24 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 				? []
 				: [
 						`const ${errorsVarname} = []`,
-						`while (true) {`,
-						`	let validated`,
-						...branches.flatMap((branch, idx) => [
-							`	validated = ${input}`,
-							...compileNested({
-								opts: { ...opts, failEarly: true },
-								pipe: branch,
-								input: 'validated',
-								errorType: 'assign',
-							}).map((l) => `	${l}`),
-							`	if (!(validated instanceof PipeError)) {`,
-							`		${input} = validated`,
-							`		break`,
-							`	}`,
-							`	else ${errorsVarname}.push(PipeError.path(${idx}, validated))`,
-						]),
-						opts.wrapError.format(`PipeError.rootFrom(${errorsVarname})`),
-						`	break`,
-						`}`,
+						`let validated`,
+						...branches
+							.map((branch, idx) => (lines: string[]) => [
+								`validated = ${input}`,
+								...compileNested({
+									opts: { ...opts, failEarly: true },
+									pipe: branch,
+									input: 'validated',
+									errorType: 'assign',
+								}),
+								`if (validated instanceof PipeError) {`,
+								`	${errorsVarname}.push(PipeError.path(${idx}, validated))`,
+								...lines.map((l) => `	${l}`),
+								idx === branches.length - 1 ? `	${opts.wrapError.format(`PipeError.rootFrom(${errorsVarname})`)}` : '',
+								`}`,
+								`else ${input} = validated`,
+							])
+							.reduceRight<string[]>((acc, cur) => cur(acc), []),
 						opts.wrapError(`${input} instanceof PipeError`, input),
 					],
 		{

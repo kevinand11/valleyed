@@ -182,13 +182,9 @@ function compilePipeToString({
 }
 
 function mergePipeLines(base: string[], lines: ReturnType<Pipe<any, any>['compile']>) {
-	let total = base
-	if (!Array.isArray(lines)) lines = [lines]
-	let current = lines.pop()
-	while (current !== undefined) {
-		if (typeof current === 'string') total.unshift(current)
-		else if (typeof current === 'function') total = current(total)
-		current = lines.pop()
-	}
-	return total
+	return (Array.isArray(lines) ? lines : [lines]).reduceRight<string[]>((acc, cur) => {
+		if (typeof cur === 'string') acc.unshift(cur)
+		else if (typeof cur === 'function') acc = cur(acc)
+		return acc
+	}, base)
 }
