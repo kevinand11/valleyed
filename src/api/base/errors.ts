@@ -6,14 +6,8 @@ function formatError(message: PipeErrorMessage) {
 	return `${message.path ? `${message.path}: ` : ''}${message.message}`
 }
 
-export class PipeError extends Error {
-	constructor(
-		public messages: PipeErrorMessage[],
-		cause?: unknown,
-	) {
-		const message = messages[0]
-		super(message ? formatError(message) : 'Pipe validation error', { cause })
-	}
+export class PipeError {
+	constructor(public messages: PipeErrorMessage[]) {}
 
 	get valid(): false {
 		return false
@@ -23,8 +17,8 @@ export class PipeError extends Error {
 		return this.messages.map(formatError).join('\n')
 	}
 
-	static root(message: string, value: unknown, path?: string, cause?: unknown) {
-		return new PipeError([{ message, path, value }], cause)
+	static root(message: string, value: unknown, path?: string) {
+		return new PipeError([{ message, path, value }])
 	}
 
 	static rootFrom(errors: PipeError[]) {
@@ -36,7 +30,6 @@ export class PipeError extends Error {
 		if (!path) return error
 		return new PipeError(
 			error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
-			error.cause,
 		)
 	}
 }

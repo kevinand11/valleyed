@@ -28,7 +28,7 @@ export function validate<T extends Pipe<any, any>>(pipe: T, input: unknown): Ret
 		return fn(input) as ReturnType<PipeCompiledFn<T>>
 	} catch (error) {
 		if (error instanceof PipeError) return error
-		return PipeError.root(error instanceof Error ? error.message : `${error}`, input, undefined, error)
+		return PipeError.root(error instanceof Error ? error.message : `${error}`, input, undefined)
 	}
 }
 

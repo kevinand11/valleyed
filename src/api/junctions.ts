@@ -4,6 +4,7 @@ import { getRandomValue, wrapInTryCatch } from '../utils/functions'
 import { compileNested, context, standard, schema, define, validate } from './base/pipes'
 
 export const or = <T extends Pipe<any, any>[]>(branches: T) => {
+	const validatedVarname = `validated_${getRandomValue()}`
 	const errorsVarname = `errors_${getRandomValue()}`
 	return standard<PipeInput<T[number]>, PipeOutput<T[number]>>(
 		({ input }, opts) =>
@@ -11,22 +12,22 @@ export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 				? []
 				: [
 						`const ${errorsVarname} = []`,
-						`let validated`,
+						`let ${validatedVarname}`,
 						...branches
 							.map((branch, idx) => (lines: string[]) => [
-								`validated = ${input}`,
+								`${validatedVarname} = ${input}`,
 								...compileNested({
 									opts: { ...opts, failEarly: true },
 									pipe: branch,
-									input: 'validated',
+									input: validatedVarname,
 									errorType: 'assign',
 								}),
-								`if (validated instanceof PipeError) {`,
-								`	${errorsVarname}.push(PipeError.path(${idx}, validated))`,
+								`if (${validatedVarname} instanceof PipeError) {`,
+								`	${errorsVarname}.push(PipeError.path(${idx}, ${validatedVarname}))`,
 								...lines.map((l) => `	${l}`),
 								idx === branches.length - 1 ? `	${opts.wrapError.format(`PipeError.rootFrom(${errorsVarname})`)}` : '',
 								`}`,
-								`else ${input} = validated`,
+								`else ${input} = ${validatedVarname}`,
 							])
 							.reduceRight<string[]>((acc, cur) => cur(acc), []),
 						opts.wrapError(`${input} instanceof PipeError`, input),
