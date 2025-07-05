@@ -1,4 +1,4 @@
-export * from './base/pipes'
+export { assert, context, validate, compile, define, meta, schema } from './base/pipes'
 export * from './arrays'
 export * from './coerce'
 export * from './core'

@@ -15,6 +15,7 @@ describe('array', () => {
 		expect(v.validate(rules, []).valid).toBe(false)
 		expect(v.validate(rules, ['']).valid).toBe(false)
 		expect(v.validate(rules, [2]).valid).toBe(false)
+		expect(v.assert(rules, ['', 2])).toEqual(['', 2])
 		expect(v.validate(rules, ['', 2]).valid).toBe(true)
 		expect(v.validate(rules, [2, '']).valid).toBe(false)
 	})

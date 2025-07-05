@@ -50,7 +50,7 @@ export const formatNumber = (num: number, dp?: number) =>
 
 export const pluralize = (count: number, singular: string, plural: string) => (Math.round(count) === 1 ? singular : plural)
 
-export const getRandomValue = () => Date.now() + Math.random().toString(36)
+export const getRandomValue = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
 export const groupBy = <Type, Unique extends string | number>(array: Array<Type>, func: (item: Type) => Unique) =>
 	array.reduce(
@@ -144,9 +144,4 @@ export const compareTwoStrings = (first: string, second: string) => {
 	}
 
 	return (2.0 * intersectionSize) / (first.length + second.length - 2)
-}
-
-export type ValueFunction<T> = T | (() => T)
-export function execValueFunction<T>(def: ValueFunction<T>): T {
-	return typeof def === 'function' ? (def as any)() : def
 }

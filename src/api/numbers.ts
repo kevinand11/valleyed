@@ -1,54 +1,64 @@
-import { PipeError } from './base'
-import { pipe } from './base/pipes'
-import { execValueFunction, ValueFunction } from '../utils/functions'
+import { standard } from './base/pipes'
 
-export const gt = (value: ValueFunction<number>, err?: string) =>
-	pipe<number, number, any>(
-		(input) => {
-			const v = execValueFunction(value)
-			if (input > v) return input
-			throw PipeError.root(err ?? `must be greater than ${v}`, input)
+export const gt = (value: number, err?: string) =>
+	standard<number, number>(
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`${input} <= ${context}.gt`,
+				`PipeError.root(\`${err ?? `must be greater than \${${context}.gt}`}\`, ${input}, ${path})`,
+			),
+		{
+			context: { gt: value },
+			schema: () => ({ exclusiveMinimum: value }),
 		},
-		{ schema: () => ({ exclusiveMinimum: execValueFunction(value) }) },
 	)
 
-export const gte = (value: ValueFunction<number>, err?: string) =>
-	pipe<number, number, any>(
-		(input) => {
-			const v = execValueFunction(value)
-			if (input >= v) return input
-			throw PipeError.root(err ?? `must be greater than or equal to ${v}`, input)
+export const gte = (value: number, err?: string) =>
+	standard<number, number>(
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`${input} < ${context}.gte`,
+				`PipeError.root(\`${err ?? `must be greater than or equal to \${${context}.gte}`}\`, ${input}, ${path})`,
+			),
+		{
+			context: { gte: value },
+			schema: () => ({ minimum: value }),
 		},
-		{ schema: () => ({ minimum: execValueFunction(value) }) },
 	)
 
-export const lt = (value: ValueFunction<number>, err?: string) =>
-	pipe<number, number, any>(
-		(input) => {
-			const v = execValueFunction(value)
-			if (input < v) return input
-			throw PipeError.root(err ?? `must be less than ${v}`, input)
+export const lt = (value: number, err?: string) =>
+	standard<number, number>(
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`${input} >= ${context}.lt`,
+				`PipeError.root(\`${err ?? `must be less than \${${context}.lt}`}\`, ${input}, ${path})`,
+			),
+		{
+			context: { lt: value },
+			schema: () => ({ exclusiveMaximum: value }),
 		},
-		{ schema: () => ({ exclusiveMaximum: execValueFunction(value) }) },
 	)
 
-export const lte = (value: ValueFunction<number>, err?: string) =>
-	pipe<number, number, any>(
-		(input) => {
-			const v = execValueFunction(value)
-			if (input <= v) return input
-			throw PipeError.root(err ?? `must be less than or equal to ${v}`, input)
+export const lte = (value: number, err?: string) =>
+	standard<number, number>(
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`${input} > ${context}.lte`,
+				`PipeError.root(\`${err ?? `must be less than or equal to \${${context}.lte}`}\`, ${input}, ${path})`,
+			),
+		{
+			context: { lte: value },
+			schema: () => ({ maximum: value }),
 		},
-		{ schema: () => ({ maximum: execValueFunction(value) }) },
 	)
 
 export const int = (err = 'is not an integer') =>
-	pipe<number, number, any>(
-		(input) => {
-			if (input === parseInt(input as any)) return input
-			throw PipeError.root(err, input)
+	standard<number, number>(
+		({ input, path }, opts) => opts.wrapError(`${input} !== parseInt(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
+		{
+			schema: () => ({ type: 'integer' }),
 		},
-		{ schema: () => ({ type: 'integer' }) },
 	)
 
-export const asRounded = (dp = 0) => pipe<number, number, any>((input) => Number(input.toFixed(dp)), {})
+export const asRounded = (dp = 0) =>
+	standard<number, number>(({ input, context }) => [`${input} = Number(${input}.toFixed(${context}.dp))`], { context: { dp } })

@@ -35,6 +35,20 @@ function getDiff(val1: any, val2: any, parent?: string) {
 }
 
 export function equal(v1: unknown, v2: unknown): boolean {
+	if (v1 === v2) return true
+
+	if (type.string(v1)) return v1 === v2
+	if (type.number(v1)) return v1 === v2
+	if (type.bigint(v1)) return v1 === v2
+	if (type.boolean(v1)) return v1 === v2
+	if (type.null(v1)) return v1 === v2
+	if (type.undefined(v1)) return v1 === v2
+	if (type.function(v1)) return v1 === v2
+
+	if (type.regex(v1)) return type.regex(v2) && v1.source === v2.source
+	if (type.nan(v1)) return type.nan(v2)
+	if (type.date(v1)) return type.date(v2) && v1.getTime() === v2.getTime()
+
 	const [val1, val2] = [v1, v2].map((v) => {
 		if (type.map(v)) return Object.fromEntries(v.entries())
 		if (type.set(v)) return [...v]
@@ -43,17 +57,6 @@ export function equal(v1: unknown, v2: unknown): boolean {
 
 	if (val1 === val2) return true
 
-	if (type.string(val1)) return val1 === val2
-	if (type.number(val1)) return val1 === val2
-	if (type.bigint(val1)) return val1 === val2
-	if (type.boolean(val1)) return val1 === val2
-	if (type.null(val1)) return val1 === val2
-	if (type.undefined(val1)) return val1 === val2
-	if (type.function(val1)) return val1 === val2
-
-	if (type.regex(val1)) return type.regex(val2) && val1.source === val2.source
-	if (type.nan(val1)) return type.nan(val2)
-	if (type.date(val1)) return type.date(val2) && val1.getTime() === val2.getTime()
 	if (type.array(val1)) {
 		if (!type.array(val2)) return false
 		if (val1.length !== val2.length) return false

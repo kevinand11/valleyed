@@ -1,62 +1,92 @@
-import { PipeError, PipeInput, type Pipe, type PipeOutput } from './base'
-import { pipe, schema, validate } from './base/pipes'
+import { PipeInput, type Pipe, type PipeOutput } from './base'
+import { standard, schema, compileNested } from './base/pipes'
+import { getRandomValue } from '../utils/functions'
 
-export const array = <T extends Pipe<any, any, any>>(pipeSchema: T, err = 'is not an array') =>
-	pipe<PipeInput<T>[], PipeOutput<T>[], any>(
-		(input: unknown) => {
-			if (!Array.isArray(input)) throw PipeError.root(err, input)
-			if (input.length === 0) return input
-			const res = input.map((i, idx) => {
-				const validity = validate(pipeSchema, i)
-				if (!validity.valid) return PipeError.path(idx, validity.error, i)
-				return validity.value
-			})
-			if (res.some((r) => r instanceof PipeError))
-				throw PipeError.rootFrom(
-					res.filter((r) => r instanceof PipeError),
-					input,
-				)
-			return res
+export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an array') => {
+	const errorsVarname = `errors_${getRandomValue()}`
+	const resVarname = `res_${getRandomValue()}`
+	const validatedVarname = `validated_${getRandomValue()}`
+	return standard<PipeInput<T>[], PipeOutput<T>[]>(
+		({ input, path }, opts) => [
+			opts.wrapError(`!Array.isArray(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
+			opts.failEarly ? '' : `const ${errorsVarname} = []`,
+			`const ${resVarname} = []`,
+			`let ${validatedVarname}`,
+			`for (let idx = 0; idx < ${input}.length; idx++) {`,
+			`	${validatedVarname} = ${input}[idx]`,
+			...compileNested({ opts, pipe: branch, input: validatedVarname, errorType: 'assign' }),
+			opts.failEarly
+				? `if (${validatedVarname} instanceof PipeError) ${opts.wrapError.format(`PipeError.path(idx, ${validatedVarname})`)}`
+				: `	if (${validatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(idx, ${validatedVarname}))`,
+			`	else ${resVarname}[idx] = ${validatedVarname}`,
+			`}`,
+			opts.failEarly ? '' : opts.wrapError(`${errorsVarname}.length`, `PipeError.rootFrom(${errorsVarname})`),
+			opts.wrapError(`${input} instanceof PipeError`, `${input}`),
+			`${input} = ${resVarname}`,
+		],
+		{
+			schema: () => ({ type: 'array', items: schema(branch) }),
 		},
-		{ schema: () => ({ type: 'array', items: schema(pipeSchema) }) },
 	)
+}
 
-export const tuple = <T extends ReadonlyArray<Pipe<any, any, any>>>(pipes: readonly [...T], err = 'is not an array') =>
-	pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }, any>(
-		(input: unknown) => {
-			if (!Array.isArray(input)) throw PipeError.root(err, input)
-			if (pipes.length === 0) return input as any
-			const res = pipes.map((pipe, idx) => {
-				const validitity = validate(pipe, input[idx])
-				if ('error' in validitity) return PipeError.path(idx, validitity.error, input[idx])
-				return validitity.value
-			})
-			if (res.some((r) => r instanceof PipeError))
-				throw PipeError.rootFrom(
-					res.filter((r) => r instanceof PipeError),
-					input,
-				)
-			return res
-		},
+export const tuple = <T extends ReadonlyArray<Pipe<any, any>>>(branches: readonly [...T], err = 'is not an array') => {
+	const errorsVarname = `errors_${getRandomValue()}`
+	const resVarname = `res_${getRandomValue()}`
+	const validatedVarname = `validated_${getRandomValue()}`
+	return standard<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>(
+		({ input, path }, opts) => [
+			opts.wrapError(`!Array.isArray(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
+			...(branches.length === 0
+				? []
+				: [
+						`const ${resVarname} = []`,
+						opts.failEarly ? '' : `const ${errorsVarname} = []`,
+						...branches.flatMap((branch, idx) => [
+							`let ${validatedVarname}${idx} = ${input}[${idx}]`,
+							...compileNested({
+								opts,
+								pipe: branch,
+								input: `${validatedVarname}${idx}`,
+								key: `${idx}`,
+								errorType: 'assign',
+							}),
+							opts.failEarly
+								? opts.wrapError(`${validatedVarname}${idx} instanceof PipeError`, `${validatedVarname}${idx}`)
+								: `	if (${validatedVarname}${idx} instanceof PipeError) ${errorsVarname}.push(${validatedVarname}${idx})`,
+							`if (!(${validatedVarname}${idx} instanceof PipeError)) ${resVarname}[${idx}] = ${validatedVarname}${idx}`,
+						]),
+						opts.failEarly ? '' : opts.wrapError(`${errorsVarname}.length`, `PipeError.rootFrom(${errorsVarname})`),
+						`${input} = ${resVarname}`,
+					]),
+		],
 		{
 			schema: () => ({
 				type: 'array',
-				items: pipes.map((pipe) => schema(pipe)),
-				minItems: pipes.length,
-				maxItems: pipes.length,
+				items: branches.map((pipe) => schema(pipe)),
+				minItems: branches.length,
+				maxItems: branches.length,
 			}),
 		},
 	)
+}
 
-export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) =>
-	pipe<T[], T[], any>((input) => {
-		const obj: Record<PropertyKey, boolean> = {}
-		return input.reduce<T[]>((acc, cur) => {
-			const key = keyFn(cur)
-			if (!obj[key]) {
-				obj[key] = true
-				acc.push(cur)
-			}
-			return acc
-		}, [])
-	})
+export const asSet = <T>(keyFn: (i: T) => PropertyKey = (v) => v as string) => {
+	const varname = `obj_${getRandomValue()}`
+	return standard<T[], T[]>(
+		({ input, context }) => [
+			`const ${varname} = {}`,
+			`${input} = ${input}.reduce((acc, cur) => {`,
+			`	const key = ${context}.keyFn(cur)`,
+			`	if (!${varname}[key]) {`,
+			`		${varname}[key] = true`,
+			`		acc.push(cur)`,
+			`	}`,
+			`	return acc`,
+			`}, [])`,
+		],
+		{
+			context: { keyFn },
+		},
+	)
+}

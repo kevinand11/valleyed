@@ -10,11 +10,24 @@ describe('junctions', () => {
 		expect(v.validate(rules, false).valid).toBe(false)
 	})
 
-	test('and', () => {
-		const rules = v.and([v.string(), v.is('and')])
-		expect(v.validate(rules, 'and').valid).toBe(true)
-		expect(v.validate(rules, '').valid).toBe(false)
-		expect(v.validate(rules, false).valid).toBe(false)
+	test('merge', () => {
+		const rules1 = v.merge(v.string(), v.number())
+		expect(v.validate(rules1, 'ha').valid).toBe(false)
+		expect(v.validate(rules1, 2).valid).toBe(false)
+
+		const rules2 = v.merge(v.object({ a: v.string() }), v.object({ b: v.number() }))
+		expect(v.validate(rules2, {}).valid).toBe(false)
+		expect(v.validate(rules2, { a: '' }).valid).toBe(false)
+		expect(v.validate(rules2, { b: 2 }).valid).toBe(false)
+		expect(v.validate(rules2, { a: '', b: 2 }).valid).toBe(true)
+		expect(v.assert(rules2, { a: '', b: 2 })).toEqual({ a: '', b: 2 })
+
+		const rules3 = v.merge(v.array(v.object({ a: v.string() })), v.array(v.object({ b: v.number() })))
+		expect(v.validate(rules3, []).valid).toBe(true)
+		expect(v.validate(rules3, [{ a: '' }]).valid).toBe(false)
+		expect(v.validate(rules3, [{ b: 2 }]).valid).toBe(false)
+		expect(v.validate(rules3, [{ a: '' }, { b: 2 }]).valid).toBe(false)
+		expect(v.validate(rules3, [{ a: '', b: 2 }]).valid).toBe(true)
 	})
 
 	test('discriminate', () => {
@@ -36,26 +49,6 @@ describe('junctions', () => {
 		expect(v.validate(objectRules, { status: 'none' }).valid).toBe(false)
 	})
 
-	test('merge', () => {
-		const rules1 = v.merge(v.string(), v.number())
-		expect(v.validate(rules1, 'ha').valid).toBe(false)
-		expect(v.validate(rules1, 2).valid).toBe(false)
-
-		const rules2 = v.merge(v.object({ a: v.string() }), v.object({ b: v.number() }))
-		expect(v.validate(rules2, {}).valid).toBe(false)
-		expect(v.validate(rules2, { a: '' }).valid).toBe(false)
-		expect(v.validate(rules2, { b: 2 }).valid).toBe(false)
-		expect(v.validate(rules2, { a: '', b: 2 }).valid).toBe(true)
-		expect(v.assert(rules2, { a: '', b: 2 })).toEqual({ a: '', b: 2 })
-
-		const rules3 = v.merge(v.array(v.object({ a: v.string() })), v.array(v.object({ b: v.number() })))
-		expect(v.validate(rules3, []).valid).toBe(true)
-		expect(v.validate(rules3, [{ a: '' }]).valid).toBe(false)
-		expect(v.validate(rules3, [{ b: 2 }]).valid).toBe(false)
-		expect(v.validate(rules3, [{ a: '' }, { b: 2 }]).valid).toBe(false)
-		expect(v.validate(rules3, [{ a: '', b: 2 }]).valid).toBe(true)
-	})
-
 	test('fromJson', () => {
 		const rules = v.fromJson(v.number())
 		expect(v.validate(rules, 'and').valid).toBe(false)
@@ -64,17 +57,17 @@ describe('junctions', () => {
 	})
 
 	test('lazy', () => {
-		const rules = v.lazy(() => v.string().pipe(v.has(3)))
-		expect(v.validate(rules, 'and').valid).toBe(true)
-		expect(v.validate(rules, 'an').valid).toBe(false)
-		expect(v.validate(rules, 2).valid).toBe(false)
+		const rules = v.lazy(() => v.number().pipe(v.gt(5)))
+		expect(v.validate(rules, '').valid).toBe(false)
+		expect(v.validate(rules, 5).valid).toBe(false)
+		expect(v.validate(rules, 6).valid).toBe(true)
 	})
 
 	test('recursive', () => {
-		const rules = v.recursive((p) => v.object({ value: v.number(), children: v.array(p) }), 'Node')
-		expect(v.validate(rules, { value: 1, children: [] }).valid).toBe(true)
-		expect(v.validate(rules, { value: 1, children: [{ value: 2, children: [] }] }).valid).toBe(true)
-		expect(v.validate(rules, { value: 1, children: [{ value: '2', children: [] }] }).valid).toBe(false)
+		const rules = v.recursive(() => v.object({ value: v.number(), left: v.optional(rules) }), 'Node')
+		expect(v.validate(rules, { value: 1 }).valid).toBe(true)
+		expect(v.validate(rules, { value: 1, left: { value: 2 } }).valid).toBe(true)
+		expect(v.validate(rules, { value: 1, left: null }).valid).toBe(false)
 
 		const schema = v.schema(rules)
 		expect(schema).toBeDefined()

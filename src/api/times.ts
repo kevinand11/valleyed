@@ -1,42 +1,61 @@
-import { PipeError } from './base'
-import { pipe } from './base/pipes'
-import { execValueFunction, ValueFunction } from '../utils/functions'
+import { standard } from './base/pipes'
+import { getRandomValue } from '../utils/functions'
 
 export type Timeable = Date | string | number
 
-export const time = (err = 'is not a valid datetime') =>
-	pipe<Timeable, Date, any>(
-		(input) => {
-			if (input instanceof Date) return input
-			if (typeof input === 'number' || typeof input === 'string') {
-				const date = new Date(input)
-				if (!isNaN(date.getTime())) return date
-			}
-			throw PipeError.root(err, input)
+export const time = (err = 'is not a valid datetime') => {
+	const varName = `date_${getRandomValue()}`
+	return standard<Timeable, Date>(
+		({ input, path }, opts) => [
+			opts.wrapError(
+				`!(${input} instanceof Date || typeof ${input} === 'number' || typeof ${input} === 'string')`,
+				`PipeError.root('${err}', ${input}, ${path})`,
+			),
+			`const ${varName} = new Date(${input})`,
+			opts.wrapError(`isNaN(${varName}.getTime())`, `PipeError.root('${err}', ${input}, ${path})`),
+			`${input} = ${varName}`,
+		],
+		{
+			schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }),
 		},
-		{ schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }) },
 	)
+}
 
-export const after = (compare: ValueFunction<Timeable>, err?: string) =>
-	pipe<Date, Date, any>(
-		(input, context) => {
-			const compareDate = new Date(execValueFunction(context?.after ?? compare))
-			if (input > compareDate) return input
-			throw PipeError.root(err ?? `is not later than ${compareDate.toString()}`, input)
+export const after = (compare: Timeable, err?: string) => {
+	const varName = `compare_${getRandomValue()}`
+	return standard<Date, Date>(
+		({ input, context, path }, opts) => [
+			`const ${varName} = new Date(${context}.after)`,
+			opts.wrapError(
+				`${input} <= ${varName}`,
+				`PipeError.root('${err ?? `is not later than \${${varName}.toString()}`}', ${input}, ${path})`,
+			),
+		],
+		{
+			context: { after: compare },
 		},
-		{ context: () => ({ after: compare }) },
 	)
+}
 
-export const before = (compare: ValueFunction<Timeable>, err?: string) =>
-	pipe<Date, Date, any>(
-		(input, context) => {
-			const compareDate = new Date(execValueFunction(context?.before ?? compare))
-			if (input < compareDate) return input
-			throw PipeError.root(err ?? `is not earlier than ${compareDate.toString()}`, input)
+export const before = (compare: Timeable, err?: string) => {
+	const varName = `compare_${getRandomValue()}`
+	return standard<Date, Date>(
+		({ input, context, path }, opts) => [
+			`const ${varName} = new Date(${context}.before)`,
+			opts.wrapError(
+				`${input} >= ${varName}`,
+				`PipeError.root('${err ?? `is not earlier than \${${varName}.toString()}`}', ${input}, ${path}, ${path})`,
+			),
+		],
+		{
+			context: { before: compare },
 		},
-		{ context: () => ({ before: compare }) },
 	)
+}
 
-export const asStamp = () => pipe<Date, number, any>((input) => input.valueOf(), { schema: () => ({ type: 'integer', oneOf: undefined }) })
+export const asStamp = () =>
+	standard<Date, number>(({ input }) => [`${input} = ${input}.getTime()`], { schema: () => ({ type: 'integer', oneOf: undefined }) })
 export const asISOString = () =>
-	pipe<Date, string, any>((input) => input.toISOString(), { schema: () => ({ type: 'string', format: 'date-time', oneOf: undefined }) })
+	standard<Date, string>(({ input }) => [`${input} = ${input}.toISOString()`], {
+		schema: () => ({ type: 'string', format: 'date-time', oneOf: undefined }),
+	})

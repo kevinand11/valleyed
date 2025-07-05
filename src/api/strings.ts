@@ -1,48 +1,59 @@
-import { Pipe, PipeError } from './base'
-import { assert, branch, pipe } from './base/pipes'
-import * as fns from '../utils/functions'
+import { Pipe } from './base'
+import { compileNested, context, schema, standard } from './base/pipes'
+import { capitalize, getRandomValue, stripHTML, trimToLength } from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'
 
 export const email = (err = 'is not a valid email') =>
-	pipe<string, string, any>(
-		(input) => {
-			if (emailRegex.test(input)) return input
-			throw PipeError.root(err, input)
+	standard<string, string>(
+		({ input, context, path }, opts) =>
+			opts.wrapError(`!${context}.emailRegex.test(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
+		{
+			context: { emailRegex },
+			schema: () => ({ format: 'email' }),
 		},
-		{ schema: () => ({ format: 'email' }) },
 	)
 
 export const url = (err = 'is not a valid url') =>
-	pipe<string, string, any>(
-		(input) => {
-			if (urlRegex.test(input)) return input
-			throw PipeError.root(err, input)
-		},
-		{ schema: () => ({ format: 'uri' }) },
-	)
-
-export const withStrippedHtml = (pipe: Pipe<string, string, any>) =>
-	branch<Pipe<string, string, any>, string, string, any>(
-		pipe,
-		(input) => {
-			const stripped = fns.stripHTML(input)
-			assert(pipe, stripped)
-			return input
-		},
+	standard<string, string>(
+		({ input, context, path }, opts) =>
+			opts.wrapError(`!${context}.urlRegex.test(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
 		{
-			context: (c) => c,
-			schema: (s) => s,
+			context: { urlRegex },
+			schema: () => ({ format: 'uri' }),
 		},
 	)
 
-export const asTrimmed = () => pipe<string, string, any>((input) => input.trim(), {})
+export const withStrippedHtml = (branch: Pipe<string, string>) => {
+	const varname = `stripped_${getRandomValue()}`
+	return standard<string, string>(
+		({ input, context }, opts) => [
+			`let ${varname} = ${context}.stripHTML(${input})`,
+			...compileNested({ opts, pipe: branch, input: varname }),
+		],
+		{
+			context: { ...context(branch), stripHTML },
+			schema: () => schema(branch),
+		},
+	)
+}
 
-export const asLowercased = () => pipe<string, string, any>((input) => input.toLowerCase(), {})
+export const asTrimmed = () => standard<string, string>(({ input }) => [`${input} = ${input}.trim()`])
 
-export const asUppercased = () => pipe<string, string, any>((input) => input.toUpperCase(), {})
+export const asLowercased = () => standard<string, string>(({ input }) => [`${input} = ${input}.toLowerCase()`])
 
-export const asCapitalized = () => pipe<string, string, any>((input) => fns.capitalize(input), {})
+export const asUppercased = () => standard<string, string>(({ input }) => [`${input} = ${input}.toUpperCase()`])
 
-export const asStrippedHtml = () => pipe<string, string, any>((input) => fns.stripHTML(input), {})
+export const asCapitalized = () =>
+	standard<string, string>(({ input, context }) => [`${input} = ${context}.capitalize(${input})`], {
+		context: { capitalize },
+	})
 
-export const asSliced = (length: number) => pipe<string, string, any>((input) => fns.trimToLength(input, length), {})
+export const asStrippedHtml = () =>
+	standard<string, string>(({ input, context }) => [`${input} = ${context}.stripHTML(${input})`], {
+		context: { stripHTML },
+	})
+
+export const asSliced = (length: number) =>
+	standard<string, string>(({ input, context }) => [`${input} = ${context}.trimToLength(${input}, ${length})`], {
+		context: { trimToLength },
+	})

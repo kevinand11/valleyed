@@ -38,7 +38,7 @@ describe('core', () => {
 		expect(v.validate(arrayRules, [1, 2, 3]).valid).toBe(false)
 	})
 
-	test('min array', () => {
+	test('min', () => {
 		const stringRules = v.string().pipe(v.min(2))
 		expect(v.validate(stringRules, '1').valid).toBe(false)
 		expect(v.validate(stringRules, '12').valid).toBe(true)
@@ -49,7 +49,7 @@ describe('core', () => {
 		expect(v.validate(arrayRules, [1, 2, 3]).valid).toBe(true)
 	})
 
-	test('max array', () => {
+	test('max', () => {
 		const stringRules = v.string().pipe(v.max(2))
 		expect(v.validate(stringRules, '1').valid).toBe(true)
 		expect(v.validate(stringRules, '12').valid).toBe(true)

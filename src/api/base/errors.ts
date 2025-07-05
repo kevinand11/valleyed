@@ -1,58 +1,72 @@
-type Arrayable<T> = T | T[]
+import { PipeErrorHandler } from './types'
 
-function flatArray<T>(arr: Arrayable<T>): T[] {
-	return Array.isArray(arr) ? arr : [arr]
-}
+type PipeErrorMessage = { message: string; path?: string; value: unknown }
 
-function formatError(message: { message: string; path?: string }) {
+function formatError(message: PipeErrorMessage) {
 	return `${message.path ? `${message.path}: ` : ''}${message.message}`
 }
 
-export class PipeError extends Error {
-	constructor(
-		public messages: { message: string; path?: string }[],
-		readonly value: unknown,
-		readonly stopped: boolean,
-		cause?: unknown,
-	) {
-		const message = messages[0]
-		super(message ? formatError(message) : 'Pipe validation error', { cause })
+export class PipeError {
+	constructor(public messages: PipeErrorMessage[]) {}
+
+	get valid(): false {
+		return false
 	}
 
 	toString() {
 		return this.messages.map(formatError).join('\n')
 	}
 
-	static root(messages: Arrayable<string>, value: unknown, cause?: unknown) {
-		return new PipeError(
-			flatArray(messages).map((message) => ({ message })),
-			value,
-			false,
-			cause,
-		)
+	static root(message: string, value: unknown, path?: string) {
+		return new PipeError([{ message, path, value }])
 	}
 
-	static rootFrom(errors: Arrayable<PipeError>, value: unknown, cause?: unknown) {
-		return new PipeError(
-			flatArray(errors).flatMap((error) => error.messages),
-			value,
-			false,
-			cause,
-		)
+	static rootFrom(errors: PipeError[]) {
+		return new PipeError(errors.flatMap((error) => error.messages))
 	}
 
-	static path(path: PropertyKey, errors: Arrayable<PipeError>, value: unknown, cause?: unknown) {
+	static path(path: PropertyKey, error: PipeError) {
+		if (path === 0) path = '0'
+		if (!path) return error
 		return new PipeError(
-			flatArray(errors).flatMap((error) =>
-				error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
-			),
-			value,
-			false,
-			cause,
+			error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
 		)
 	}
+}
 
-	static stop(value: unknown) {
-		return new PipeError([], value, true)
-	}
+export function createErrorHandler(input: string, type: 'return' | 'throw' | 'assign'): PipeErrorHandler {
+	const handler: PipeErrorHandler = Object.assign(
+		(...args: Parameters<PipeErrorHandler>) =>
+			(lines: string[]) => {
+				switch (type) {
+					case 'return':
+					case 'throw':
+						return [`if (${args[0]}) ${handler.format(args[1])}`, ...lines]
+					case 'assign':
+						return [
+							`if (${args[0]}) ${handler.format(args[1])}`,
+							...(lines.length ? [`else {`, ...lines.map((l) => `	${l}`), `}`] : []),
+						]
+					default:
+						throw new Error(`Unknown error handling type: ${type satisfies never}`)
+				}
+			},
+		{
+			type,
+			format: (error: string) => {
+				switch (type) {
+					case 'return':
+						return `return ${error}`
+					case 'throw':
+						return `throw ${error}`
+					case 'assign':
+						return `${input} = ${error}`
+					default:
+						throw new Error(`Unknown error handling type: ${type satisfies never}`)
+				}
+			},
+		},
+	)
+
+	return handler
 }
