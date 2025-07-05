@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.13](https://github.com/kevinand11/valleyed/compare/v4.5.12...v4.5.13) (2025-07-05)
+
+
+### Bug Fixes
+
+* types of v.lazy ([e3baef0](https://github.com/kevinand11/valleyed/commit/e3baef0b1902f5acc562bc055f1e1e5b6067bb01))
+
 ### [4.5.12](https://github.com/kevinand11/valleyed/compare/v4.5.11...v4.5.12) (2025-07-05)
 
 ### [4.5.11](https://github.com/kevinand11/valleyed/compare/v4.5.10...v4.5.11) (2025-07-05)
