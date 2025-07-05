@@ -1,3 +1,5 @@
+import { PipeErrorHandler } from './types'
+
 type PipeErrorMessage = { message: string; path?: string; value: unknown }
 
 function formatError(message: PipeErrorMessage) {
@@ -21,7 +23,7 @@ export class PipeError extends Error {
 		return this.messages.map(formatError).join('\n')
 	}
 
-	static root(message: string, value: unknown, path: string | undefined, cause?: unknown) {
+	static root(message: string, value: unknown, path?: string, cause?: unknown) {
 		return new PipeError([{ message, path, value }], cause)
 	}
 
@@ -35,5 +37,20 @@ export class PipeError extends Error {
 			error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
 			error.cause,
 		)
+	}
+}
+
+export function createErrorHandler(input: string, type: 'return' | 'throw' | 'assign'): PipeErrorHandler {
+	return (errorCondition, error, rest = []) => {
+		switch (type) {
+			case 'return':
+				return [`if (${errorCondition}) return ${error}`, ...rest]
+			case 'throw':
+				return [`if (${errorCondition}) throw ${error}`, ...rest]
+			case 'assign':
+				return [`if (${errorCondition}) ${input} = ${error}`, `else {`, ...rest.map((l) => `	${l}`), `}`]
+			default:
+				throw new Error(`Unknown error handling type: ${type satisfies never}`)
+		}
 	}
 }

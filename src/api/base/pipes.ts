@@ -1,4 +1,4 @@
-import { PipeError } from './errors'
+import { createErrorHandler, PipeError } from './errors'
 import { Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeOutput, PipeFn, PipeCompiledFn } from './types'
 import { getRandomValue } from '../../utils/functions'
 import { JsonSchema } from '../../utils/types'
@@ -161,8 +161,14 @@ function compilePipeToString({
 }) {
 	const ctx = context(pipe)
 	rootContext ??= ctx
+	const wrapError = createErrorHandler(input, 'return')
 	const compiled = walk(pipe, <string[]>[], (p, acc) => {
-		acc.push(...p.compile({ input, context: contextStr, path: `${path ? `'${path}'` : undefined}` }, { rootContext, failEarly, path }))
+		acc.push(
+			...p.compile(
+				{ input, context: contextStr, path: `${path ? `'${path}'` : undefined}` },
+				{ rootContext, failEarly, path, wrapError },
+			),
+		)
 		return acc
 	})
 	return { compiled, context: ctx }

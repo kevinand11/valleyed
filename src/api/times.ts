@@ -6,11 +6,17 @@ export type Timeable = Date | string | number
 export const time = (err = 'is not a valid datetime') => {
 	const varName = `date_${getRandomValue()}`
 	return standard<Timeable, Date>(
-		({ input, path }) => [
-			`const ${varName} = new Date(${input})`,
-			`if ((${input} instanceof Date || typeof ${input} === 'number' || typeof ${input} === 'string') && !isNaN(${varName}.getTime())) ${input} = ${varName}`,
-			`else return PipeError.root('${err}', ${input}, ${path})`,
-		],
+		({ input, path }, opts) =>
+			opts.wrapError(
+				`!(${input} instanceof Date || typeof ${input} === 'number' || typeof ${input} === 'string')`,
+				`PipeError.root('${err}', ${input}, ${path})`,
+				[
+					`const ${varName} = new Date(${input})`,
+					...opts.wrapError(`isNaN(${varName}.getTime())`, `PipeError.root('${err}', ${input}, ${path})`, [
+						`${input} = ${varName}`,
+					]),
+				],
+			),
 		{
 			schema: () => ({ oneOf: [{ type: 'string', format: 'date-time' }, { type: 'integer' }] }),
 		},
@@ -20,9 +26,12 @@ export const time = (err = 'is not a valid datetime') => {
 export const after = (compare: Timeable, err?: string) => {
 	const varName = `compare_${getRandomValue()}`
 	return standard<Date, Date>(
-		({ input, context, path }) => [
+		({ input, context, path }, opts) => [
 			`const ${varName} = new Date(${context}.after)`,
-			`if (${input} <= ${varName}) return PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input}, ${path})`,
+			...opts.wrapError(
+				`${input} <= ${varName}`,
+				`PipeError.root('${err ?? `is not later than \${${varName}.toString()}`}', ${input}, ${path})`,
+			),
 		],
 		{
 			context: { after: compare },
@@ -33,9 +42,12 @@ export const after = (compare: Timeable, err?: string) => {
 export const before = (compare: Timeable, err?: string) => {
 	const varName = `compare_${getRandomValue()}`
 	return standard<Date, Date>(
-		({ input, context, path }) => [
+		({ input, context, path }, opts) => [
 			`const ${varName} = new Date(${context}.before)`,
-			`if (${input} >= ${varName}) return PipeError.root(\`${err ?? `is not later than \${${varName}.toString()}`}\`, ${input}, ${path})`,
+			...opts.wrapError(
+				`${input} >= ${varName}`,
+				`PipeError.root('${err ?? `is not earlier than \${${varName}.toString()}`}', ${input}, ${path}, ${path})`,
+			),
 		],
 		{
 			context: { before: compare },
@@ -44,7 +56,7 @@ export const before = (compare: Timeable, err?: string) => {
 }
 
 export const asStamp = () =>
-	standard<Date, number>(({ input }) => [`${input} = ${input}.valueOf()`], { schema: () => ({ type: 'integer', oneOf: undefined }) })
+	standard<Date, number>(({ input }) => [`${input} = ${input}.getTime()`], { schema: () => ({ type: 'integer', oneOf: undefined }) })
 export const asISOString = () =>
 	standard<Date, string>(({ input }) => [`${input} = ${input}.toISOString()`], {
 		schema: () => ({ type: 'string', format: 'date-time', oneOf: undefined }),

@@ -9,9 +9,11 @@ const isMimeType = (str: string) => /^[a-zA-Z0-9!#$&^_.+-]+\/[a-zA-Z0-9!#$&^_.+-
 
 export const file = <T extends File>(err = 'is not a recognized file') =>
 	standard<T, T>(
-		({ input, context, path }) => [
-			`if (!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type)) return PipeError.root('${err}', ${input}, ${path})`,
-		],
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type)`,
+				`PipeError.root('${err}', ${input}, ${path})`,
+			),
 		{
 			context: { isFile, isMimeType },
 			schema: () => ({ type: 'string', format: 'binary' }),
@@ -20,9 +22,11 @@ export const file = <T extends File>(err = 'is not a recognized file') =>
 
 export const image = <T extends File>(err = 'is not a recognized image file') =>
 	standard<T, T>(
-		({ input, context, path }) => [
-			`if (!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${input}.type.startsWith('image/')) return PipeError.root('${err}', ${input}, ${path})`,
-		],
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${input}.type.startsWith('image/')`,
+				`PipeError.root('${err}', ${input}, ${path})`,
+			),
 		{
 			context: { isFile, isMimeType },
 		},
@@ -30,9 +34,11 @@ export const image = <T extends File>(err = 'is not a recognized image file') =>
 
 export const audio = <T extends File>(err = 'is not a recognized audio file') =>
 	standard<T, T>(
-		({ input, context, path }) => [
-			`if (!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${input}.type.startsWith('audio/')) return PipeError.root('${err}', ${input}, ${path})`,
-		],
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${input}.type.startsWith('audio/')`,
+				`PipeError.root('${err}', ${input}, ${path})`,
+			),
 		{
 			context: { isFile, isMimeType },
 		},
@@ -40,9 +46,11 @@ export const audio = <T extends File>(err = 'is not a recognized audio file') =>
 
 export const video = <T extends File>(err = 'is not a recognized video file') =>
 	standard<T, T>(
-		({ input, context, path }) => [
-			`if (!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${input}.type.startsWith('video/')) return PipeError.root('${err}', ${input}, ${path})`,
-		],
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${input}.type.startsWith('video/')`,
+				`PipeError.root('${err}', ${input}, ${path})`,
+			),
 		{
 			context: { isFile, isMimeType },
 		},
@@ -50,9 +58,11 @@ export const video = <T extends File>(err = 'is not a recognized video file') =>
 
 export const fileType = <T extends File>(typesFn: string | string[], err = 'is not a supported file') =>
 	standard<T, T>(
-		({ input, context, path }) => [
-			`if (!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${context}.makeArray(${context}.typesFn).some((type) => ${input}.type === type)) return PipeError.root('${err}', ${input}, ${path})`,
-		],
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`!${context}.isFile(${input}) || !${context}.isMimeType(${input}.type) || !${context}.makeArray(${context}.typesFn).some((type) => ${input}.type === type)`,
+				`PipeError.root('${err}', ${input}, ${path})`,
+			),
 		{
 			context: {
 				isFile,

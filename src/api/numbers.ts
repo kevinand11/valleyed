@@ -2,9 +2,11 @@ import { standard } from './base/pipes'
 
 export const gt = (value: number, err?: string) =>
 	standard<number, number>(
-		({ input, context, path }) => [
-			`if (${input} <= ${context}.gt) return PipeError.root(\`${err ?? `must be greater than \${${context}.gt}`}\`, ${input}, ${path})`,
-		],
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`${input} <= ${context}.gt`,
+				`PipeError.root(\`${err ?? `must be greater than \${${context}.gt}`}\`, ${input}, ${path})`,
+			),
 		{
 			context: { gt: value },
 			schema: () => ({ exclusiveMinimum: value }),
@@ -13,9 +15,11 @@ export const gt = (value: number, err?: string) =>
 
 export const gte = (value: number, err?: string) =>
 	standard<number, number>(
-		({ input, context, path }) => [
-			`if (${input} < ${context}.gte) return PipeError.root(\`${err ?? `must be greater than or equal to \${${context}.gte}`}\`, ${input}, ${path})`,
-		],
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`${input} < ${context}.gte`,
+				`PipeError.root(\`${err ?? `must be greater than or equal to \${${context}.gte}`}\`, ${input}, ${path})`,
+			),
 		{
 			context: { gte: value },
 			schema: () => ({ minimum: value }),
@@ -24,9 +28,11 @@ export const gte = (value: number, err?: string) =>
 
 export const lt = (value: number, err?: string) =>
 	standard<number, number>(
-		({ input, context, path }) => [
-			`if (${input} >= ${context}.lt) return PipeError.root(\`${err ?? `must be less than \${${context}.lt}`}\`, ${input}, ${path})`,
-		],
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`${input} >= ${context}.lt`,
+				`PipeError.root(\`${err ?? `must be less than \${${context}.lt}`}\`, ${input}, ${path})`,
+			),
 		{
 			context: { lt: value },
 			schema: () => ({ exclusiveMaximum: value }),
@@ -35,9 +41,11 @@ export const lt = (value: number, err?: string) =>
 
 export const lte = (value: number, err?: string) =>
 	standard<number, number>(
-		({ input, context, path }) => [
-			`if (${input} > ${context}.lte) return PipeError.root(\`${err ?? `must be less than or equal to \${${context}}.lte}`}\`, ${input}, ${path})`,
-		],
+		({ input, context, path }, opts) =>
+			opts.wrapError(
+				`${input} > ${context}.lte`,
+				`PipeError.root(\`${err ?? `must be less than or equal to \${${context}.lte}`}\`, ${input}, ${path})`,
+			),
 		{
 			context: { lte: value },
 			schema: () => ({ maximum: value }),
@@ -46,7 +54,7 @@ export const lte = (value: number, err?: string) =>
 
 export const int = (err = 'is not an integer') =>
 	standard<number, number>(
-		({ input, path }) => [`if (${input} !== parseInt(${input})) return PipeError.root('${err}', ${input}, ${path})`],
+		({ input, path }, opts) => opts.wrapError(`${input} !== parseInt(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
 		{
 			schema: () => ({ type: 'integer' }),
 		},

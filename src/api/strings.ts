@@ -5,7 +5,8 @@ import { emailRegex, urlRegex } from '../utils/regexes'
 
 export const email = (err = 'is not a valid email') =>
 	standard<string, string>(
-		({ input, context, path }) => [`if (!${context}.emailRegex.test(${input})) return PipeError.root('${err}', ${input}, ${path})`],
+		({ input, context, path }, opts) =>
+			opts.wrapError(`!${context}.emailRegex.test(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
 		{
 			context: { emailRegex },
 			schema: () => ({ format: 'email' }),
@@ -14,7 +15,8 @@ export const email = (err = 'is not a valid email') =>
 
 export const url = (err = 'is not a valid url') =>
 	standard<string, string>(
-		({ input, context, path }) => [`if (!${context}.urlRegex.test(${input})) return PipeError.root('${err}', ${input}, ${path})`],
+		({ input, context, path }, opts) =>
+			opts.wrapError(`!${context}.urlRegex.test(${input})`, `PipeError.root('${err}', ${input}, ${path})`),
 		{
 			context: { urlRegex },
 			schema: () => ({ format: 'uri' }),
@@ -25,9 +27,8 @@ export const withStrippedHtml = (branch: Pipe<string, string>) => {
 	const varname = `stripped_${getRandomValue()}`
 	return standard<string, string>(
 		({ input, context }, opts) => [
-			`let ${varname} = ${context}.stripHTML(${input});`,
+			`let ${varname} = ${context}.stripHTML(${input})`,
 			...compileNested({ ...opts, pipe: branch, input: varname }),
-			`if (${varname} instanceof PipeError) return ${varname}`,
 		],
 		{
 			context: { ...context(branch), stripHTML },
