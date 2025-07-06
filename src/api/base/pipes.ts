@@ -145,7 +145,7 @@ export function compileNested(
 		pipe: data.pipe,
 		input: data.input,
 		context: `context[\`${random}\`]`,
-		path: ['key' in data ? data.key : '', data.opts.path].filter(Boolean).join('.') || undefined,
+		path: [data.opts.path, 'key' in data ? data.key : ''].filter(Boolean).join('.') || undefined,
 	})
 	data.opts.rootContext[random] = context
 	return lines
