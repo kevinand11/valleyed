@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.14](https://github.com/kevinand11/valleyed/compare/v4.5.13...v4.5.14) (2025-07-06)
+
+
+### Bug Fixes
+
+* correct nested pipes path ([bed1c26](https://github.com/kevinand11/valleyed/commit/bed1c26b1e0ffa755d15f77176c14085c88f383b))
+
 ### [4.5.13](https://github.com/kevinand11/valleyed/compare/v4.5.12...v4.5.13) (2025-07-05)
 
 
