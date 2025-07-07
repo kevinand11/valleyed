@@ -45,21 +45,14 @@ export function meta<T extends Pipe<any, any>>(p: T, meta: PipeMeta): T {
 	return p.pipe(standard(() => [], { schema: () => meta })) as T
 }
 
-export function compile<T extends Pipe<any, any>>(
-	pipe: T,
-	{
-		failEarly = true,
-	}: {
-		failEarly?: boolean
-	} = {},
-): PipeCompiledFn<T> {
+export function compile<T extends Pipe<any, any>>(pipe: T, opts: { allErrors?: boolean } = {}): PipeCompiledFn<T> {
 	const inputStr = 'input'
 	const contextStr = 'context'
 	const { lines, context } = compilePipeToString({
 		pipe,
 		input: inputStr,
 		context: contextStr,
-		failEarly,
+		failEarly: !opts.allErrors,
 		base: [`return ${inputStr}`],
 	})
 	const allLines = [
@@ -120,9 +113,9 @@ export function define<I, O>(
 ): Pipe<I, O> {
 	const key = `define_${getRandomValue()}`
 	return standard<I, O>(
-		({ input, context, path }) => [
+		({ input, context, path }, opts) => [
 			`${input} = ${context}['${key}'](${input})`,
-			`if (${input} instanceof PipeError) return PipeError.path(${path}, ${input})`,
+			opts.wrapError(`${input} instanceof PipeError`, `PipeError.wrap(${path}, ${input})`),
 		],
 		{
 			context: { ...config?.context, [key]: fn },

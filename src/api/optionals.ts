@@ -1,5 +1,5 @@
 import { Pipe, PipeInput, PipeOutput } from './base'
-import { assert, standard, validate, compileNested, context, schema } from './base/pipes'
+import { standard, compileNested, context, schema } from './base/pipes'
 import { DeepPartial } from '../utils/types'
 
 const partial = <T extends Pipe<any, any>, P>(
@@ -51,7 +51,7 @@ export const defaults = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<
 		],
 		{
 			schema: (c) => ({ ...schema(branch), default: c.defaults ?? def }),
-			context: { ...context(branch), defaults: def, optional: true, assert, branch },
+			context: { ...context(branch), defaults: def, optional: true },
 		},
 	)
 
@@ -63,7 +63,7 @@ const onCatch = <T extends Pipe<any, any>>(branch: T, def: DefaultValue<PipeInpu
 		],
 		{
 			schema: (c) => ({ ...schema(branch), default: c.catch ?? def }),
-			context: { ...context(branch), catch: def, validate, branch },
+			context: { ...context(branch), catch: def },
 		},
 	)
 

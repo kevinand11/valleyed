@@ -14,10 +14,10 @@ export const array = <T extends Pipe<any, any>>(branch: T, err = 'is not an arra
 			`let ${validatedVarname}`,
 			`for (let idx = 0; idx < ${input}.length; idx++) {`,
 			`	${validatedVarname} = ${input}[idx]`,
-			...compileNested({ opts, pipe: branch, input: validatedVarname, errorType: 'assign' }),
+			...compileNested({ opts, pipe: branch, input: validatedVarname, errorType: 'assign', key: validatedVarname }),
 			opts.failEarly
-				? `if (${validatedVarname} instanceof PipeError) ${opts.wrapError.format(`PipeError.path(idx, ${validatedVarname})`)}`
-				: `	if (${validatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(idx, ${validatedVarname}))`,
+				? `if (${validatedVarname} instanceof PipeError) ${opts.wrapError.format(`PipeError.path(idx, '${validatedVarname}', ${validatedVarname})`)}`
+				: `	if (${validatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(idx, '${validatedVarname}', ${validatedVarname}))`,
 			`	else ${resVarname}[idx] = ${validatedVarname}`,
 			`}`,
 			opts.failEarly ? '' : opts.wrapError(`${errorsVarname}.length`, `PipeError.rootFrom(${errorsVarname})`),

@@ -99,14 +99,20 @@ export const record = <K extends Pipe<any, PropertyKey>, V extends Pipe<any, any
 			...[
 				`let ${kValidatedVarname} = k`,
 				`let ${vValidatedVarname} = v`,
-				...compileNested({ opts, pipe: kPipe, input: kValidatedVarname, errorType: 'assign' }),
+				...compileNested({ opts, pipe: kPipe, input: kValidatedVarname, errorType: 'assign', key: kValidatedVarname }),
 				opts.failEarly
-					? opts.wrapError(`${kValidatedVarname} instanceof PipeError`, `PipeError.path(k, ${kValidatedVarname})`)
-					: `	if (${kValidatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(k, ${kValidatedVarname}))`,
-				...compileNested({ opts, pipe: vPipe, input: vValidatedVarname, errorType: 'assign' }),
+					? opts.wrapError(
+							`${kValidatedVarname} instanceof PipeError`,
+							`PipeError.path(k, '${kValidatedVarname}', ${kValidatedVarname})`,
+						)
+					: `	if (${kValidatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(k, '${kValidatedVarname}', ${kValidatedVarname}))`,
+				...compileNested({ opts, pipe: vPipe, input: vValidatedVarname, errorType: 'assign', key: kValidatedVarname }),
 				opts.failEarly
-					? opts.wrapError(`${vValidatedVarname} instanceof PipeError`, `PipeError.path(v, ${vValidatedVarname})`)
-					: `	if (${vValidatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(v, ${vValidatedVarname}))`,
+					? opts.wrapError(
+							`${vValidatedVarname} instanceof PipeError`,
+							`PipeError.path(k, '${kValidatedVarname}', ${vValidatedVarname})`,
+						)
+					: `	if (${vValidatedVarname} instanceof PipeError) ${errorsVarname}.push(PipeError.path(k, '${kValidatedVarname}', ${vValidatedVarname}))`,
 				`	if (!(${kValidatedVarname} instanceof PipeError) && !(${vValidatedVarname} instanceof PipeError)) ${resVarname}[${kValidatedVarname}] = ${vValidatedVarname};`,
 			],
 			`}`,

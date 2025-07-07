@@ -21,11 +21,26 @@ export class PipeError {
 		return new PipeError(errors.flatMap((error) => error.messages))
 	}
 
-	static path(path: PropertyKey, error: PipeError) {
-		if (path === 0) path = '0'
-		if (!path) return error
+	static path(path: PropertyKey, key: string, error: PipeError) {
+		if (path === undefined || path === null) return error
 		return new PipeError(
-			error.messages.map((message) => ({ ...message, path: `${path.toString()}${message.path ? `.${message.path}` : ''}` })),
+			error.messages.map((message) => ({
+				...message,
+				path: message.path
+					?.split('.')
+					.map((p) => (p == key ? path.toString() : p))
+					.join('.'),
+			})),
+		)
+	}
+
+	static wrap(path: PropertyKey, error: PipeError) {
+		if (path === undefined || path === null) return error
+		return new PipeError(
+			error.messages.map((message) => ({
+				...message,
+				path: [path.toString(), message.path].filter(Boolean).join('.'),
+			})),
 		)
 	}
 }
