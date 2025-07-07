@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.15](https://github.com/kevinand11/valleyed/compare/v4.5.14...v4.5.15) (2025-07-07)
+
+
+### Bug Fixes
+
+* path for PipeError ([9c1a49d](https://github.com/kevinand11/valleyed/commit/9c1a49d12d64f39bf1df49fe34683be1469e31e3))
+
 ### [4.5.14](https://github.com/kevinand11/valleyed/compare/v4.5.13...v4.5.14) (2025-07-06)
 
 
