@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.16](https://github.com/kevinand11/valleyed/compare/v4.5.15...v4.5.16) (2025-08-09)
+
+
+### Bug Fixes
+
+* return value of nested recursive ([0ee811d](https://github.com/kevinand11/valleyed/commit/0ee811d0090f8d07cb053172fbf6fe4f96783e85))
+
 ### [4.5.15](https://github.com/kevinand11/valleyed/compare/v4.5.14...v4.5.15) (2025-07-07)
 
 
