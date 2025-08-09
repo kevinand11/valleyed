@@ -128,6 +128,7 @@ export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: str
 				...compileNested({ opts: { ...opts, failEarly: true }, pipe: pipeFn(), input: 'node', errorType: 'return' }).map(
 					(l) => `	${l}`,
 				),
+				`	return node`,
 				'}',
 				...common,
 			]
