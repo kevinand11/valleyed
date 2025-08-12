@@ -121,8 +121,8 @@ export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: str
 	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input }, opts) => {
 			const common = [`${input} = ${fnVarname}(${input})`, opts.wrapError(`${input} instanceof PipeError`, input)]
-			if (compiledBefore) return common
-			compiledBefore = true
+			compiledBefore = !compiledBefore
+			if (!compiledBefore) return common
 			return [
 				`function ${fnVarname}(node) {`,
 				...compileNested({ opts: { ...opts, failEarly: true }, pipe: pipeFn(), input: 'node', errorType: 'return' }).map(
@@ -135,8 +135,8 @@ export const recursive = <T extends Pipe<any, any>>(pipeFn: () => T, $refId: str
 		},
 		{
 			schema: () => {
-				if (schemedBefore) return { $refId }
-				schemedBefore = true
+				schemedBefore = !schemedBefore
+				if (!schemedBefore) return { $refId }
 				return schema(pipeFn(), { $refId })
 			},
 		},
