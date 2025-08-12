@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.17](https://github.com/kevinand11/valleyed/compare/v4.5.16...v4.5.17) (2025-08-12)
+
+
+### Bug Fixes
+
+* fn not defined in v.recursive ([54cc05e](https://github.com/kevinand11/valleyed/commit/54cc05ea9e7b8ba503160a5b890c3859aa32e2af))
+
 ### [4.5.16](https://github.com/kevinand11/valleyed/compare/v4.5.15...v4.5.16) (2025-08-09)
 
 
