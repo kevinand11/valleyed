@@ -1,7 +1,8 @@
 import { Pipe, PipeInput, PipeOutput } from './base'
 import { merge as differMerge } from '../utils/differ'
 import { getRandomValue, wrapInTryCatch } from '../utils/functions'
-import { compileNested, context, standard, schema, define, validate } from './base/pipes'
+import { JSONRedacted } from '../utils/types'
+import { compileNested, context, define, schema, standard, validate } from './base/pipes'
 
 export const or = <T extends Pipe<any, any>[]>(branches: T) => {
 	const validatedVarname = `validated_${getRandomValue()}`
@@ -102,6 +103,15 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 		},
 	)
 }
+
+export const jsonRedacted = <T extends Pipe<any, any>>(branch: T) =>
+	standard<PipeInput<T>, JSONRedacted<PipeOutput<T>>>(
+		({ input, context }, opts) => [...compileNested({ pipe: branch, input, opts }), `${input} = ${context}.JSONRedacted.from(${input})`],
+		{
+			schema: () => ({}),
+			context: { ...context(branch), jsonRedacted: true, JSONRedacted },
+		},
+	)
 
 export const lazy = <T extends Pipe<any, any>>(pipeFn: () => T) =>
 	define<PipeInput<T>, PipeOutput<T>>(

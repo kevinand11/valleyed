@@ -25,6 +25,22 @@ export type ConditionalObjectKeys<T> =
 				>
 			: T
 
+export class JSONRedacted<T> {
+	private constructor(public value: T) {}
+	valueOf() {
+		return this.value
+	}
+	toBSON () {
+		return this.value
+	}
+	toJSON() {
+		return undefined as never
+	}
+	static from<T>(value: T) {
+		return new JSONRedacted(value)
+	}
+}
+
 export type JSONPrimitives = string | number | boolean | null
 export type JSONValue = JSONPrimitives | JSONValue[] | { [k: string]: JSONValue }
 export type JSONValueOf<T> = Prettify<

@@ -56,6 +56,43 @@ describe('junctions', () => {
 		expect(v.validate(rules, '1').valid).toBe(true)
 	})
 
+	test('jsonRedacted', () => {
+		const rules = v.jsonRedacted(v.number())
+		expect(v.validate(rules, '1').valid).toBe(false)
+
+		const objValue = { a: 1, b: 2 }
+		const validatedObj = v.validate(v.jsonRedacted(v.object({ a: v.number(), b: v.number() })), objValue)
+		expect(validatedObj.valid).toBe(true)
+		if (validatedObj.valid) {
+			expect(validatedObj.value.value).toEqual(objValue)
+			expect(JSON.stringify({ value: validatedObj.value })).toBe('{}')
+		}
+
+		const strValue = 'hello'
+		const validatedStr = v.validate(v.jsonRedacted(v.string()), strValue)
+		expect(validatedStr.valid).toBe(true)
+		if (validatedStr.valid) {
+			expect(validatedStr.value.value).toEqual(strValue)
+			expect(JSON.stringify({ value: validatedStr.value })).toBe('{}')
+		}
+
+		const numValue = 1
+		const validatedNum = v.validate(v.jsonRedacted(v.number()), numValue)
+		expect(validatedNum.valid).toBe(true)
+		if (validatedNum.valid) {
+			expect(validatedNum.value.value).toEqual(numValue)
+			expect(JSON.stringify({ value: validatedNum.value })).toBe('{}')
+		}
+
+		const nullValue = null
+		const validatedNull = v.validate(v.jsonRedacted(v.null()), nullValue)
+		expect(validatedNull.valid).toBe(true)
+		if (validatedNull.valid) {
+			expect(validatedNull.value.value).toBe(nullValue)
+			expect(JSON.stringify({ value: validatedNull.value })).toBe('{}')
+		}
+	})
+
 	test('lazy', () => {
 		const rules = v.lazy(() => v.number().pipe(v.gt(5)))
 		expect(v.validate(rules, '').valid).toBe(false)

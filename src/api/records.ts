@@ -1,5 +1,5 @@
 import { PipeInput, PipeOutput, type Pipe } from './base'
-import { context, standard, schema, compileNested } from './base/pipes'
+import { compileNested, context, schema, standard } from './base/pipes'
 import { getRandomValue } from '../utils/functions'
 
 type ObjectPipe<T extends Record<string, Pipe<any, any>>> = Pipe<{ [K in keyof T]: PipeInput<T[K]> }, { [K in keyof T]: PipeOutput<T[K]> }>
@@ -35,9 +35,13 @@ export const object = <T extends Record<string, Pipe<any, any>>>(branches: T) =>
 	standard<PipeInput<ObjectPipe<T>>, PipeOutput<ObjectPipe<T>>>(objCompile(branches), {
 		schema: () => ({
 			type: 'object',
-			properties: Object.fromEntries(Object.entries(branches ?? {}).map(([key, pipe]) => [key, schema(pipe)])),
+			properties: Object.fromEntries(
+				Object.entries(branches ?? {})
+					.filter(([_, pipe]) => !context(pipe).jsonRedacted)
+					.map(([key, pipe]) => [key, schema(pipe)]),
+			),
 			required: Object.entries(branches ?? {})
-				.filter(([, pipe]) => !context(pipe).optional)
+				.filter(([, pipe]) => !context(pipe).optional && !context(pipe).jsonRedacted)
 				.map(([key]) => key),
 			additionalProperties: false,
 		}),

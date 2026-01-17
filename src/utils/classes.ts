@@ -1,7 +1,7 @@
 import util from 'node:util'
 
 import { wrapInTryCatch } from './functions'
-import { DeepOmit, IsType, JSONValueOf } from './types'
+import { JSONValueOf } from './types'
 
 if (util?.inspect?.defaultOptions) {
 	util.inspect.defaultOptions.depth = Number.MAX_SAFE_INTEGER
@@ -15,8 +15,6 @@ type Accessor<Keys extends object> = {
 	get: <Key extends keyof Keys>(key: Key, keysObj: Keys) => Keys[Key]
 	set: <Key extends keyof Keys>(key: Key, value: Keys[Key], keysObj: Keys) => void
 }
-
-type JSONOf<K, I> = JSONValueOf<IsType<K, any> extends true ? Record<string, any> : DeepOmit<K, I>>
 
 function WrapWithProperties(): { new <Keys extends Record<string, unknown>>(): Keys } {
 	return class {
@@ -32,9 +30,7 @@ function WrapWithProperties(): { new <Keys extends Record<string, unknown>>(): K
 // @ts-expect-error invalid extends
 class __Root<Keys extends object> extends WrapWithProperties()<Keys> {}
 
-export class DataClass<Keys extends object, Ignored extends string = never> extends __Root<Keys> {
-	public __ignoreInJSON: ReadonlyArray<Ignored> = []
-
+export class DataClass<Keys extends object> extends __Root<Keys> {
 	constructor(
 		keys: Keys,
 		access: Accessor<Keys> = {
@@ -48,7 +44,7 @@ export class DataClass<Keys extends object, Ignored extends string = never> exte
 		Object.keys(keys).forEach((key) => {
 			Object.defineProperty(this, key, {
 				get: () => access.get(key as keyof Keys, keys),
-				set: (value: any) => {
+				set: (value) => {
 					access.set(key as keyof Keys, value, keys)
 				},
 				enumerable: true,
@@ -57,27 +53,17 @@ export class DataClass<Keys extends object, Ignored extends string = never> exte
 		})
 	}
 
-	toJSON(includeIgnored = false): JSONOf<Keys, Ignored> {
+	toJSON(): JSONValueOf<Keys> {
 		const json: Record<string, any> = {}
 		Object.keys(this).forEach((key) => {
 			const value = this[key]
 			if (typeof value === 'function' || value === undefined) return
-			json[key] = (value as any)?.toJSON?.(includeIgnored) ?? wrapInTryCatch(() => structuredClone(value), value)
+			json[key] =  wrapInTryCatch(() => (value as any)?.toJSON?.() ?? structuredClone(value), value)
 		})
-		const keysToDelete = ['__ignoreInJSON'].concat(...(includeIgnored !== true ? this.__ignoreInJSON : []))
-		keysToDelete.forEach((k: string) => deleteKeyFromObject(json, k.split('.')))
 		return json as any
 	}
 
-	toString(includeIgnored = false) {
-		return JSON.stringify(this.toJSON(includeIgnored))
+	toString() {
+		return JSON.stringify(this.toJSON())
 	}
-}
-
-function deleteKeyFromObject(obj: Record<string, any>, keys: string[]) {
-	if (obj === undefined || obj === null) return
-	const isArray = Array.isArray(obj)
-	if (keys.length === 1 && !isArray) return delete obj[keys[0]]
-	if (isArray) return obj.map((v) => deleteKeyFromObject(v, keys))
-	return deleteKeyFromObject(obj[keys[0]], keys.slice(1))
 }
