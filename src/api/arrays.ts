@@ -1,4 +1,4 @@
-import { PipeInput, type Pipe, type PipeOutput } from './base'
+import type { PipeInput, Pipe, PipeOutput } from './base'
 import { standard, schema, compileNested } from './base/pipes'
 import { getRandomValue } from '../utils/functions'
 

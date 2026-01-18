@@ -1,7 +1,7 @@
 import util from 'node:util'
 
 import { wrapInTryCatch } from './functions'
-import { JSONValueOf } from './types'
+import type { JSONValueOf } from './types'
 
 if (util?.inspect?.defaultOptions) {
 	util.inspect.defaultOptions.depth = Number.MAX_SAFE_INTEGER

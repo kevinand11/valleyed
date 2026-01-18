@@ -1,4 +1,4 @@
-import { Pipe } from './base'
+import type { Pipe } from './base'
 import { compileNested, context, schema, standard } from './base/pipes'
 import { capitalize, getRandomValue, stripHTML, trimToLength } from '../utils/functions'
 import { emailRegex, urlRegex } from '../utils/regexes'

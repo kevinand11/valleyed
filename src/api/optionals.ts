@@ -1,6 +1,6 @@
-import { Pipe, PipeInput, PipeOutput } from './base'
+import type { Pipe, PipeInput, PipeOutput } from './base'
 import { standard, compileNested, context, schema } from './base/pipes'
-import { DeepPartial } from '../utils/types'
+import type { DeepPartial } from '../utils/types'
 
 const partial = <T extends Pipe<any, any>, P>(
 	branch: T,

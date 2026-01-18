@@ -1,4 +1,4 @@
-import { Pipe, PipeInput, PipeOutput } from './base'
+import type { Pipe, PipeInput, PipeOutput } from './base'
 import { merge as differMerge } from '../utils/differ'
 import { getRandomValue, wrapInTryCatch } from '../utils/functions'
 import { JSONRedacted } from '../utils/types'

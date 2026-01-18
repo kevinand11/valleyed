@@ -1,4 +1,4 @@
-import { PipeErrorHandler } from './types'
+import type { PipeErrorHandler } from './types'
 
 type PipeErrorMessage = { message: string; path?: string; value: unknown }
 
