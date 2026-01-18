@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.18](https://github.com/kevinand11/valleyed/compare/v4.5.17...v4.5.18) (2026-01-18)
+
+
+### Features
+
+* add BSONValueOf ([6b658d7](https://github.com/kevinand11/valleyed/commit/6b658d7e503b5e3bed8ecc5b5f04592dcd545177))
+* jsonRedacted pipe ([ee3051e](https://github.com/kevinand11/valleyed/commit/ee3051ea5135c8dad628ec067f786c5482fa86b2))
+
+
+### Bug Fixes
+
+* avoid nesting of JSONRedacted ([21ed5f4](https://github.com/kevinand11/valleyed/commit/21ed5f40369758ea7133a85ad031ba7cf8e4c993))
+
 ### [4.5.17](https://github.com/kevinand11/valleyed/compare/v4.5.16...v4.5.17) (2025-08-12)
 
 
