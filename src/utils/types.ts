@@ -30,7 +30,7 @@ export class JSONRedacted<T> {
 	valueOf() {
 		return this.value
 	}
-	toBSON () {
+	toBSON() {
 		return this.value
 	}
 	toJSON() {
@@ -41,29 +41,31 @@ export class JSONRedacted<T> {
 	}
 }
 
-export type JSONPrimitives = string | number | boolean | null
-export type JSONValue = JSONPrimitives | JSONValue[] | { [k: string]: JSONValue }
-export type JSONValueOf<T> = Prettify<
+type Format<T, Primitives, FactoryKey extends PropertyKey> = Prettify<
 	IsAny<T> extends true
 		? any
-		: T extends JSONPrimitives
+		: T extends Primitives
 			? T
 			: IsInUnion<T, undefined> extends true
-				? JSONValueOf<Exclude<T, undefined>> | undefined
+				? Format<Exclude<T, undefined>, Primitives, FactoryKey> | undefined
 				: T extends Array<infer U>
-					? JSONValueOf<U>[]
-					: T extends { toJSON: (...args: any[]) => any }
-						? ReturnType<T['toJSON']>
+					? Format<U, Primitives, FactoryKey>[]
+					: T extends Record<FactoryKey, (...args: any[]) => any>
+						? Format<ReturnType<T[FactoryKey]>, Primitives, FactoryKey>
 						: T extends Function
 							? never
 							: T extends object
 								? ConditionalObjectKeys<{
-										[K in keyof T as IsInTypeList<JSONValueOf<T[K]>, [never, undefined]> extends true
+										[K in keyof T as IsInTypeList<Format<T[K], Primitives, FactoryKey>, [never, undefined]> extends true
 											? never
-											: K]: JSONValueOf<T[K]>
+											: K]: Format<T[K], Primitives, FactoryKey>
 									}>
 								: never
 >
+
+type JSONPrimitives = string | number | boolean | null
+export type JSONValueOf<T> = Format<T, JSONPrimitives, 'toJSON'>
+export type BSONValueOf<T> = Format<T, JSONPrimitives, 'toBSON'>
 
 export type Prettify<T> =
 	T extends Array<infer I>
