@@ -26,7 +26,7 @@ export type ConditionalObjectKeys<T> =
 			: T
 
 export class JSONRedacted<T> {
-	private constructor(public value: T) {}
+	private constructor (public value: T) {}
 	valueOf() {
 		return this.value
 	}
@@ -36,7 +36,8 @@ export class JSONRedacted<T> {
 	toJSON() {
 		return undefined as never
 	}
-	static from<T>(value: T) {
+	static from<T> (value: T | JSONRedacted<T>) {
+		if (value instanceof JSONRedacted) return value
 		return new JSONRedacted(value)
 	}
 }

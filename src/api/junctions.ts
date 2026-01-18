@@ -104,9 +104,14 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 	)
 }
 
+type JSONRedactable<T> = T extends JSONRedacted<infer U> ? U : T
+
 export const jsonRedacted = <T extends Pipe<any, any>>(branch: T) =>
-	standard<PipeInput<T>, JSONRedacted<PipeOutput<T>>>(
-		({ input, context }, opts) => [...compileNested({ pipe: branch, input, opts }), `${input} = ${context}.JSONRedacted.from(${input})`],
+	standard<PipeInput<T>, JSONRedacted<JSONRedactable<PipeOutput<T>>>>(
+		({ input, context }, opts) => [
+			...compileNested({ pipe: branch, input, opts }),
+			`${input} = ${context}.JSONRedacted.from(${input})`,
+		],
 		{
 			schema: () => ({}),
 			context: { ...context(branch), jsonRedacted: true, JSONRedacted },
