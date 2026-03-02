@@ -1,14 +1,18 @@
 import { createErrorHandler, PipeError } from './errors'
-import type { Context, JsonSchemaBuilder, PipeMeta, Pipe, Entry, PipeOutput, PipeFn, PipeCompiledFn, PipeErrorHandler } from './types'
+import type { Context, Entry, JsonSchemaBuilder, Pipe, PipeCompiledFn, PipeErrorHandler, PipeFn, PipeMeta, PipeOutput } from './types'
 import { getRandomValue } from '../../utils/functions'
 import type { JsonSchema } from '../../utils/types'
 
 export function walk<T>(pipe: Pipe<any, any>, init: T, nodeFn: (cur: Pipe<any, any>, acc: T) => T) {
 	let acc: T = init
+	const pipes: Pipe<any, any>[] = [pipe]
 	while (pipe) {
-		acc = nodeFn(pipe, acc)
-		pipe = pipe.next!
+		const prev = pipe.prev
+		if (!prev) break
+		pipes.push(prev)
+		pipe = prev
 	}
+	for (const pipe of pipes.reverse()) acc = nodeFn(pipe, acc)
 	return acc
 }
 
@@ -77,13 +81,13 @@ export function standard<I, O>(
 		schema: (context: Context) => config.schema?.(context) ?? ({} as any),
 		pipe: (...entries: Entry<any, any>[]) => {
 			delete piper.__compiled
+			let pipe = piper
 			for (const cur of entries) {
 				const p = typeof cur === 'function' ? define(cur, config) : cur
-				if (!piper.next) piper.next = p
-				if (piper.last) piper.last.next = p
-				piper.last = p.last ?? p
+				p.prev = pipe
+				pipe = p
 			}
-			return piper
+			return pipe
 		},
 		compile,
 		'~standard': {

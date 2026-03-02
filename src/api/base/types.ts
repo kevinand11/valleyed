@@ -86,7 +86,6 @@ export interface Pipe<I, O> extends StandardSchemaV1<I, O> {
 		names: { input: string; context: string; path: string },
 		opts: { rootContext: Context; failEarly: boolean; path: string; wrapError: PipeErrorHandler },
 	) => Arrayable<string | ReturnType<PipeErrorHandler>>
-	next?: Pipe<any, any>
-	last?: Pipe<any, any>
+	prev?: Pipe<any, any>
 	__compiled?: PipeCompiledFn<any>
 }
