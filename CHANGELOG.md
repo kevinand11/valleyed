@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.19](https://github.com/kevinand11/valleyed/compare/v4.5.18...v4.5.19) (2026-03-02)
+
+
+### Bug Fixes
+
+* pipe.pipe returns first pipe instead of new pipe ([43ab3f9](https://github.com/kevinand11/valleyed/commit/43ab3f9f907e5e54fe4acb800d4b3394b0e8c6e4))
+
 ### [4.5.18](https://github.com/kevinand11/valleyed/compare/v4.5.17...v4.5.18) (2026-01-18)
 
 
