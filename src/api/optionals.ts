@@ -1,6 +1,6 @@
-import type { Pipe, PipeInput, PipeOutput } from './base'
-import { standard, compileNested, context, schema } from './base/pipes'
 import type { DeepPartial } from '../utils/types'
+import type { Pipe, PipeInput, PipeOutput } from './base'
+import { compileNested, context, schema, standard } from './base/pipes'
 
 const partial = <T extends Pipe<any, any>, P>(
 	branch: T,
@@ -27,6 +27,7 @@ export const nullable = <T extends Pipe<any, any>>(branch: T) =>
 export const optional = <T extends Pipe<any, any>>(branch: T) =>
 	partial<T, undefined>(branch, (i) => i === undefined, {
 		context: { optional: true },
+		schema: () => schema(branch),
 	})
 
 export const nullish = <T extends Pipe<any, any>>(branch: T) =>
