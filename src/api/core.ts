@@ -41,7 +41,7 @@ export const ne = <T>(compare: T, err?: string) =>
 		},
 	)
 
-const inArray = <T>(array: Readonly<T[]>, err?: string) =>
+const inArray = <const T>(array: T[], err?: string) =>
 	standard<T, T>(
 		({ input, context, path }, opts) =>
 			opts.wrapError(
