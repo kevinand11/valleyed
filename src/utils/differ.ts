@@ -1,23 +1,7 @@
-const type = {
-	string: (v: unknown): v is string => v?.constructor?.name === 'String',
-	regex: (v: unknown): v is RegExp => v?.constructor?.name === 'RegExp',
-	symbol: (v: unknown): v is Symbol => v?.constructor?.name === 'Symbol',
-	function: (v: unknown): v is Function => v?.constructor?.name === 'Function',
-	bigint: (v: unknown): v is BigInt => v?.constructor?.name === 'BigInt',
-	number: (v: unknown): v is number => v?.constructor?.name === 'Number' && !Number.isNaN(v),
-	nan: (v: unknown): v is number => Number.isNaN(v),
-	null: (v: unknown): v is null => v === null,
-	undefined: (v: unknown): v is undefined => v === undefined,
-	boolean: (v: unknown): v is boolean => v?.constructor?.name === 'Boolean',
-	array: (v: unknown): v is unknown[] => Array.isArray(v),
-	date: (v: unknown): v is Date => v?.constructor?.name === 'Date' && v instanceof Date && !Number.isNaN(v.getTime()),
-	set: (value: unknown): value is Set<unknown> => value?.constructor?.name === 'Set',
-	object: (value: unknown): value is object => value?.constructor?.name === 'Object',
-	map: (value: unknown): value is Map<unknown, unknown> => value?.constructor?.name === 'Map',
-}
+import { isType } from './isType'
 
 function getDiff(val1: any, val2: any, parent?: string) {
-	if (!type.object(val1) || !type.object(val2)) return []
+	if (!isType.object(val1) || !isType.object(val2)) return []
 	const keys = [...new Set(Object.keys(val1).concat(Object.keys(val2)))]
 	const diff: string[] = []
 	for (const key of keys) {
@@ -28,7 +12,7 @@ function getDiff(val1: any, val2: any, parent?: string) {
 		}
 		const obj1 = val1[key]
 		const obj2 = val2[key]
-		if (type.object(obj1) && type.object(obj2)) diff.push(...getDiff(obj1, obj2, parentKey))
+		if (isType.object(obj1) && isType.object(obj2)) diff.push(...getDiff(obj1, obj2, parentKey))
 		else if (!equal(obj1, obj2)) diff.push(parentKey)
 	}
 	return diff
@@ -37,33 +21,33 @@ function getDiff(val1: any, val2: any, parent?: string) {
 export function equal(v1: unknown, v2: unknown): boolean {
 	if (v1 === v2) return true
 
-	if (type.string(v1)) return v1 === v2
-	if (type.number(v1)) return v1 === v2
-	if (type.bigint(v1)) return v1 === v2
-	if (type.boolean(v1)) return v1 === v2
-	if (type.null(v1)) return v1 === v2
-	if (type.undefined(v1)) return v1 === v2
-	if (type.function(v1)) return v1 === v2
+	if (isType.string(v1)) return v1 === v2
+	if (isType.number(v1)) return v1 === v2
+	if (isType.bigint(v1)) return v1 === v2
+	if (isType.boolean(v1)) return v1 === v2
+	if (isType.null(v1)) return v1 === v2
+	if (isType.undefined(v1)) return v1 === v2
+	if (isType.function(v1)) return v1 === v2
 
-	if (type.regex(v1)) return type.regex(v2) && v1.source === v2.source
-	if (type.nan(v1)) return type.nan(v2)
-	if (type.date(v1)) return type.date(v2) && v1.getTime() === v2.getTime()
+	if (isType.regex(v1)) return isType.regex(v2) && v1.source === v2.source
+	if (isType.nan(v1)) return isType.nan(v2)
+	if (isType.date(v1)) return isType.date(v2) && v1.getTime() === v2.getTime()
 
 	const [val1, val2] = [v1, v2].map((v) => {
-		if (type.map(v)) return Object.fromEntries(v.entries())
-		if (type.set(v)) return [...v]
+		if (isType.map(v)) return Object.fromEntries(v.entries())
+		if (isType.set(v)) return [...v]
 		return v
 	})
 
 	if (val1 === val2) return true
 
-	if (type.array(val1)) {
-		if (!type.array(val2)) return false
+	if (isType.array(val1)) {
+		if (!isType.array(val2)) return false
 		if (val1.length !== val2.length) return false
 		return val1.every((c, i) => equal(c, val2.at(i)))
 	}
 
-	if (type.object(val1) && type.object(val2)) {
+	if (isType.object(val1) && isType.object(val2)) {
 		const keys1 = Object.keys(val1 ?? {})
 		const keys2 = Object.keys(val2 ?? {})
 		if (keys1.length !== keys2.length) return false
@@ -82,7 +66,7 @@ export function from(keys: string[]) {
 	const deepMerge = (from: object, to: object) =>
 		Object.entries(from ?? {}).reduce(
 			(merged, [key, obj]) => {
-				merged[key] = type.object(obj) ? deepMerge(obj, merged[key] ?? {}) : obj
+				merged[key] = isType.object(obj) ? deepMerge(obj, merged[key] ?? {}) : obj
 				return merged
 			},
 			{ ...to },
@@ -98,12 +82,12 @@ export function from(keys: string[]) {
 }
 
 export function merge(v1: unknown, v2: unknown) {
-	if (type.undefined(v1)) return v2
-	if (type.undefined(v2)) return v1
-	if (type.array(v1) && type.array(v2)) {
+	if (isType.undefined(v1)) return v2
+	if (isType.undefined(v2)) return v1
+	if (isType.array(v1) && isType.array(v2)) {
 		return Array.from({ length: Math.max(v1.length, v2.length) }, (_, i) => merge(v1[i], v2[i]))
 	}
-	if (type.object(v1) && type.object(v2)) {
+	if (isType.object(v1) && isType.object(v2)) {
 		const keys = new Set([...Object.keys(v1), ...Object.keys(v2)])
 		return Array.from(keys).reduce(
 			(acc, key) => {

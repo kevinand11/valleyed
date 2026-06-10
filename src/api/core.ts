@@ -13,7 +13,7 @@ export const custom = <T>(condition: (input: T) => boolean, err = `doesn't pass 
 		},
 	)
 
-export const eq = <T>(compare: T, err?: string) =>
+export const eq = <const T>(compare: T, err?: string) =>
 	standard<T, T>(
 		({ input, context, path }, opts) =>
 			opts.wrapError(

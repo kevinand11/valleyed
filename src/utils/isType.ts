@@ -1,0 +1,17 @@
+export const isType = {
+	string: (v: unknown): v is string => v?.constructor?.name === 'String',
+	regex: (v: unknown): v is RegExp => v?.constructor?.name === 'RegExp',
+	symbol: (v: unknown): v is Symbol => v?.constructor?.name === 'Symbol',
+	function: (v: unknown): v is Function => v?.constructor?.name === 'Function',
+	bigint: (v: unknown): v is BigInt => v?.constructor?.name === 'BigInt',
+	number: (v: unknown): v is number => v?.constructor?.name === 'Number' && !Number.isNaN(v),
+	nan: (v: unknown): v is number => Number.isNaN(v),
+	null: (v: unknown): v is null => v === null,
+	undefined: (v: unknown): v is undefined => v === undefined,
+	boolean: (v: unknown): v is boolean => v?.constructor?.name === 'Boolean',
+	array: (v: unknown): v is unknown[] => Array.isArray(v),
+	date: (v: unknown): v is Date => v?.constructor?.name === 'Date' && v instanceof Date && !Number.isNaN(v.getTime()),
+	set: (value: unknown): value is Set<unknown> => value?.constructor?.name === 'Set',
+	object: (value: unknown): value is object => value?.constructor?.name === 'Object',
+	map: (value: unknown): value is Map<unknown, unknown> => value?.constructor?.name === 'Map',
+}
