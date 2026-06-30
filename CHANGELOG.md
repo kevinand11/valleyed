@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.5.23](https://github.com/kevinand11/valleyed/compare/v4.5.22...v4.5.23) (2026-06-30)
+
+
+### Bug Fixes
+
+* try json parse for fromJSON if input is string ([5c2b64d](https://github.com/kevinand11/valleyed/commit/5c2b64d0e252f10b2d6b1f5af21fecc90ed8dd6c))
+
 ### [4.5.22](https://github.com/kevinand11/valleyed/compare/v4.5.21...v4.5.22) (2026-06-10)
 
 
