@@ -53,7 +53,10 @@ describe('junctions', () => {
 		const rules = v.fromJson(v.number())
 		expect(v.validate(rules, 'and').valid).toBe(false)
 		expect(v.validate(rules, '"1"').valid).toBe(false)
-		expect(v.validate(rules, '1').valid).toBe(true)
+		expect(v.validate(rules, '1')).toEqual({ value: 1, valid: true })
+		expect(v.validate(rules, 1)).toEqual({ value: 1, valid: true })
+		expect(v.validate(v.fromJson(v.nullable(v.string())), 'null')).toEqual({ value: null, valid: true })
+		expect(v.validate(v.fromJson(v.nullable(v.string())), '"null"')).toEqual({ value: 'null', valid: true })
 	})
 
 	test('jsonRedacted', () => {

@@ -87,14 +87,8 @@ export const fromJson = <T extends Pipe<any, any>>(branch: T) => {
 	return standard<PipeInput<T>, PipeOutput<T>>(
 		({ input, context }, opts) => [
 			`let ${validatedVarname} = ${input}`,
+			`if (${validatedVarname}?.constructor?.name === 'String') ${validatedVarname} = ${context}.wrapInTryCatch(() => JSON.parse(${input}), ${validatedVarname})`,
 			...compileNested({ opts, pipe: branch, input: validatedVarname, errorType: 'assign' }),
-			`if (${validatedVarname} instanceof PipeError) {`,
-			opts.wrapError(`${input}?.constructor?.name !== 'String'`, validatedVarname),
-			`	${validatedVarname} = ${context}.wrapInTryCatch(() => JSON.parse(${input}), ${validatedVarname})`,
-			opts.wrapError(`${validatedVarname} instanceof PipeError`, validatedVarname),
-			...compileNested({ opts, pipe: branch, input: validatedVarname, errorType: 'assign' }).map((l) => `	${l}`),
-			opts.wrapError(`${validatedVarname} instanceof PipeError`, validatedVarname),
-			`}`,
 			`${input} = ${validatedVarname}`,
 		],
 		{
